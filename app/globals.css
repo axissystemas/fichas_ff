@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply min-h-screen transition-colors duration-300;
+  }
+}
+
+.theme-papyrus {
+  @apply bg-[#16110F] text-[#2D1D16];
+}
+
+.theme-papyrus-card {
+  @apply bg-[#EAD8B8] border-[#C5A059] shadow-2xl;
+}
+
+.theme-night {
+  @apply bg-[#0f172a] text-[#cbd5e0];
+}
+
+.theme-night-card {
+  @apply bg-[#1a202c] border-[#4a5568] shadow-2xl;
+}

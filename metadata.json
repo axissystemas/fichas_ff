@@ -1,0 +1,6 @@
+{
+  "name": "Ficha de Aventura",
+  "description": "Companion digital premium para Fighting Fantasy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
