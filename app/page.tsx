@@ -10,6 +10,7 @@ import { InventoryManager } from '@/components/InventoryManager';
 import { GoldAndProvisions } from '@/components/GoldAndProvisions';
 import { MonsterManager } from '@/components/MonsterManager';
 import { SyncStatus } from '@/components/SyncStatus';
+import { AuthStatus } from '@/components/AuthStatus';
 import { useSheetStore } from '@/store/useSheetStore';
 import { Sun, Moon, RotateCcw, Upload, Download, Loader2 } from 'lucide-react';
 
@@ -102,6 +103,7 @@ export default function Home() {
                 Digital Premium Companion
               </p>
               <SyncStatus />
+              <AuthStatus />
             </div>
           </div>
 
