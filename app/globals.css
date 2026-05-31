@@ -21,3 +21,25 @@
 .theme-night-card {
   @apply bg-[#1a202c] border-[#4a5568] shadow-2xl;
 }
+
+/* Altura do Safe Area para iPhones e celulares modernos */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
