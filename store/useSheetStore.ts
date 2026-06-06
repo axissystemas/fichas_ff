@@ -169,7 +169,7 @@ export const useSheetStore = create<SheetState>()(
           set({ sheetsList: data || [], syncStatus: 'idle' });
         } catch (err) {
           console.error('[Supabase] loadSheetsList error:', err);
-          set({ syncStatus: 'error', sheetsList: [] });
+          set({ syncStatus: 'idle', sheetsList: [] });
         }
       },
 

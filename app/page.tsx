@@ -237,8 +237,39 @@ function SheetDashboard() {
 
 export default function Home() {
   const {
-    theme, setTheme, resetSheet, syncStatus, user, activeSheetId, setActiveSheetId,
+    theme,
+    setTheme,
+    resetSheet,
+    syncStatus,
+    user,
+    activeSheetId,
+    setActiveSheetId,
+    sheetsList,
+    setUser,
+    loadSheetsList,
+    clearLocalState,
   } = useSheetStore();
+
+  // Load user session on initial render (AuthStatus also handles it)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const activeUser = session?.user ?? null;
+      if (activeUser) {
+        setUser({
+          id: activeUser.id,
+          email: activeUser.email,
+          user_metadata: activeUser.user_metadata,
+        });
+        loadSheetsList();
+      } else {
+        clearLocalState();
+      }
+    });
+  }, []);
+
+  const isLoading = syncStatus === 'loading' && (!sheetsList?.length || !activeSheetId);
+
+
 
   // Export current sheet as JSON
   const handleExport = () => {
@@ -303,7 +334,7 @@ export default function Home() {
   };
 
   const isPapyrus = theme === 'papyrus';
-  const isLoading = syncStatus === 'loading' && !activeSheetId;
+  const isLoading = syncStatus === 'loading';
 
   // Which view to render in the content area
   const showLogin = !user;
