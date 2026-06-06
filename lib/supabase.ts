@@ -8,7 +8,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 // Database types
 export interface DbSheet {
   id: string;
-  session_id: string;
+  user_id: string;
+  title: string;
   attributes: {
     skill: { initial: number; current: number };
     energy: { initial: number; current: number };

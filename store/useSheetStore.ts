@@ -25,6 +25,12 @@ export interface Monster {
   status: 'alive' | 'defeated';
 }
 
+export interface AuthUser {
+  id: string;
+  email?: string;
+  user_metadata?: { avatar_url?: string; full_name?: string };
+}
+
 type SyncStatus = 'idle' | 'saving' | 'saved' | 'error' | 'loading';
 
 interface SheetState {
@@ -43,12 +49,17 @@ interface SheetState {
   combatLog: { type: string; value: string }[];
   activeTab: string;
 
-  // Supabase sync
-  sessionId: string;
+  // Supabase sync, list, and user state
+  user: AuthUser | null;
+  activeSheetId: string | null;
+  sheetsList: Array<{ id: string; title: string; updated_at: string }>;
   syncStatus: SyncStatus;
   lastSynced: string | null;
 
   // Actions
+  setUser: (user: AuthUser | null) => void;
+  clearLocalState: () => void;
+  setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
   setAttribute: (key: 'skill' | 'energy' | 'luck', value: number, isInitial: boolean) => void;
   updateGold: (amount: number) => void;
@@ -67,28 +78,21 @@ interface SheetState {
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
-  loadFromSupabase: () => Promise<void>;
+  loadSheetsList: () => Promise<void>;
+  loadSheet: (id: string) => Promise<void>;
+  createSheet: (title: string) => Promise<void>;
+  renameSheet: (id: string, newTitle: string) => Promise<void>;
+  deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Generates or retrieves a stable anonymous session ID */
-function getOrCreateSessionId(): string {
-  if (typeof window === 'undefined') return 'ssr';
-  const key = 'adventure-session-id';
-  let id = localStorage.getItem(key);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(key, id);
-  }
-  return id;
-}
-
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 /** Debounce saves so rapid state changes don't flood Supabase */
 function scheduleSave(store: SheetState) {
+  if (!store.user || !store.activeSheetId) return; // Do not save if not logged in or no active sheet
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     store.saveToSupabase();
@@ -118,27 +122,74 @@ export const useSheetStore = create<SheetState>()(
       theme: 'papyrus',
       combatLog: [],
       activeTab: 'Ficha',
-      sessionId: getOrCreateSessionId(),
+      user: null,
+      activeSheetId: null,
+      sheetsList: [],
       syncStatus: 'idle',
       lastSynced: null,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
 
-      loadFromSupabase: async () => {
-        const sessionId = get().sessionId;
+      setUser: (user) => set({ user }),
+
+      clearLocalState: () => {
+        set({
+          attributes: defaultAttributes,
+          gold: 125,
+          provisions: 7,
+          inventory: [],
+          monsters: [],
+          notes: '',
+          combatLog: [],
+          activeTab: 'Ficha',
+          user: null,
+          activeSheetId: null,
+          sheetsList: [],
+          syncStatus: 'idle',
+          lastSynced: null,
+        });
+      },
+
+      setActiveSheetId: (activeSheetId) => set({ activeSheetId }),
+
+      loadSheetsList: async () => {
+        const user = get().user;
+        if (!user) return;
+        set({ syncStatus: 'loading' });
+        try {
+          const { data, error } = await supabase
+            .from('adventure_sheets')
+            .select('id, title, updated_at')
+            .eq('user_id', user.id)
+            .order('updated_at', { ascending: false });
+
+          if (error) throw error;
+
+          set({ sheetsList: data || [], syncStatus: 'idle' });
+        } catch (err) {
+          console.error('[Supabase] loadSheetsList error:', err);
+          set({ syncStatus: 'error', sheetsList: [] });
+        }
+      },
+
+      loadSheet: async (id: string) => {
+        const user = get().user;
+        if (!user) return;
         set({ syncStatus: 'loading' });
         try {
           const { data, error } = await supabase
             .from('adventure_sheets')
             .select('*')
-            .eq('session_id', sessionId)
-            .maybeSingle();
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .single();
 
           if (error) throw error;
 
           if (data) {
             set({
+              activeSheetId: data.id,
               attributes: data.attributes,
               gold: data.gold,
               provisions: data.provisions,
@@ -150,23 +201,119 @@ export const useSheetStore = create<SheetState>()(
               syncStatus: 'saved',
               lastSynced: new Date().toISOString(),
             });
-          } else {
-            // No existing sheet — save the current defaults to Supabase
-            set({ syncStatus: 'idle' });
-            await get().saveToSupabase();
           }
         } catch (err) {
-          console.error('[Supabase] loadFromSupabase error:', err);
+          console.error('[Supabase] loadSheet error:', err);
           set({ syncStatus: 'error' });
+        }
+      },
+
+      createSheet: async (title: string) => {
+        const user = get().user;
+        if (!user) return;
+        set({ syncStatus: 'saving' });
+        try {
+          const newSheetId = crypto.randomUUID();
+          const payload = {
+            id: newSheetId,
+            user_id: user.id,
+            title: title || 'Nova Ficha',
+            attributes: defaultAttributes,
+            gold: 125,
+            provisions: 7,
+            inventory: [],
+            monsters: [],
+            notes: '',
+            theme: get().theme,
+            combat_log: [],
+          };
+
+          const { error } = await supabase
+            .from('adventure_sheets')
+            .insert(payload);
+
+          if (error) throw error;
+
+          set((state) => ({
+            sheetsList: [
+              { id: newSheetId, title: payload.title, updated_at: new Date().toISOString() },
+              ...state.sheetsList,
+            ],
+            activeSheetId: newSheetId,
+            attributes: defaultAttributes,
+            gold: 125,
+            provisions: 7,
+            inventory: [],
+            monsters: [],
+            notes: '',
+            combatLog: [],
+            syncStatus: 'saved',
+            lastSynced: new Date().toISOString(),
+          }));
+
+          setTimeout(() => {
+            if (get().syncStatus === 'saved') set({ syncStatus: 'idle' });
+          }, 2000);
+        } catch (err) {
+          console.error('[Supabase] createSheet error:', err);
+          set({ syncStatus: 'error' });
+        }
+      },
+
+      renameSheet: async (id: string, newTitle: string) => {
+        const user = get().user;
+        if (!user) return;
+        try {
+          const { error } = await supabase
+            .from('adventure_sheets')
+            .update({ title: newTitle })
+            .eq('id', id)
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+
+          set((state) => ({
+            sheetsList: state.sheetsList.map((s) =>
+              s.id === id ? { ...s, title: newTitle } : s
+            ),
+          }));
+        } catch (err) {
+          console.error('[Supabase] renameSheet error:', err);
+        }
+      },
+
+      deleteSheet: async (id: string) => {
+        const user = get().user;
+        if (!user) return;
+        try {
+          const { error } = await supabase
+            .from('adventure_sheets')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+
+          set((state) => ({
+            sheetsList: state.sheetsList.filter((s) => s.id !== id),
+            activeSheetId: state.activeSheetId === id ? null : state.activeSheetId,
+          }));
+        } catch (err) {
+          console.error('[Supabase] deleteSheet error:', err);
         }
       },
 
       saveToSupabase: async () => {
         const state = get();
+        const user = state.user;
+        const activeSheetId = state.activeSheetId;
+        if (!user || !activeSheetId) return;
+        
         set({ syncStatus: 'saving' });
         try {
           const payload = {
-            session_id: state.sessionId,
+            id: activeSheetId,
+            user_id: user.id,
             attributes: state.attributes,
             gold: state.gold,
             provisions: state.provisions,
@@ -179,11 +326,18 @@ export const useSheetStore = create<SheetState>()(
 
           const { error } = await supabase
             .from('adventure_sheets')
-            .upsert(payload, { onConflict: 'session_id' });
+            .upsert(payload);
 
           if (error) throw error;
 
           set({ syncStatus: 'saved', lastSynced: new Date().toISOString() });
+
+          // Refresh locally
+          set((state) => ({
+            sheetsList: state.sheetsList.map((s) =>
+              s.id === activeSheetId ? { ...s, updated_at: new Date().toISOString() } : s
+            ),
+          }));
 
           // Reset to idle after 2s
           setTimeout(() => {
@@ -284,7 +438,8 @@ export const useSheetStore = create<SheetState>()(
 
       // ── Reset ─────────────────────────────────────────────────────────────
       resetSheet: async () => {
-        const sessionId = get().sessionId;
+        const user = get().user;
+        const activeSheetId = get().activeSheetId;
         localStorage.removeItem('adventure-sheet-storage');
         set({
           attributes: {
@@ -301,23 +456,28 @@ export const useSheetStore = create<SheetState>()(
           activeTab: 'Ficha',
         });
 
-        // Also delete from Supabase
-        try {
-          await supabase
-            .from('adventure_sheets')
-            .delete()
-            .eq('session_id', sessionId);
-        } catch (err) {
-          console.error('[Supabase] resetSheet error:', err);
+        if (user && activeSheetId) {
+          try {
+            await supabase
+              .from('adventure_sheets')
+              .delete()
+              .eq('id', activeSheetId)
+              .eq('user_id', user.id);
+            
+            // Return to selector
+            set({ activeSheetId: null });
+            await get().loadSheetsList();
+          } catch (err) {
+            console.error('[Supabase] resetSheet error:', err);
+          }
         }
       },
     }),
     {
       name: 'adventure-sheet-storage',
-      // Only persist theme and sessionId locally; everything else comes from Supabase
+      // Only persist theme locally
       partialize: (state) => ({
         theme: state.theme,
-        sessionId: state.sessionId,
       }),
     }
   )
