@@ -341,7 +341,7 @@ export default function Home() {
                 Digital Premium Companion
               </p>
               {showSheet && <SyncStatus />}
-              {user && <AuthStatus />}
+              <AuthStatus />
             </div>
           </div>
 
