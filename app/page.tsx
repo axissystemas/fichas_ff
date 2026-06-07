@@ -337,6 +337,9 @@ export default function Home() {
   const showLogin = !user;
   const showDashboard = !!user && !activeSheetId;
   const showSheet = !!user && !!activeSheetId;
+  const activeSheetTitle = activeSheetId
+    ? sheetsList.find(s => s.id === activeSheetId)?.title
+    : null;
 
   return (
     <main
@@ -368,6 +371,14 @@ export default function Home() {
               <p className="text-xs uppercase tracking-wider opacity-70 font-sans">
                 Digital Premium Companion
               </p>
+              {showSheet && activeSheetTitle && (
+                <>
+                  <span className="opacity-50">•</span>
+                  <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 rounded ${isPapyrus ? 'bg-[#5C4033]/10' : 'bg-white/10'}`}>
+                    {activeSheetTitle}
+                  </span>
+                </>
+              )}
               {showSheet && <SyncStatus />}
               <AuthStatus />
             </div>
