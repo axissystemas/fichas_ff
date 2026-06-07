@@ -363,15 +363,21 @@ export const useSheetStore = create<SheetState>()(
 
       // ── Attributes ────────────────────────────────────────────────────────
       setAttribute: (key, value, isInitial) => {
-        set((state) => ({
-          attributes: {
-            ...state.attributes,
-            [key]: {
-              ...state.attributes[key],
-              [isInitial ? 'initial' : 'current']: value,
+        set((state) => {
+          const attr = state.attributes[key];
+          // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual
+          const finalValue = !isInitial ? Math.min(value, attr.initial) : value;
+          
+          return {
+            attributes: {
+              ...state.attributes,
+              [key]: {
+                ...attr,
+                [isInitial ? 'initial' : 'current']: finalValue,
+              },
             },
-          },
-        }));
+          };
+        });
         scheduleSave(get());
       },
 
