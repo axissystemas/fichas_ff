@@ -107,6 +107,12 @@ const defaultAttributes = {
   luck: { initial: 8, current: 8 },
 };
 
+const getDefaultInventory = (): Item[] => [
+  { id: crypto.randomUUID(), name: 'Mochila', quantity: 1, equipped: true },
+  { id: crypto.randomUUID(), name: 'Espada', quantity: 1, equipped: true },
+  { id: crypto.randomUUID(), name: 'Armadura de couro', quantity: 1, equipped: true },
+];
+
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useSheetStore = create<SheetState>()(
@@ -114,9 +120,9 @@ export const useSheetStore = create<SheetState>()(
     (set, get) => ({
       // ── Initial State ──────────────────────────────────────────────────────
       attributes: defaultAttributes,
-      gold: 125,
-      provisions: 7,
-      inventory: [],
+      gold: 0,
+      provisions: 10,
+      inventory: getDefaultInventory(),
       monsters: [],
       notes: '',
       theme: 'papyrus',
@@ -136,9 +142,9 @@ export const useSheetStore = create<SheetState>()(
       clearLocalState: () => {
         set({
           attributes: defaultAttributes,
-          gold: 125,
-          provisions: 7,
-          inventory: [],
+          gold: 0,
+          provisions: 10,
+          inventory: getDefaultInventory(),
           monsters: [],
           notes: '',
           combatLog: [],
@@ -219,9 +225,9 @@ export const useSheetStore = create<SheetState>()(
             user_id: user.id,
             title: title || 'Nova Ficha',
             attributes: defaultAttributes,
-            gold: 125,
-            provisions: 7,
-            inventory: [],
+            gold: 0,
+            provisions: 10,
+            inventory: getDefaultInventory(),
             monsters: [],
             notes: '',
             theme: get().theme,
@@ -241,9 +247,9 @@ export const useSheetStore = create<SheetState>()(
             ],
             activeSheetId: newSheetId,
             attributes: defaultAttributes,
-            gold: 125,
-            provisions: 7,
-            inventory: [],
+            gold: 0,
+            provisions: 10,
+            inventory: getDefaultInventory(),
             monsters: [],
             notes: '',
             combatLog: [],
@@ -447,8 +453,8 @@ export const useSheetStore = create<SheetState>()(
             luck: { initial: 0, current: 0 },
           },
           gold: 0,
-          provisions: 0,
-          inventory: [],
+          provisions: 10,
+          inventory: getDefaultInventory(),
           monsters: [],
           notes: '',
           combatLog: [],
