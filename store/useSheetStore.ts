@@ -254,8 +254,9 @@ export const useSheetStore = create<SheetState>()(
           setTimeout(() => {
             if (get().syncStatus === 'saved') set({ syncStatus: 'idle' });
           }, 2000);
-        } catch (err) {
+        } catch (err: any) {
           console.error('[Supabase] createSheet error:', err);
+          alert('Erro ao criar ficha: ' + (err?.message || JSON.stringify(err)));
           set({ syncStatus: 'error' });
         }
       },
