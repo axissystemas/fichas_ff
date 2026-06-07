@@ -14,6 +14,7 @@ export interface DbSheet {
     skill: { initial: number; current: number };
     energy: { initial: number; current: number };
     luck: { initial: number; current: number };
+    currentSection?: string;
   };
   gold: number;
   provisions: number;

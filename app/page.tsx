@@ -11,6 +11,7 @@ import { GoldAndProvisions } from '@/components/GoldAndProvisions';
 import { MonsterManager } from '@/components/MonsterManager';
 import { SyncStatus } from '@/components/SyncStatus';
 import AuthStatus from '@/components/AuthStatus';
+import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
@@ -269,6 +270,37 @@ export default function Home() {
     });
   }, []);
 
+  // Interceptar fechamento ou recarregamento do navegador
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (activeSheetId) {
+        e.preventDefault();
+        e.returnValue = ''; // Exibe o diálogo padrão do navegador
+        return '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [activeSheetId]);
+
+  // Função para voltar ao painel solicitando confirmação do item
+  const handleBackToDashboard = async () => {
+    if (activeSheetId) {
+      const currentSection = useSheetStore.getState().attributes.currentSection || '';
+      const sectionInput = window.prompt(
+        'Antes de voltar, em qual item (número) você parou a aventura?',
+        currentSection
+      );
+      if (sectionInput === null) {
+        // Se cancelar, aborta a navegação
+        return;
+      }
+      useSheetStore.getState().setCurrentSection(sectionInput);
+      await useSheetStore.getState().saveToSupabase();
+    }
+    setActiveSheetId(null);
+  };
+
   // Export current sheet as JSON
   const handleExport = () => {
     const state = useSheetStore.getState();
@@ -364,7 +396,7 @@ export default function Home() {
             {/* Title — clicking it when in a sheet goes back to dashboard */}
             <h1
               className={`text-4xl sm:text-5xl font-bold uppercase tracking-widest ${showSheet ? 'cursor-pointer hover:opacity-80 transition' : ''}`}
-              onClick={() => showSheet && setActiveSheetId(null)}
+              onClick={() => showSheet && handleBackToDashboard()}
               title={showSheet ? 'Voltar ao painel de fichas' : undefined}
             >
               Aventuras Fantásticas
@@ -384,8 +416,8 @@ export default function Home() {
             {/* Back to Dashboard */}
             {showSheet && (
               <button
-                onClick={() => setActiveSheetId(null)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer`}
+                onClick={handleBackToDashboard}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer"
               >
                 <ArrowLeft size={12} /> Fichas
               </button>
@@ -527,6 +559,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
                 <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
+                  <CurrentSectionCard />
                   <AttributeCard label="Habilidade" attrKey="skill" />
                   <AttributeCard label="Energia" attrKey="energy" />
                   <AttributeCard label="Sorte" attrKey="luck" />

@@ -39,6 +39,7 @@ interface SheetState {
     skill: Attribute;
     energy: Attribute;
     luck: Attribute;
+    currentSection?: string;
   };
   gold: number;
   provisions: number;
@@ -74,6 +75,7 @@ interface SheetState {
   setTheme: (theme: 'papyrus' | 'night') => void;
   addCombatLog: (log: { type: string; value: string; timestamp?: string }) => void;
   setNotes: (notes: string) => void;
+  setCurrentSection: (section: string) => void;
   resetSheet: () => void;
 
   // Supabase actions
@@ -105,6 +107,7 @@ const defaultAttributes = {
   skill: { initial: 10, current: 10 },
   energy: { initial: 14, current: 14 },
   luck: { initial: 8, current: 8 },
+  currentSection: '',
 };
 
 const getDefaultInventory = (): Item[] => [
@@ -380,6 +383,15 @@ export const useSheetStore = create<SheetState>()(
         });
         scheduleSave(get());
       },
+      setCurrentSection: (section) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            currentSection: section,
+          },
+        }));
+        scheduleSave(get());
+      },
 
       // ── Gold & Provisions ─────────────────────────────────────────────────
       updateGold: (amount) => {
@@ -458,6 +470,7 @@ export const useSheetStore = create<SheetState>()(
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
             luck: { initial: 0, current: 0 },
+            currentSection: '',
           },
           gold: 0,
           provisions: 10,

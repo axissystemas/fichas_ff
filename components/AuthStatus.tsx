@@ -45,7 +45,22 @@ export const AuthStatus = () => {
   }, []);
 
   const handleLogout = async () => {
+    const currentSection = useSheetStore.getState().attributes.currentSection || '';
+    const sectionInput = window.prompt(
+      'Em qual item (número) você parou a aventura?',
+      currentSection
+    );
+    
+    if (sectionInput === null) {
+      // Cancelou o logout
+      return;
+    }
+
     setLoading(true);
+    // Atualiza o estado da store e força o salvamento síncrono no Supabase
+    useSheetStore.getState().setCurrentSection(sectionInput);
+    await useSheetStore.getState().saveToSupabase();
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Logout error:', error.message);
