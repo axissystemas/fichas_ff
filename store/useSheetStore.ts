@@ -53,7 +53,17 @@ interface SheetState {
   // Supabase sync, list, and user state
   user: AuthUser | null;
   activeSheetId: string | null;
-  sheetsList: Array<{ id: string; title: string; updated_at: string }>;
+  sheetsList: Array<{
+    id: string;
+    title: string;
+    updated_at: string;
+    attributes?: {
+      skill: Attribute;
+      energy: Attribute;
+      luck: Attribute;
+      currentSection?: string;
+    };
+  }>;
   syncStatus: SyncStatus;
   lastSynced: string | null;
 
@@ -169,7 +179,7 @@ export const useSheetStore = create<SheetState>()(
         try {
           const { data, error } = await supabase
             .from('adventure_sheets')
-            .select('id, title, updated_at')
+            .select('id, title, updated_at, attributes')
             .eq('user_id', user.id)
             .order('updated_at', { ascending: false });
 
@@ -245,7 +255,12 @@ export const useSheetStore = create<SheetState>()(
 
           set((state) => ({
             sheetsList: [
-              { id: newSheetId, title: payload.title, updated_at: new Date().toISOString() },
+              {
+                id: newSheetId,
+                title: payload.title,
+                updated_at: new Date().toISOString(),
+                attributes: defaultAttributes,
+              },
               ...state.sheetsList,
             ],
             activeSheetId: newSheetId,
@@ -347,7 +362,13 @@ export const useSheetStore = create<SheetState>()(
           // Refresh locally
           set((state) => ({
             sheetsList: state.sheetsList.map((s) =>
-              s.id === activeSheetId ? { ...s, updated_at: new Date().toISOString() } : s
+              s.id === activeSheetId
+                ? {
+                    ...s,
+                    updated_at: new Date().toISOString(),
+                    attributes: state.attributes,
+                  }
+                : s
             ),
           }));
 

@@ -16,7 +16,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
-  PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X,
+  PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
 } from 'lucide-react';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
@@ -187,6 +187,12 @@ function SheetDashboard() {
                 {/* Date */}
                 <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
                   Atualizado em {dateStr} às {timeStr}
+                </p>
+
+                {/* Parou no Item */}
+                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
+                  <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
+                  <span>Parou no Item: {sheet.attributes?.currentSection || 'Não informado'}</span>
                 </p>
 
                 {/* Actions */}
