@@ -368,16 +368,10 @@ export default function Home() {
               Aventuras Fantásticas
             </h1>
             <div className="flex items-center gap-3 mt-1">
-              <p className="text-xs uppercase tracking-wider opacity-70 font-sans">
-                Digital Premium Companion
-              </p>
               {showSheet && activeSheetTitle && (
-                <>
-                  <span className="opacity-50">•</span>
-                  <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 rounded ${isPapyrus ? 'bg-[#5C4033]/10' : 'bg-white/10'}`}>
-                    {activeSheetTitle}
-                  </span>
-                </>
+                <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 rounded ${isPapyrus ? 'bg-[#5C4033]/10' : 'bg-white/10'}`}>
+                  {activeSheetTitle}
+                </span>
               )}
               {showSheet && <SyncStatus />}
               <AuthStatus />
