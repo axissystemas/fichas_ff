@@ -11,7 +11,7 @@ import { GoldAndProvisions } from '@/components/GoldAndProvisions';
 import { MonsterManager } from '@/components/MonsterManager';
 import { SyncStatus } from '@/components/SyncStatus';
 import AuthStatus from '@/components/AuthStatus';
-import { CurrentSectionCard } from '@/components/CurrentSectionCard';
+import { CurrentSectionFloatingBar } from '@/components/CurrentSectionFloatingBar';
 import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
@@ -559,7 +559,6 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
                 <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
-                  <CurrentSectionCard />
                   <AttributeCard label="Habilidade" attrKey="skill" />
                   <AttributeCard label="Energia" attrKey="energy" />
                   <AttributeCard label="Sorte" attrKey="luck" />
@@ -616,6 +615,8 @@ export default function Home() {
                 <NotesCard />
               </section>
             </div>
+            {/* Item atual flutuante */}
+            <CurrentSectionFloatingBar />
           </div>
         )}
       </div>
