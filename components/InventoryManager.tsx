@@ -41,10 +41,10 @@ export const InventoryManager = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-5 gap-2">
-        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Item" className="col-span-3 p-2 border border-[#5C4033] bg-[#EAD8B8] text-[#2C1E14]" />
-        <input type="number" value={quantity} onChange={e => setQuantity(parseInt(e.target.value))} className="col-span-1 p-2 border border-[#5C4033] bg-[#EAD8B8] text-[#2C1E14]" />
-        <button onClick={handleAddItem} className="col-span-1 bg-[#2C1E14] text-[#EAD8B8] p-2 hover:bg-[#4A3728] transition">+</button>
+      <div className="flex flex-col sm:grid sm:grid-cols-5 gap-3">
+        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Item" className="sm:col-span-3 p-3 border border-[#5C4033] bg-[#EAD8B8] text-[#2C1E14] text-sm" />
+        <input type="number" value={quantity} onChange={e => setQuantity(parseInt(e.target.value))} className="sm:col-span-1 p-3 border border-[#5C4033] bg-[#EAD8B8] text-[#2C1E14] text-sm" />
+        <button onClick={handleAddItem} className="sm:col-span-1 bg-[#2C1E14] text-[#EAD8B8] p-3 hover:bg-[#4A3728] transition font-bold text-sm">+</button>
       </div>
     </div>
   );

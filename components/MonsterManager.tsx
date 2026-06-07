@@ -66,15 +66,15 @@ export const MonsterManager = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-2 mb-2 text-xs font-bold text-[#5C4033]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3 text-xs sm:text-sm font-bold text-[#5C4033]">
         <label className="flex flex-col">Nome
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome" className="p-2 border border-[#5C4033] bg-[#EAD8B8]" />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-sm" />
         </label>
         <label className="flex flex-col">Habilidade
-          <input type="number" value={skill} onChange={e => setSkill(parseInt(e.target.value) || 0)} placeholder="Hab" className="p-2 border border-[#5C4033] bg-[#EAD8B8]" />
+          <input type="number" value={skill} onChange={e => setSkill(parseInt(e.target.value) || 0)} placeholder="Hab" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-sm" />
         </label>
         <label className="flex flex-col">Energia
-          <input type="number" value={energy} onChange={e => setEnergy(parseInt(e.target.value) || 0)} placeholder="Energia" className="p-2 border border-[#5C4033] bg-[#EAD8B8]" />
+          <input type="number" value={energy} onChange={e => setEnergy(parseInt(e.target.value) || 0)} placeholder="Energia" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-sm" />
         </label>
       </div>
       <button onClick={handleAddMonster} className="w-full bg-[#2C1E14] text-[#EAD8B8] py-2 uppercase font-bold text-sm tracking-widest hover:bg-[#4A3728] transition">

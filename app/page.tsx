@@ -248,6 +248,8 @@ export default function Home() {
     setUser,
     loadSheetsList,
     clearLocalState,
+    activeTab,
+    setActiveTab,
   } = useSheetStore();
 
   // Load user session on initial render (AuthStatus also handles it)
@@ -504,60 +506,85 @@ export default function Home() {
 
         {/* ── Conteúdo da Ficha Ativa ── */}
         {showSheet && (
-          <div className="space-y-8 animate-fade-in">
-            {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {/* Coluna Esquerda (1/4): Habilidade, Energia, Sorte */}
-              <div className="md:col-span-1 flex flex-col gap-6">
-                <AttributeCard label="Habilidade" attrKey="skill" />
-                <AttributeCard label="Energia" attrKey="energy" />
-                <AttributeCard label="Sorte" attrKey="luck" />
+          <div className="animate-fade-in">
+            {/* ── Menu de Abas (Apenas Mobile) ── */}
+            <div className={`md:hidden flex overflow-x-auto gap-2 mb-6 pb-2 border-b ${isPapyrus ? 'border-[#5C4033]/30' : 'border-[#4a5568]/50'}`}>
+              {['Status', 'Combate', 'Inventário', 'Notas'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${
+                    activeTab === tab 
+                      ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
+                      : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-8">
+              {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
+                <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
+                  <AttributeCard label="Habilidade" attrKey="skill" />
+                  <AttributeCard label="Energia" attrKey="energy" />
+                  <AttributeCard label="Sorte" attrKey="luck" />
+                  
+                  {/* Ouro e Provisões vão para cá no Mobile também */}
+                  <div className="md:hidden">
+                    <GoldAndProvisions />
+                  </div>
+                </div>
+
+                {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
+                <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
+                  <section
+                    className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                      isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                    }`}
+                  >
+                    <MonsterManager />
+                  </section>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <DamageCard />
+                    <AttackCard />
+                    <LuckCard />
+                  </div>
+                </div>
               </div>
 
-              {/* Coluna Direita (3/4): Monstros e botões */}
-              <div className="md:col-span-3 flex flex-col gap-6">
+              {/* INVENTÁRIO TAB (Mobile) / BLOCO DO MEIO (Desktop) */}
+              <div className={`grid-cols-1 md:grid-cols-2 gap-6 ${activeTab === 'Inventário' ? 'grid' : 'hidden md:grid'}`}>
                 <section
                   className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
                     isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                   }`}
                 >
-                  <MonsterManager />
+                  <InventoryManager />
                 </section>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <DamageCard />
-                  <AttackCard />
-                  <LuckCard />
-                </div>
+                <section
+                  className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                    isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                  }`}
+                >
+                  <CombatHistory />
+                </section>
               </div>
-            </div>
 
-            {/* BLOCO DO MEIO: Equipamentos e Histórico */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <section
-                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                  isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                }`}
-              >
-                <InventoryManager />
+              {/* STATUS TAB extras (Mobile) / BLOCO INFERIOR (Desktop) */}
+              <section className={`hidden md:block`}>
+                <GoldAndProvisions />
               </section>
-              <section
-                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                  isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                }`}
-              >
-                <CombatHistory />
+
+              {/* NOTAS TAB (Mobile) / BLOCO INFERIOR (Desktop) */}
+              <section className={`flex-col min-h-[200px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
+                <NotesCard />
               </section>
             </div>
-
-            {/* BLOCO INFERIOR: Ouro, Provisões e Notas */}
-            <section>
-              <GoldAndProvisions />
-            </section>
-
-            <section className="flex flex-col min-h-[200px]">
-              <NotesCard />
-            </section>
           </div>
         )}
       </div>
