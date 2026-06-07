@@ -257,6 +257,7 @@ export default function Home() {
     clearLocalState,
     activeTab,
     setActiveTab,
+    resetKey,
   } = useSheetStore();
 
   // Load user session on initial render (AuthStatus also handles it)
@@ -587,8 +588,8 @@ export default function Home() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <DamageCard />
-                    <AttackCard />
-                    <LuckCard />
+                    <AttackCard key={`attack-${resetKey}`} />
+                    <LuckCard key={`luck-${resetKey}`} />
                   </div>
                 </div>
               </div>

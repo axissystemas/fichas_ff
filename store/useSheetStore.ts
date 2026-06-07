@@ -49,6 +49,7 @@ interface SheetState {
   theme: 'papyrus' | 'night';
   combatLog: { type: string; value: string; timestamp?: string }[];
   activeTab: string;
+  resetKey: number;
 
   // Supabase sync, list, and user state
   user: AuthUser | null;
@@ -141,6 +142,7 @@ export const useSheetStore = create<SheetState>()(
       theme: 'papyrus',
       combatLog: [],
       activeTab: 'Ficha',
+      resetKey: 0,
       user: null,
       activeSheetId: null,
       sheetsList: [],
@@ -162,6 +164,7 @@ export const useSheetStore = create<SheetState>()(
           notes: '',
           combatLog: [],
           activeTab: 'Ficha',
+          resetKey: 0,
           user: null,
           activeSheetId: null,
           sheetsList: [],
@@ -486,7 +489,7 @@ export const useSheetStore = create<SheetState>()(
       },
 
       resetSheet: async () => {
-        set({
+        set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -500,7 +503,8 @@ export const useSheetStore = create<SheetState>()(
           notes: '',
           combatLog: [],
           activeTab: 'Ficha',
-        });
+          resetKey: state.resetKey + 1,
+        }));
 
         // Save the cleared state to Supabase instead of deleting the sheet
         await get().saveToSupabase();
