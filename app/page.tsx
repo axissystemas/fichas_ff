@@ -267,10 +267,6 @@ export default function Home() {
     });
   }, []);
 
-  const isLoading = syncStatus === 'loading' && (!sheetsList?.length || !activeSheetId);
-
-
-
   // Export current sheet as JSON
   const handleExport = () => {
     const state = useSheetStore.getState();
@@ -334,7 +330,8 @@ export default function Home() {
   };
 
   const isPapyrus = theme === 'papyrus';
-  const isLoading = syncStatus === 'loading';
+  // We remove global isLoading so it doesn't unmount child components during fetch.
+  // The child components will handle their own loading states.
 
   // Which view to render in the content area
   const showLogin = !user;
@@ -430,16 +427,8 @@ export default function Home() {
           </div>
         </header>
 
-        {/* ── Loading global ── */}
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4 opacity-70">
-            <Loader2 size={40} className="animate-spin" />
-            <p className="text-sm uppercase tracking-widest font-sans">Carregando...</p>
-          </div>
-        )}
-
         {/* ── Tela de Login ── */}
-        {!isLoading && showLogin && (
+        {showLogin && (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
             {isPapyrus ? (
               <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
@@ -506,10 +495,10 @@ export default function Home() {
         )}
 
         {/* ── Dashboard de Fichas ── */}
-        {!isLoading && showDashboard && <SheetDashboard />}
+        {showDashboard && <SheetDashboard />}
 
         {/* ── Conteúdo da Ficha Ativa ── */}
-        {!isLoading && showSheet && (
+        {showSheet && (
           <div className="space-y-8 animate-fade-in">
             {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
