@@ -327,7 +327,9 @@ export const useSheetStore = create<SheetState>()(
 
           const { error } = await supabase
             .from('adventure_sheets')
-            .upsert(payload);
+            .update(payload)
+            .eq('id', activeSheetId)
+            .eq('user_id', user.id);
 
           if (error) throw error;
 
