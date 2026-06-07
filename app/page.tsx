@@ -362,7 +362,7 @@ export default function Home() {
               onClick={() => showSheet && setActiveSheetId(null)}
               title={showSheet ? 'Voltar ao painel de fichas' : undefined}
             >
-              Adventure Sheet
+              Aventuras Fantásticas
             </h1>
             <div className="flex items-center gap-3 mt-1">
               <p className="text-xs uppercase tracking-wider opacity-70 font-sans">

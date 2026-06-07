@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Adventure Sheet Online',
-  description: 'Companion digital premium para Fighting Fantasy.',
+  title: 'Aventuras Fantásticas',
+  description: 'Ficha digital para Fighting Fantasy.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
