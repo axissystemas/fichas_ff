@@ -10,7 +10,7 @@ export const CombatHistory = () => {
   return (
     <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] transition-colors`}>
       <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Histórico de Combate</h3>
-      <div className="space-y-1">
+      <div className="space-y-1 max-h-[170px] overflow-y-auto pr-1">
         {combatLog.length === 0 ? (
           <p className="text-center text-sm opacity-60 italic">Nenhuma ação registrada</p>
         ) : (

@@ -27,7 +27,7 @@ export const InventoryManager = () => {
     <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] transition-colors`}>
       <h2 className={`text-xl font-bold uppercase text-center mb-4 border-b-2 pb-2 w-full ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Equipamento</h2>
       
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2 mb-4 max-h-[190px] overflow-y-auto pr-1">
         {inventory.map(item => (
           <div key={item.id} className="flex justify-between items-center text-sm border-b pb-1 border-opacity-20">
             <span>{item.name}</span>
