@@ -5,7 +5,7 @@ import { useSheetStore, Monster } from '@/store/useSheetStore';
 import { User } from 'lucide-react';
 
 export const MonsterManager = () => {
-  const { monsters, addMonster, removeMonster, updateMonsterEnergy, clearMonsters } = useSheetStore();
+  const { monsters, addMonster, removeMonster, updateMonsterEnergy } = useSheetStore();
   const [name, setName] = useState('');
   const [skill, setSkill] = useState(6);
   const [energy, setEnergy] = useState(6);
@@ -81,6 +81,7 @@ export const MonsterManager = () => {
       </div>
       <button onClick={handleAddMonster} className="w-full bg-[#2C1E14] text-[#EAD8B8] py-3 uppercase font-bold text-sm tracking-widest hover:bg-[#4A3728] transition">
         + Adicionar Novo Monstro
+      </button>
     </div>
   );
 };
