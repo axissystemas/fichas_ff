@@ -442,7 +442,7 @@ export default function Home() {
                 <div className="flex items-center justify-center mb-2 drop-shadow-lg">
                   <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
                 </div>
-                <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Portal de Aventuras</h2>
+                <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Fichas de Aventuras</h2>
                 <div className="w-24 h-0.5 bg-[#C5A059]"></div>
                 <p className="text-sm font-serif leading-relaxed text-[#5C4033] opacity-90 max-w-[340px]">
                   &ldquo;Apenas os corajosos que registrarem seus nomes no livro dos escribas poderão desbravar os perigos do Labirinto.&rdquo;
