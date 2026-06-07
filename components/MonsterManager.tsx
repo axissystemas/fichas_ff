@@ -81,10 +81,6 @@ export const MonsterManager = () => {
       </div>
       <button onClick={handleAddMonster} className="w-full bg-[#2C1E14] text-[#EAD8B8] py-3 uppercase font-bold text-sm tracking-widest hover:bg-[#4A3728] transition">
         + Adicionar Novo Monstro
-      </button>
-      <button onClick={clearMonsters} className="w-full mt-2 bg-[#5C4033] text-[#EAD8B8] py-2 uppercase font-bold text-sm tracking-widest hover:bg-[#2C1E14] transition">
-        Limpar Monstros
-      </button>
     </div>
   );
 };
