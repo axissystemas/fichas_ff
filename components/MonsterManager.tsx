@@ -29,7 +29,7 @@ export const MonsterManager = () => {
   return (
     <div>
       <h2 className="text-xl font-bold uppercase text-center border-b-2 border-[#2C1E14] pb-2 mb-4">Encontro com Monstros</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 max-h-80 overflow-y-auto pr-1">
         {monsters.map(monster => {
           const isLowEnergy = (monster.energyCurrent / monster.energyMax) < 0.25;
           return (
@@ -38,22 +38,22 @@ export const MonsterManager = () => {
               initial={{ scale: 1 }}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 0.4 }}
-              className={`bg-[#EAD8B8] border ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-3 text-sm text-[#2C1E14]`}
+              className={`bg-[#EAD8B8] border flex flex-col ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-2 text-sm text-[#2C1E14]`}
             >
-              <div className="font-bold border-b border-[#5C4033] mb-2 pb-1 flex justify-between">
+              <div className="font-bold border-b border-[#5C4033] mb-1 pb-1 flex justify-between">
                 {monster.name}
                 <button onClick={() => removeMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase">Remover</button>
               </div>
-              <div className="text-sm font-semibold text-[#2C1E14]">
+              <div className="text-sm font-semibold text-[#2C1E14] leading-tight flex-grow">
                 <p>Hab: {monster.skill}</p>
                 <p>Ener Max: {monster.energyMax}</p>
                 <p>Ener At: {monster.energyCurrent}</p>
               </div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => updateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-1">-1</button>
-                <button onClick={() => updateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-1">+1</button>
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => updateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-0.5">-1</button>
+                <button onClick={() => updateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-0.5">+1</button>
               </div>
-              <div className={`mt-2 text-center text-xs font-bold p-1 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
+              <div className={`mt-2 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
                 {monster.status === 'alive' ? 'VIVO' : 'DERROTADO'}
               </div>
             </motion.div>
