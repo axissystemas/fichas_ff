@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 
 interface AttackResult {
+  id: string;
   adventurer: number;
   monster: number | null;
   monsterName: string | null;
@@ -32,6 +33,7 @@ export const AttackCard = () => {
       const monsterTotal = monsterDice + aliveMonster.skill;
       
       setResult({
+        id: crypto.randomUUID(),
         adventurer: advTotal,
         monster: monsterTotal,
         monsterName: aliveMonster.name
@@ -43,6 +45,7 @@ export const AttackCard = () => {
       });
     } else {
       setResult({
+        id: crypto.randomUUID(),
         adventurer: advTotal,
         monster: null,
         monsterName: null
@@ -65,7 +68,7 @@ export const AttackCard = () => {
       
       {result !== null && (
         <motion.div 
-          key={`${result.adventurer}-${result.monster || 0}-${Date.now()}`}
+          key={result.id}
           initial={{ opacity: 0, scale: 0.9, y: -5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.3 }}

@@ -18,7 +18,7 @@ export const CombatHistory = () => {
             <div key={i} className={`flex justify-between text-sm py-1 border-b border-opacity-20 last:border-none ${theme === 'papyrus' ? 'text-[#5C4033] border-[#5C4033]' : 'text-slate-300 border-slate-600'}`}>
               <span className="font-bold uppercase flex items-center gap-1">
                 {log.type}
-                {log.timestamp && <span className="text-[10px] opacity-60 normal-case font-normal ml-1">[{log.timestamp}]</span>}
+                {log.timestamp && <span className="text-xs opacity-80 normal-case font-normal ml-1">[{log.timestamp}]</span>}
               </span>
               <span className="text-right">{log.value}</span>
             </div>
