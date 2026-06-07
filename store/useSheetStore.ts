@@ -437,11 +437,7 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
       },
 
-      // ── Reset ─────────────────────────────────────────────────────────────
       resetSheet: async () => {
-        const user = get().user;
-        const activeSheetId = get().activeSheetId;
-        localStorage.removeItem('adventure-sheet-storage');
         set({
           attributes: {
             skill: { initial: 0, current: 0 },
@@ -457,21 +453,8 @@ export const useSheetStore = create<SheetState>()(
           activeTab: 'Ficha',
         });
 
-        if (user && activeSheetId) {
-          try {
-            await supabase
-              .from('adventure_sheets')
-              .delete()
-              .eq('id', activeSheetId)
-              .eq('user_id', user.id);
-            
-            // Return to selector
-            set({ activeSheetId: null });
-            await get().loadSheetsList();
-          } catch (err) {
-            console.error('[Supabase] resetSheet error:', err);
-          }
-        }
+        // Save the cleared state to Supabase instead of deleting the sheet
+        await get().saveToSupabase();
       },
     }),
     {
