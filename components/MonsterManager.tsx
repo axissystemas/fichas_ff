@@ -44,14 +44,16 @@ export const MonsterManager = () => {
                 {monster.name}
                 <button onClick={() => removeMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase">Remover</button>
               </div>
-              <div className="text-sm font-semibold text-[#2C1E14] leading-tight flex-grow">
-                <p>Hab: {monster.skill}</p>
-                <p>Ener Max: {monster.energyMax}</p>
-                <p>Ener At: {monster.energyCurrent}</p>
-              </div>
-              <div className="flex gap-2 mt-2">
-                <button onClick={() => updateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-0.5">-1</button>
-                <button onClick={() => updateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2 py-0.5">+1</button>
+              <div className="flex justify-between items-center flex-grow mt-1">
+                <div className="text-sm font-semibold text-[#2C1E14] leading-tight">
+                  <p>Hab: {monster.skill}</p>
+                  <p>Ener Max: {monster.energyMax}</p>
+                  <p>Ener At: {monster.energyCurrent}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => updateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">-1</button>
+                  <button onClick={() => updateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">+1</button>
+                </div>
               </div>
               <div className={`mt-2 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
                 {monster.status === 'alive' ? 'VIVO' : 'DERROTADO'}
