@@ -15,9 +15,12 @@ export const CombatHistory = () => {
           <p className="text-center text-sm opacity-60 italic">Nenhuma ação registrada</p>
         ) : (
           combatLog.map((log, i) => (
-            <div key={i} className="flex justify-between text-sm py-1 border-b border-opacity-20 text-[#5C4033] last:border-none">
-              <span className="font-bold uppercase">{log.type}</span>
-              <span>{log.value}</span>
+            <div key={i} className={`flex justify-between text-sm py-1 border-b border-opacity-20 last:border-none ${theme === 'papyrus' ? 'text-[#5C4033] border-[#5C4033]' : 'text-slate-300 border-slate-600'}`}>
+              <span className="font-bold uppercase flex items-center gap-1">
+                {log.type}
+                {log.timestamp && <span className="text-[10px] opacity-60 normal-case font-normal ml-1">[{log.timestamp}]</span>}
+              </span>
+              <span className="text-right">{log.value}</span>
             </div>
           ))
         )}

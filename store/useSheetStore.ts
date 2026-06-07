@@ -46,7 +46,7 @@ interface SheetState {
   monsters: Monster[];
   notes: string;
   theme: 'papyrus' | 'night';
-  combatLog: { type: string; value: string }[];
+  combatLog: { type: string; value: string; timestamp?: string }[];
   activeTab: string;
 
   // Supabase sync, list, and user state
@@ -72,7 +72,7 @@ interface SheetState {
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, delta: number) => void;
   setTheme: (theme: 'papyrus' | 'night') => void;
-  addCombatLog: (log: { type: string; value: string }) => void;
+  addCombatLog: (log: { type: string; value: string; timestamp?: string }) => void;
   setNotes: (notes: string) => void;
   resetSheet: () => void;
 
@@ -435,7 +435,8 @@ export const useSheetStore = create<SheetState>()(
 
       // ── Combat Log ────────────────────────────────────────────────────────
       addCombatLog: (log) => {
-        set((state) => ({ combatLog: [log, ...state.combatLog].slice(0, 5) }));
+        const timestamp = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        set((state) => ({ combatLog: [{ ...log, timestamp }, ...state.combatLog].slice(0, 10) }));
         scheduleSave(get());
       },
 
