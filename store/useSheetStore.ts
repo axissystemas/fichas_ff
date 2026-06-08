@@ -25,6 +25,25 @@ export interface Monster {
   status: 'alive' | 'defeated';
 }
 
+// Database types
+export interface DbSheet {
+  id: string;
+  user_id: string;
+  title: string;
+  status?: 'playing' | 'victory' | 'defeat';
+  attributes: {
+    skill: Attribute;
+    energy: Attribute;
+    luck: Attribute;
+    currentSection?: string;
+  };
+  gold?: number;
+  provisions?: number;
+  inventory?: Item[];
+  monsters?: Monster[];
+  updated_at: string;
+}
+
 export interface AuthUser {
   id: string;
   email?: string;
@@ -51,14 +70,17 @@ interface SheetState {
   combatLog: { type: string; value: string; timestamp?: string }[];
   activeTab: string;
   resetKey: number;
+  status: 'playing' | 'victory' | 'defeat';
 
   // Supabase sync, list, and user state
   user: AuthUser | null;
   activeSheetId: string | null;
   sheetsList: Array<{
     id: string;
+    user_id?: string;
     title: string;
     updated_at: string;
+    status?: 'playing' | 'victory' | 'defeat';
     attributes?: {
       skill: Attribute;
       energy: Attribute;
@@ -94,6 +116,10 @@ interface SheetState {
   setNotes: (notes: string) => void;
   setCurrentSection: (section: string) => void;
   resetSheet: () => void;
+  setStatus: (status: 'playing' | 'victory' | 'defeat') => Promise<void>;
+  logTelemetry: (eventType: string, eventData: any) => Promise<void>;
+  updateUserSession: () => Promise<void>;
+  incrementPlayTime: () => Promise<void>;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -150,6 +176,7 @@ export const useSheetStore = create<SheetState>()(
       combatLog: [],
       activeTab: 'Ficha',
       resetKey: 0,
+      status: 'playing',
       user: null,
       activeSheetId: null,
       sheetsList: [],
@@ -173,6 +200,7 @@ export const useSheetStore = create<SheetState>()(
           combatLog: [],
           activeTab: 'Ficha',
           resetKey: 0,
+          status: 'playing',
           user: null,
           activeSheetId: null,
           sheetsList: [],
@@ -233,6 +261,7 @@ export const useSheetStore = create<SheetState>()(
               notes: data.notes,
               theme: data.theme as 'papyrus' | 'night',
               combatLog: data.combat_log,
+              status: (data.status || 'playing') as 'playing' | 'victory' | 'defeat',
               syncStatus: 'saved',
               lastSynced: new Date().toISOString(),
             });
@@ -261,6 +290,7 @@ export const useSheetStore = create<SheetState>()(
             notes: '',
             theme: get().theme,
             combat_log: [],
+            status: 'playing',
           };
 
           const { error } = await supabase
@@ -276,6 +306,7 @@ export const useSheetStore = create<SheetState>()(
                 title: payload.title,
                 updated_at: new Date().toISOString(),
                 attributes: defaultAttributes,
+                status: 'playing',
               },
               ...state.sheetsList,
             ],
@@ -287,6 +318,7 @@ export const useSheetStore = create<SheetState>()(
             monsters: [],
             notes: '',
             combatLog: [],
+            status: 'playing',
             syncStatus: 'saved',
             lastSynced: new Date().toISOString(),
           }));
@@ -363,6 +395,7 @@ export const useSheetStore = create<SheetState>()(
             notes: state.notes,
             theme: state.theme,
             combat_log: state.combatLog,
+            status: state.status,
           };
 
           const { error } = await supabase
@@ -383,6 +416,7 @@ export const useSheetStore = create<SheetState>()(
                     ...s,
                     updated_at: new Date().toISOString(),
                     attributes: state.attributes,
+                    status: state.status,
                   }
                 : s
             ),
@@ -403,11 +437,16 @@ export const useSheetStore = create<SheetState>()(
 
       // ── Attributes ────────────────────────────────────────────────────────
       setAttribute: (key, value, isInitial) => {
+        let playerDied = false;
         set((state) => {
           const attr = state.attributes[key];
           // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual
           const finalValue = !isInitial ? Math.min(value, attr.initial) : value;
           
+          if (key === 'energy' && !isInitial && attr.current > 0 && finalValue <= 0) {
+            playerDied = true;
+          }
+
           return {
             attributes: {
               ...state.attributes,
@@ -419,6 +458,16 @@ export const useSheetStore = create<SheetState>()(
           };
         });
         scheduleSave(get());
+
+        if (playerDied) {
+          const monsters = get().monsters;
+          const activeMonster = monsters.find(m => m.status === 'alive');
+          get().logTelemetry('death', {
+            cause: activeMonster ? 'combat' : 'trap',
+            monster: activeMonster ? activeMonster.name : null,
+          });
+          get().setStatus('defeat');
+        }
       },
       setCurrentSection: (section) => {
         set((state) => ({
@@ -428,6 +477,9 @@ export const useSheetStore = create<SheetState>()(
           },
         }));
         scheduleSave(get());
+        if (section) {
+          get().logTelemetry('section_visit', { section });
+        }
       },
 
       // ── Gold & Provisions ─────────────────────────────────────────────────
@@ -438,6 +490,9 @@ export const useSheetStore = create<SheetState>()(
       updateProvisions: (amount) => {
         set((state) => ({ provisions: Math.max(0, state.provisions + amount) }));
         scheduleSave(get());
+        if (amount < 0) {
+          get().logTelemetry('item_use', { item: 'provisions', quantity: Math.abs(amount) });
+        }
       },
 
       // ── Monsters ──────────────────────────────────────────────────────────
@@ -450,14 +505,28 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
       },
       updateMonsterEnergy: (id, delta) => {
-        set((state) => ({
-          monsters: state.monsters.map((m) => {
+        let defeatedMonster: any = null;
+        set((state) => {
+          const monsters = state.monsters.map((m) => {
             if (m.id !== id) return m;
             const newEnergy = Math.max(0, m.energyCurrent + delta);
-            return { ...m, energyCurrent: newEnergy, status: newEnergy === 0 ? 'defeated' : 'alive' };
-          }),
-        }));
+            const status: 'alive' | 'defeated' = newEnergy === 0 ? 'defeated' : 'alive';
+            if (m.energyCurrent > 0 && newEnergy === 0) {
+              defeatedMonster = m;
+            }
+            return { ...m, energyCurrent: newEnergy, status };
+          });
+          return { monsters };
+        });
         scheduleSave(get());
+        if (defeatedMonster) {
+          get().logTelemetry('combat', {
+            monster: defeatedMonster.name,
+            result: 'victory',
+            monster_skill: defeatedMonster.skill,
+            monster_energy: defeatedMonster.energyMax,
+          });
+        }
       },
       clearMonsters: () => {
         set({ monsters: [] });
@@ -468,10 +537,19 @@ export const useSheetStore = create<SheetState>()(
       addItem: (item) => {
         set((state) => ({ inventory: [...state.inventory, item] }));
         scheduleSave(get());
+        get().logTelemetry('inventory_change', { action: 'add', item: item.name, quantity: item.quantity });
       },
       removeItem: (id) => {
-        set((state) => ({ inventory: state.inventory.filter((i) => i.id !== id) }));
+        let itemName = '';
+        set((state) => {
+          const item = state.inventory.find((i) => i.id === id);
+          if (item) itemName = item.name;
+          return { inventory: state.inventory.filter((i) => i.id !== id) };
+        });
         scheduleSave(get());
+        if (itemName) {
+          get().logTelemetry('inventory_change', { action: 'remove', item: itemName });
+        }
       },
       updateItemQuantity: (id, delta) => {
         set((state) => ({
@@ -501,6 +579,113 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
       },
 
+      setStatus: async (status) => {
+        set({ status });
+        const activeSheetId = get().activeSheetId;
+        const user = get().user;
+        if (activeSheetId && user) {
+          try {
+            await supabase.from('adventure_sheets').update({ status }).eq('id', activeSheetId).eq('user_id', user.id);
+            if (status !== 'playing') {
+              await get().logTelemetry('game_completion', { status });
+            }
+          } catch (err) {
+            console.error('[Supabase] setStatus error:', err);
+          }
+        }
+      },
+
+      logTelemetry: async (eventType, eventData) => {
+        const user = get().user;
+        const activeSheetId = get().activeSheetId;
+        if (!user || !activeSheetId) return;
+        try {
+          await supabase.from('adventure_logs').insert({
+            sheet_id: activeSheetId,
+            user_id: user.id,
+            event_type: eventType,
+            event_data: eventData
+          });
+        } catch (err) {
+          console.warn('[Telemetry] Log error:', err);
+        }
+      },
+
+      updateUserSession: async () => {
+        const user = get().user;
+        if (!user) return;
+        try {
+          const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          const now = new Date();
+          let streak = 1;
+
+          if (profile) {
+            const lastLogin = new Date(profile.last_login);
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfLastLogin = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
+            const diffDays = Math.round((startOfToday.getTime() - startOfLastLogin.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+              streak = profile.login_streak || 1;
+            } else if (diffDays === 1) {
+              streak = (profile.login_streak || 0) + 1;
+            } else {
+              streak = 1;
+            }
+
+            await supabase
+              .from('user_profiles')
+              .update({
+                email: user.email,
+                display_name: user.user_metadata?.full_name || user.email,
+                last_login: now.toISOString(),
+                login_streak: streak,
+              })
+              .eq('id', user.id);
+          } else {
+            await supabase
+              .from('user_profiles')
+              .insert({
+                id: user.id,
+                email: user.email,
+                display_name: user.user_metadata?.full_name || user.email,
+                last_login: now.toISOString(),
+                login_streak: 1,
+                total_play_time: 0,
+              });
+          }
+        } catch (err) {
+          console.warn('[Telemetry] Error updating user session:', err);
+        }
+      },
+
+      incrementPlayTime: async () => {
+        const user = get().user;
+        if (!user) return;
+        try {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('total_play_time')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          const currentPlayTime = profile?.total_play_time || 0;
+          await supabase
+            .from('user_profiles')
+            .update({ total_play_time: currentPlayTime + 1 })
+            .eq('id', user.id);
+        } catch (err) {
+          console.warn('[Telemetry] Playtime update warning:', err);
+        }
+      },
+
       resetSheet: async () => {
         set((state) => ({
           attributes: {
@@ -517,6 +702,7 @@ export const useSheetStore = create<SheetState>()(
           combatLog: [],
           activeTab: 'Ficha',
           resetKey: state.resetKey + 1,
+          status: 'playing',
         }));
 
         // Save the cleared state to Supabase instead of deleting the sheet

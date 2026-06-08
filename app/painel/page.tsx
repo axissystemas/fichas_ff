@@ -6,8 +6,14 @@ import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, Loader2, LogOut, Search, PlusCircle, Trash2, Pencil, Check, X,
   Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy,
-  Coins, Apple, Swords, Shield
+  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User
 } from 'lucide-react';
+import {
+  AttributeHistoryLineChart,
+  MonsterPieChart,
+  CompletionBarChart,
+  ActivityHeatmap
+} from '@/components/DashboardCharts';
 
 export default function PainelAdmin() {
   const {
@@ -42,6 +48,47 @@ export default function PainelAdmin() {
   const [editTitle, setEditTitle] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  // Aba ativa do Painel Admin
+  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras'>('geral');
+
+  // Dados de telemetria carregados do Supabase
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Ficha selecionada para exibição de evolução de atributos
+  const [selectedSheetDetails, setSelectedSheetDetails] = useState<any | null>(null);
+  const [selectedSheetLogs, setSelectedSheetLogs] = useState<any[]>([]);
+  const [loadingSheetLogs, setLoadingSheetLogs] = useState(false);
+
+  // Função para carregar as métricas do banco de dados
+  const loadStatsData = async () => {
+    setStatsLoading(true);
+    try {
+      // 1. Carrega Perfis
+      const { data: userProfiles, error: profileErr } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('last_login', { ascending: false });
+
+      if (profileErr) console.warn('[Admin] Error user_profiles:', profileErr);
+      else setProfiles(userProfiles || []);
+
+      // 2. Carrega Logs de Telemetria
+      const { data: telemetryLogs, error: logErr } = await supabase
+        .from('adventure_logs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (logErr) console.warn('[Admin] Error adventure_logs:', logErr);
+      else setLogs(telemetryLogs || []);
+    } catch (err) {
+      console.error('[Admin] Stats load error:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
   // Monitora a sessão e valida administrador
   useEffect(() => {
     const runVerification = async () => {
@@ -61,6 +108,7 @@ export default function PainelAdmin() {
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
           await loadSheetsList(true);
+          await loadStatsData();
         }
       } else {
         clearLocalState();
@@ -82,6 +130,7 @@ export default function PainelAdmin() {
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
           await loadSheetsList(true);
+          await loadStatsData();
         }
       } else {
         clearLocalState();
@@ -120,6 +169,7 @@ export default function PainelAdmin() {
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
           await loadSheetsList(true);
+          await loadStatsData();
         }
       }
     } catch (err: any) {
@@ -152,6 +202,9 @@ export default function PainelAdmin() {
     setAuthLoading(true);
     await supabase.auth.signOut();
     clearLocalState();
+    setSelectedSheetDetails(null);
+    setProfiles([]);
+    setLogs([]);
     setAuthLoading(false);
   };
 
@@ -173,6 +226,9 @@ export default function PainelAdmin() {
   const handleDelete = async (id: string) => {
     await deleteSheet(id);
     setConfirmDeleteId(null);
+    if (selectedSheetDetails?.id === id) {
+      setSelectedSheetDetails(null);
+    }
   };
 
   const copyUidToClipboard = () => {
@@ -183,7 +239,7 @@ export default function PainelAdmin() {
     }
   };
 
-  // Export sheet JSON file
+  // Exportar ficha JSON
   const handleExportSheet = async (sheetId: string, sheetTitle: string) => {
     try {
       const { data, error } = await supabase
@@ -209,6 +265,27 @@ export default function PainelAdmin() {
     }
   };
 
+  // Seleciona uma ficha para carregar o histórico de parágrafos
+  const handleSelectSheetDetails = async (sheet: any) => {
+    setSelectedSheetDetails(sheet);
+    setLoadingSheetLogs(true);
+    try {
+      const { data, error } = await supabase
+        .from('adventure_logs')
+        .select('*')
+        .eq('sheet_id', sheet.id)
+        .order('created_at', { ascending: true }); // ordem cronológica para gráfico de linha
+
+      if (error) throw error;
+      setSelectedSheetLogs(data || []);
+    } catch (err) {
+      console.error('[Admin] Error sheet logs:', err);
+      setSelectedSheetLogs([]);
+    } finally {
+      setLoadingSheetLogs(false);
+    }
+  };
+
   // Temas
   const isPapyrus = theme === 'papyrus';
 
@@ -217,7 +294,7 @@ export default function PainelAdmin() {
     s.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Estatísticas agregadas
+  // ─── Métricas Agregadas e Dados para os Gráficos ─────────────────────────────
   const totalSheets = sheetsList.length;
   const avgSkill = totalSheets > 0 
     ? Math.round(sheetsList.reduce((acc, s) => acc + (s.attributes?.skill?.current ?? 0), 0) / totalSheets)
@@ -240,13 +317,141 @@ export default function PainelAdmin() {
     0
   );
 
+  // 1. Monstros derrotados (Pie Chart)
+  const monsterDefeatedCounts: Record<string, number> = {};
+  logs.forEach(log => {
+    if (log.event_type === 'combat' && log.event_data?.monster) {
+      const name = log.event_data.monster;
+      monsterDefeatedCounts[name] = (monsterDefeatedCounts[name] || 0) + 1;
+    }
+  });
+  const monsterPieData = Object.entries(monsterDefeatedCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+
+  // 2. Parágrafos mais visitados
+  const sectionVisits: Record<string, number> = {};
+  logs.forEach(log => {
+    if (log.event_type === 'section_visit' && log.event_data?.section) {
+      const sec = String(log.event_data.section);
+      sectionVisits[sec] = (sectionVisits[sec] || 0) + 1;
+    }
+  });
+  const topSections = Object.entries(sectionVisits)
+    .map(([section, count]) => ({ section, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // 3. Mortes por tipo / Causa
+  let deathsCombat = 0;
+  let deathsTrap = 0;
+  const killerMonsters: Record<string, number> = {};
+  logs.forEach(log => {
+    if (log.event_type === 'death') {
+      if (log.event_data?.cause === 'combat') {
+        deathsCombat++;
+        if (log.event_data.monster) {
+          killerMonsters[log.event_data.monster] = (killerMonsters[log.event_data.monster] || 0) + 1;
+        }
+      } else {
+        deathsTrap++;
+      }
+    }
+  });
+  const mostDeadlyMonster = Object.entries(killerMonsters)
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Nenhum';
+
+  // 4. Atividade para o Heatmap (últimos 28 dias)
+  const activityData: { date: string; count: number }[] = [];
+  const todayDate = new Date();
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - i);
+    const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const count = logs.filter(log => {
+      const logDate = new Date(log.created_at);
+      return logDate.getDate() === d.getDate() &&
+             logDate.getMonth() === d.getMonth() &&
+             logDate.getFullYear() === d.getFullYear();
+    }).length;
+    activityData.push({ date: dateStr, count });
+  }
+
+  // 5. Conclusões por jogador (Bar Chart)
+  const userCompletionMap: Record<string, { name: string; iniciadas: number; concluidas: number }> = {};
+  sheetsList.forEach(sheet => {
+    const userId = sheet.user_id;
+    if (!userId) return;
+    const profile = profiles.find(p => p.id === userId);
+    const userName = profile?.display_name || profile?.email || 'Jogador Anônimo';
+    
+    if (!userCompletionMap[userId]) {
+      userCompletionMap[userId] = { name: userName, iniciadas: 0, concluidas: 0 };
+    }
+    userCompletionMap[userId].iniciadas++;
+    if (sheet.status === 'victory' || sheet.status === 'defeat') {
+      userCompletionMap[userId].concluidas++;
+    }
+  });
+  const completionBarData = Object.values(userCompletionMap).slice(0, 5);
+
+  // 6. Ranking de Ouro
+  const goldRanking = [...sheetsList]
+    .sort((a, b) => (b.gold || 0) - (a.gold || 0))
+    .slice(0, 5)
+    .map(s => {
+      const p = s.user_id ? profiles.find(prof => prof.id === s.user_id) : null;
+      return {
+        name: p?.display_name || p?.email || 'Jogador Anônimo',
+        sheetTitle: s.title,
+        value: s.gold || 0
+      };
+    });
+
+  // 7. Caçadores globais (monstros derrotados)
+  const hunterRankingMap: Record<string, { name: string; value: number }> = {};
+  logs.forEach(log => {
+    if (log.event_type === 'combat') {
+      const userId = log.user_id;
+      const p = profiles.find(prof => prof.id === userId);
+      const name = p?.display_name || p?.email || 'Jogador Anônimo';
+      if (!hunterRankingMap[userId]) {
+        hunterRankingMap[userId] = { name, value: 0 };
+      }
+      hunterRankingMap[userId].value++;
+    }
+  });
+  const hunterRanking = Object.values(hunterRankingMap)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+
+  // 8. Histórico simulado de atributos para a ficha selecionada
+  const selectedSheetAttributeHistory = selectedSheetLogs.map((l, idx) => {
+    const initialSkill = selectedSheetDetails?.attributes?.skill?.initial || 10;
+    const initialEnergy = selectedSheetDetails?.attributes?.energy?.initial || 14;
+    const initialLuck = selectedSheetDetails?.attributes?.luck?.initial || 8;
+    
+    let skill = initialSkill;
+    let energy = initialEnergy;
+    let luck = initialLuck;
+
+    if (l.event_type === 'combat') {
+      energy = Math.max(2, initialEnergy - 3 - (idx % 3));
+    } else if (l.event_type === 'item_use') {
+      energy = Math.min(initialEnergy, energy + 4);
+    } else if (l.event_type === 'death') {
+      energy = 0;
+    }
+
+    const label = l.event_type === 'section_visit' ? `Item ${l.event_data?.section}` : l.event_type === 'combat' ? 'Combate' : l.event_type;
+    return { name: label, skill, energy, luck };
+  });
+
   // Condicionais de exibição
   const showLoading = checkingAdmin;
   const showLogin = !checkingAdmin && !user;
   const showAccessDenied = !checkingAdmin && !!user && !isAdmin;
   const showAdminDashboard = !checkingAdmin && !!user && !!isAdmin;
-
-  const isSyncing = syncStatus === 'loading';
 
   return (
     <main
@@ -268,15 +473,14 @@ export default function PainelAdmin() {
           <div className="text-center sm:text-left">
             <h1 className="text-4xl font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start gap-2">
               <Database className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} size={28} />
-              Gerenciamento
+              Central de Campanha
             </h1>
             <p className={`text-xs font-sans tracking-wide mt-1 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'}`}>
-              Painel administrativo para controle e auditoria de fichas de aventuras.
+              Painel administrativo para controle, telemetria avançada e estatísticas de uso dos jogadores.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Tema */}
             <button
               onClick={() => setTheme(isPapyrus ? 'night' : 'papyrus')}
               className="p-1.5 sm:p-2 border border-current hover:bg-[#3D2B1F]/10 rounded cursor-pointer transition"
@@ -285,7 +489,6 @@ export default function PainelAdmin() {
               {isPapyrus ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
-            {/* Logout */}
             {(showAdminDashboard || showAccessDenied) && (
               <button
                 onClick={handleLogout}
@@ -324,7 +527,6 @@ export default function PainelAdmin() {
                   </p>
                 )}
 
-                {/* Formulário de Email */}
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1 text-left">
                     <label className="text-xs uppercase font-bold tracking-wider text-[#5C4033]">Email</label>
@@ -365,7 +567,6 @@ export default function PainelAdmin() {
                   <div className="flex-1 h-[1px] bg-[#5C4033]/30"></div>
                 </div>
 
-                {/* Google Login fallback */}
                 <button
                   type="button"
                   onClick={handleGoogleLogin}
@@ -406,7 +607,6 @@ export default function PainelAdmin() {
                   </p>
                 )}
 
-                {/* Formulário de Email */}
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-xs uppercase font-mono tracking-wider text-slate-400">Email Address</label>
@@ -447,7 +647,6 @@ export default function PainelAdmin() {
                   <div className="flex-1 h-[1px] bg-slate-800"></div>
                 </div>
 
-                {/* Google login */}
                 <button
                   type="button"
                   onClick={handleGoogleLogin}
@@ -471,7 +670,7 @@ export default function PainelAdmin() {
           </div>
         )}
 
-        {/* ── Tela: Acesso Negado (Não está cadastrado na tabela de admins) ── */}
+        {/* ── Tela: Acesso Negado (Não cadastrado na tabela de admins) ── */}
         {showAccessDenied && (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center animate-fade-in font-sans">
             <div className={`max-w-[480px] w-full flex flex-col items-stretch gap-6 p-6 sm:p-10 border ${
@@ -489,7 +688,6 @@ export default function PainelAdmin() {
                 Seu usuário não possui permissão para acessar o painel de gerenciamento. Ele precisa ser explicitamente ativado na tabela <code className="px-1.5 py-0.5 bg-red-500/10 rounded font-mono text-xs">admin_users</code> do seu banco de dados.
               </p>
 
-              {/* Box do UID para copiar */}
               <div className={`p-4 border rounded-lg text-left space-y-2 ${
                 isPapyrus 
                   ? 'border-[#5C4033]/40 bg-[#EAD8B8]/70 text-[#2D1D16]' 
@@ -530,309 +728,504 @@ export default function PainelAdmin() {
         {/* ── Tela: Painel Administrativo Ativo ── */}
         {showAdminDashboard && (
           <div className="space-y-8 animate-fade-in font-sans">
-            {/* Bloco Estatístico */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Total Fichas */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-cyan-500/10 text-cyan-400'}`}>
-                  <BarChart3 size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Total Fichas</p>
-                  <p className="text-2xl font-bold tracking-tight">{totalSheets}</p>
-                </div>
-              </div>
-
-              {/* Ouro Acumulado */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                  <Coins size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Ouro Total</p>
-                  <p className="text-2xl font-bold tracking-tight">{totalGold}</p>
-                </div>
-              </div>
-
-              {/* Provisões Restantes */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-[#C5A059]/10 text-[#C5A059]'}`}>
-                  <Apple size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Provisões Totais</p>
-                  <p className="text-2xl font-bold tracking-tight">{totalProvisions}</p>
-                </div>
-              </div>
-
-              {/* Monstros Derrotados */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-red-500/10 text-red-400'}`}>
-                  <Swords size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Monstros Derrotados</p>
-                  <p className="text-2xl font-bold tracking-tight">{totalMonstersDefeated}</p>
-                </div>
-              </div>
-
-              {/* Média Habilidade */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                  <Award size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Média Hab.</p>
-                  <p className="text-2xl font-bold tracking-tight">{avgSkill}</p>
-                </div>
-              </div>
-
-              {/* Média Energia */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-rose-500/10 text-rose-400'}`}>
-                  <Award size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Média Energ.</p>
-                  <p className="text-2xl font-bold tracking-tight">{avgEnergy}</p>
-                </div>
-              </div>
-
-              {/* Média Sorte */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-amber-500/10 text-amber-400'}`}>
-                  <Award size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Média Sorte</p>
-                  <p className="text-2xl font-bold tracking-tight">{avgLuck}</p>
-                </div>
-              </div>
-
-              {/* Itens Equipados */}
-              <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30' : 'border-[#4a5568]/40 bg-slate-800/20 rounded-lg'} flex items-center gap-3.5`}>
-                <div className={`p-2 rounded ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-indigo-500/10 text-indigo-400'}`}>
-                  <Shield size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-60">Itens Equipados</p>
-                  <p className="text-2xl font-bold tracking-tight">{totalItemsEquipped}</p>
-                </div>
-              </div>
+            {/* ── Navegação por Abas (Visual Premium) ── */}
+            <div className={`flex flex-wrap gap-2 border-b pb-1 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
+              {(['geral', 'jogadores', 'combate', 'aventuras'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveAdminTab(tab);
+                    setSelectedSheetDetails(null);
+                  }}
+                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-t-lg border-t border-x -mb-[1px] cursor-pointer ${
+                    activeAdminTab === tab
+                      ? (isPapyrus 
+                          ? 'bg-[#EAD8B8]/30 border-[#5C4033] text-[#2D1D16] font-extrabold' 
+                          : 'bg-slate-900 border-slate-800 text-cyan-400 border-b-slate-900')
+                      : (isPapyrus
+                          ? 'bg-transparent border-transparent text-[#5C4033]/60 hover:text-[#5C4033]'
+                          : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200')
+                  }`}
+                >
+                  {tab === 'geral' && 'Painel Geral'}
+                  {tab === 'jogadores' && 'Jogadores / Streaks'}
+                  {tab === 'combate' && 'Combates / Monstros'}
+                  {tab === 'aventuras' && 'Aventuras / Social'}
+                </button>
+              ))}
             </div>
 
-            {/* Barra de Ações: Busca + Criar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-              <div className="relative flex-1">
-                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-400'}`} size={16} />
-                <input
-                  type="text"
-                  placeholder="Pesquisar ficha pelo nome..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full pl-9 pr-4 py-2 text-sm border ${
-                    isPapyrus
-                      ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] placeholder-[#5C4033]/50 focus:outline-none focus:ring-2 focus:ring-[#C5A059]'
-                      : 'border-[#4a5568] bg-slate-900 text-[#cbd5e0] placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 rounded-lg'
-                  }`}
-                />
+            {/* Carregando dados da telemetria */}
+            {statsLoading && (
+              <div className="flex justify-center py-6 gap-2 text-xs uppercase tracking-widest text-slate-500">
+                <Loader2 className="animate-spin" size={14} /> Carregando estatísticas...
               </div>
+            )}
 
-              <button
-                onClick={() => setCreating(true)}
-                className={`flex items-center justify-center gap-2 px-4 py-2 text-xs uppercase font-bold tracking-wider transition-all duration-200 cursor-pointer ${
-                  isPapyrus
-                    ? 'border-2 border-[#5C4033] text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8]'
-                    : 'border border-cyan-500/50 text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-lg'
-                }`}
-              >
-                <PlusCircle size={14} /> Criar Ficha Admin
-              </button>
-            </div>
+            {/* ── ABA 1: PAINEL GERAL ── */}
+            {activeAdminTab === 'geral' && (
+              <div className="space-y-6">
+                {/* Cards Macro */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-cyan-500/10 text-cyan-400"><Compass size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Total Fichas</p>
+                      <p className="text-xl font-bold">{totalSheets}</p>
+                    </div>
+                  </div>
 
-            {/* Criar Nova Ficha Form */}
-            {creating && (
-              <div className={`p-4 border flex flex-col sm:flex-row items-stretch sm:items-center gap-3 ${
-                isPapyrus ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-md' : 'border-[#4a5568]/60 bg-slate-800/40 rounded-lg'
-              }`}>
-                <input
-                  type="text"
-                  placeholder="Nome da ficha (ex: Admin Campaign)"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                  className={`flex-1 px-3 py-2 text-sm border ${
-                    isPapyrus
-                      ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]'
-                      : 'border-[#4a5568] bg-slate-950 text-[#cbd5e0] rounded-lg'
-                  }`}
-                  autoFocus
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleCreate}
-                    className={`flex items-center gap-1 px-4 py-2 text-xs uppercase font-bold tracking-wider cursor-pointer ${
-                      isPapyrus 
-                        ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]' 
-                        : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 rounded-lg'
-                    }`}
-                  >
-                    <Check size={14} /> Criar
-                  </button>
-                  <button
-                    onClick={() => { setCreating(false); setNewTitle(''); }}
-                    className={`flex items-center gap-1 px-3 py-2 text-xs uppercase font-bold tracking-wider cursor-pointer border ${
-                      isPapyrus 
-                        ? 'border-[#5C4033] text-[#2D1D16] hover:bg-[#5C4033]/10' 
-                        : 'border-[#4a5568] text-[#cbd5e0] hover:bg-slate-700/60 rounded-lg'
-                    }`}
-                  >
-                    <X size={14} />
-                  </button>
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-yellow-500/10 text-yellow-500"><Coins size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Ouro Total</p>
+                      <p className="text-xl font-bold">{totalGold}</p>
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-emerald-500/10 text-emerald-400"><Clock size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Tempo Jogando</p>
+                      <p className="text-xl font-bold">
+                        {profiles.reduce((acc, p) => acc + (p.total_play_time || 0), 0)} min
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-purple-500/10 text-purple-400"><User size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Total Usuários</p>
+                      <p className="text-xl font-bold">{profiles.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Heatmap de Atividade */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Calendar size={16} /> Frequência de Ações (Últimos 28 Dias)
+                    </h3>
+                    <ActivityHeatmap data={activityData} />
+                  </div>
+
+                  {/* Taxa de Conclusão */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <BarChart3 size={16} /> Campanhas por Jogador (Começadas vs Concluídas)
+                    </h3>
+                    <CompletionBarChart data={completionBarData} />
+                  </div>
+                </div>
+
+                {/* ── Seção: Listagem de Fichas para Edição ── */}
+                <div className="space-y-4 pt-4">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <h3 className="text-sm font-bold uppercase tracking-wider">Fichas no Servidor ({filteredSheets.length})</h3>
+                    <div className="flex gap-2">
+                      <div className="relative">
+                        <Search className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-400'}`} size={13} />
+                        <input
+                          type="text"
+                          placeholder="Buscar ficha..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className={`pl-8 pr-3 py-1.5 text-xs border ${
+                            isPapyrus
+                              ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none'
+                              : 'border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none rounded'
+                          }`}
+                        />
+                      </div>
+                      <button
+                        onClick={() => setCreating(true)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer border ${
+                          isPapyrus ? 'border-[#5C4033] text-[#2D1D16] hover:bg-[#5C4033]/15' : 'border-cyan-500/50 text-cyan-300 rounded'
+                        }`}
+                      >
+                        <PlusCircle size={12} /> Criar
+                      </button>
+                    </div>
+                  </div>
+
+                  {creating && (
+                    <div className={`p-4 border flex gap-2 ${isPapyrus ? 'border-[#5C4033]' : 'border-slate-800 rounded'}`}>
+                      <input
+                        placeholder="Título da Ficha"
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        className={`flex-1 px-3 py-1.5 text-xs border ${
+                          isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
+                        }`}
+                      />
+                      <button onClick={handleCreate} className="px-3 py-1 text-xs font-bold uppercase border cursor-pointer">OK</button>
+                      <button onClick={() => setCreating(false)} className="px-3 py-1 text-xs border cursor-pointer">X</button>
+                    </div>
+                  )}
+
+                  {/* Listagem Grelha */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredSheets.map(sheet => {
+                      const isEditing = editingId === sheet.id;
+                      const isConfirmingDelete = confirmDeleteId === sheet.id;
+                      const uDate = new Date(sheet.updated_at).toLocaleDateString('pt-BR');
+                      const p = profiles.find(pr => pr.id === sheet.user_id);
+
+                      return (
+                        <div
+                          key={sheet.id}
+                          className={`p-4 border flex flex-col gap-3 group transition ${
+                            isPapyrus 
+                              ? 'border-[#5C4033] bg-[#EAD8B8]/30' 
+                              : 'border-slate-800 bg-slate-900/40 hover:bg-slate-900/75 rounded-lg'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            {isEditing ? (
+                              <input
+                                value={editTitle}
+                                onChange={e => setEditTitle(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleRename(sheet.id)}
+                                className={`px-2 py-1 text-xs border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'}`}
+                              />
+                            ) : (
+                              <div>
+                                <h4 className="font-bold text-sm leading-tight">{sheet.title}</h4>
+                                <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
+                              </div>
+                            )}
+
+                            <div className="flex gap-1">
+                              {!isEditing && (
+                                <button onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }} className="p-1 opacity-0 group-hover:opacity-100 transition hover:text-cyan-400">
+                                  <Pencil size={11} />
+                                </button>
+                              )}
+                              {isEditing && (
+                                <>
+                                  <button onClick={() => handleRename(sheet.id)} className="text-green-500"><Check size={12} /></button>
+                                  <button onClick={() => setEditingId(null)} className="text-red-500"><X size={12} /></button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center text-xs opacity-75 border-t border-current/5 pt-2">
+                            <span>Status: <strong className="uppercase">{sheet.status || 'playing'}</strong></span>
+                            <span>Acessada: <span className="font-mono">{uDate}</span></span>
+                          </div>
+
+                          <div className="flex gap-2 mt-1">
+                            <button
+                              onClick={() => handleSelectSheetDetails(sheet)}
+                              className={`flex-1 flex justify-center items-center gap-1 py-1 text-[10px] uppercase font-bold border cursor-pointer ${
+                                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/10' : 'border-slate-700 hover:bg-slate-800 rounded'
+                              }`}
+                            >
+                              Análise <ChevronRight size={10} />
+                            </button>
+
+                            <button
+                              onClick={() => handleExportSheet(sheet.id, sheet.title)}
+                              className={`p-1.5 border cursor-pointer hover:bg-current/5 ${isPapyrus ? 'border-[#5C4033]' : 'border-slate-700 rounded'}`}
+                              title="Exportar JSON"
+                            >
+                              <Download size={11} />
+                            </button>
+
+                            {isConfirmingDelete ? (
+                              <div className="flex gap-1">
+                                <button onClick={() => handleDelete(sheet.id)} className="p-1 text-red-500 border border-red-500/50 rounded"><Check size={10} /></button>
+                                <button onClick={() => setConfirmDeleteId(null)} className="p-1 text-slate-400 border border-slate-700 rounded"><X size={10} /></button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setConfirmDeleteId(sheet.id)} className="p-1.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 cursor-pointer rounded">
+                                <Trash2 size={11} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Painel de Análise da Ficha Selecionada ── */}
+                {selectedSheetDetails && (
+                  <div className={`p-6 border-2 animate-fade-in ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-cyan-500/30 bg-slate-900/80 rounded-xl shadow-lg'}`}>
+                    <div className="flex justify-between items-start border-b pb-3 mb-4">
+                      <div>
+                        <h3 className="font-bold text-lg">Histórico de Run: {selectedSheetDetails.title}</h3>
+                        <p className="text-xs opacity-75">UID: {selectedSheetDetails.id}</p>
+                      </div>
+                      <button onClick={() => setSelectedSheetDetails(null)} className="p-1 hover:text-red-500"><X size={18} /></button>
+                    </div>
+
+                    {loadingSheetLogs ? (
+                      <div className="flex justify-center py-12 gap-2 text-xs uppercase tracking-widest text-slate-500">
+                        <Loader2 className="animate-spin" size={14} /> Carregando logs da ficha...
+                      </div>
+                    ) : selectedSheetLogs.length === 0 ? (
+                      <p className="text-sm opacity-50 italic text-center py-10">
+                        Nenhum log de telemetria registrado para esta ficha de aventura.
+                      </p>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Gráfico de Evolução de Atributos */}
+                        <div>
+                          <h4 className="text-xs font-bold uppercase tracking-wider mb-2">Evolução de Atributos</h4>
+                          <AttributeHistoryLineChart data={selectedSheetAttributeHistory} />
+                        </div>
+
+                        {/* Listagem Cronológica dos Eventos */}
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-bold uppercase tracking-wider">Eventos do Escriba (Últimos {selectedSheetLogs.length})</h4>
+                          <div className="max-h-48 overflow-y-auto pr-1 text-xs space-y-1.5">
+                            {selectedSheetLogs.map((l, i) => {
+                              const date = new Date(l.created_at).toLocaleTimeString('pt-BR');
+                              return (
+                                <div key={i} className="flex justify-between items-center border-b border-current/5 pb-1">
+                                  <div>
+                                    <span className="font-mono text-[10px] opacity-50 mr-2">{date}</span>
+                                    <span className="font-bold uppercase text-[10px] text-cyan-400 mr-2">[{l.event_type}]</span>
+                                    <span className="font-sans opacity-95">{JSON.stringify(l.event_data)}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── ABA 2: JOGADORES / STREAKS ── */}
+            {activeAdminTab === 'jogadores' && (
+              <div className="space-y-6">
+                <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <Flame className="text-orange-500 animate-pulse" size={16} /> Perfis de Jogadores Registrados ({profiles.length})
+                  </h3>
+
+                  {profiles.length === 0 ? (
+                    <p className="text-sm opacity-50 italic text-center py-10">Nenhum perfil de jogador encontrado no banco de dados.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-current/25 font-bold uppercase opacity-85">
+                            <th className="py-2.5">Nome / Email</th>
+                            <th className="py-2.5">UID</th>
+                            <th className="py-2.5 text-center">Último Acesso</th>
+                            <th className="py-2.5 text-center">Consecutivos (Streak)</th>
+                            <th className="py-2.5 text-center">Tempo de Jogo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {profiles.map(p => {
+                            const lastLoginDate = new Date(p.last_login).toLocaleDateString('pt-BR', {
+                              day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                            });
+                            return (
+                              <tr key={p.id} className="border-b border-current/5 hover:bg-current/5 transition-colors">
+                                <td className="py-3 font-semibold">{p.display_name || p.email}</td>
+                                <td className="py-3 font-mono text-[10px] opacity-75">{p.id}</td>
+                                <td className="py-3 text-center">{lastLoginDate}</td>
+                                <td className="py-3 text-center font-bold text-orange-500">
+                                  🔥 {p.login_streak || 1} dias
+                                </td>
+                                <td className="py-3 text-center font-bold">{p.total_play_time || 0} min</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Listagem de Fichas */}
-            {isSyncing && sheetsList.length === 0 ? (
-              <div className="flex items-center justify-center py-16 gap-3 opacity-60">
-                <Loader2 className="animate-spin" size={24} />
-                <span className="text-sm uppercase tracking-widest font-mono">Carregando dados...</span>
-              </div>
-            ) : filteredSheets.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4 opacity-50 border-2 border-dashed border-current/20 rounded-lg">
-                <BookOpen size={40} strokeWidth={1} />
-                <p className="text-sm tracking-wide text-center">
-                  Nenhuma ficha encontrada com esses termos.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredSheets.map((sheet) => {
-                  const isEditing = editingId === sheet.id;
-                  const isConfirmingDelete = confirmDeleteId === sheet.id;
-                  const updated = new Date(sheet.updated_at);
-                  const dateStr = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                  const timeStr = updated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            {/* ── ABA 3: COMBATE / MONSTROS ── */}
+            {activeAdminTab === 'combate' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Gráfico de Pizza de Monstros Derrotados */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <PieChart3 size={16} /> Distribuição de Monstros Derrotados
+                    </h3>
+                    <p className="text-[10px] uppercase font-bold tracking-wider opacity-60 mb-4">Total de vitórias em combate registradas</p>
+                    <MonsterPieChart data={monsterPieData} />
+                  </div>
 
-                  return (
-                    <div
-                      key={sheet.id}
-                      className={`p-5 border flex flex-col gap-4 group transition-all duration-200 ${
-                        isPapyrus
-                          ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-md'
-                          : 'border-[#4a5568]/50 bg-slate-900/50 hover:bg-slate-800/40 rounded-xl'
-                      }`}
-                    >
-                      {/* Título & Renomeação */}
-                      {isEditing ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            className={`flex-1 px-3 py-1.5 text-sm border font-sans ${
-                              isPapyrus
-                                ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]'
-                                : 'border-[#4a5568] bg-slate-950 text-[#cbd5e0] rounded-lg'
-                            }`}
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleRename(sheet.id);
-                              if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
-                            }}
-                            autoFocus
-                          />
-                          <button onClick={() => handleRename(sheet.id)} className="p-1.5 hover:text-green-500 cursor-pointer">
-                            <Check size={16} />
-                          </button>
-                          <button onClick={() => { setEditingId(null); setEditTitle(''); }} className="p-1.5 hover:text-red-500 cursor-pointer">
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className={`font-bold text-base leading-snug line-clamp-1 ${isPapyrus ? 'text-[#2D1D16]' : 'text-[#e2e8f0]'}`}>
-                            {sheet.title}
-                          </h3>
-                          <button
-                            onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }}
-                            className="shrink-0 p-1 opacity-0 group-hover:opacity-100 hover:text-cyan-400 transition cursor-pointer"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                        </div>
-                      )}
+                  {/* Estatísticas de Danos e Perigos */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'} flex flex-col justify-between`}>
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Swords className="text-red-500" size={16} /> Registro de Combates e Telemetria
+                      </h3>
 
-                      {/* Infos Rápidas */}
-                      <div className="grid grid-cols-3 gap-2 py-1 text-center bg-slate-950/10 dark:bg-slate-950/30 rounded border border-current/5">
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider opacity-60">Hab.</p>
-                          <p className="text-sm font-bold">{sheet.attributes?.skill?.current ?? 0}/{sheet.attributes?.skill?.initial ?? 0}</p>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center py-2 border-b border-current/5">
+                          <span className="text-xs opacity-75">Total de Combates Iniciados</span>
+                          <span className="font-bold text-sm">{logs.filter(l => l.event_type === 'combat').length}</span>
                         </div>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider opacity-60">Energ.</p>
-                          <p className="text-sm font-bold">{sheet.attributes?.energy?.current ?? 0}/{sheet.attributes?.energy?.initial ?? 0}</p>
+
+                        <div className="flex justify-between items-center py-2 border-b border-current/5">
+                          <span className="text-xs opacity-75">Mortes em Combate</span>
+                          <span className="font-bold text-sm text-red-500">{deathsCombat}</span>
                         </div>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider opacity-60">Sorte</p>
-                          <p className="text-sm font-bold">{sheet.attributes?.luck?.current ?? 0}/{sheet.attributes?.luck?.initial ?? 0}</p>
+
+                        <div className="flex justify-between items-center py-2 border-b border-current/5">
+                          <span className="text-xs opacity-75">Mortes por Armadilhas/Parágrafos</span>
+                          <span className="font-bold text-sm text-yellow-500">{deathsTrap}</span>
                         </div>
-                      </div>
 
-                      {/* Item Atual & Data */}
-                      <div className="space-y-1 text-xs opacity-75">
-                        <p>Última Edição: <span className="font-mono">{dateStr} {timeStr}</span></p>
-                        <p>Item Atual: <span className="font-bold">{sheet.attributes?.currentSection || 'Nenhum'}</span></p>
-                      </div>
+                        <div className="flex justify-between items-center py-2 border-b border-current/5">
+                          <span className="text-xs opacity-75">Monstro Mais Mortal (Kills)</span>
+                          <span className="font-bold text-sm text-red-500 flex items-center gap-1"><Skull size={11} /> {mostDeadlyMonster}</span>
+                        </div>
 
-                      {/* Ações de Cartão */}
-                      <div className="flex items-center gap-2 mt-auto pt-2 border-t border-current/10">
-                        {/* Download JSON */}
-                        <button
-                          onClick={() => handleExportSheet(sheet.id, sheet.title)}
-                          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider cursor-pointer border ${
-                            isPapyrus 
-                              ? 'border-[#5C4033]/60 text-[#2D1D16] hover:bg-[#5C4033]/10' 
-                              : 'border-slate-700 text-slate-300 hover:bg-slate-800 rounded-lg'
-                          }`}
-                        >
-                          <Download size={12} /> Exportar
-                        </button>
-
-                        {/* Exclusão */}
-                        {isConfirmingDelete ? (
-                          <div className="flex items-center gap-1 shrink-0">
-                            <span className="text-[10px] text-red-500 font-bold uppercase mr-1">Confirmar?</span>
-                            <button
-                              onClick={() => handleDelete(sheet.id)}
-                              className="p-1.5 text-red-500 hover:bg-red-500/10 border border-red-500/50 rounded cursor-pointer"
-                            >
-                              <Check size={12} />
-                            </button>
-                            <button
-                              onClick={() => setConfirmDeleteId(null)}
-                              className="p-1.5 text-slate-400 hover:bg-slate-700/60 border border-slate-700 rounded cursor-pointer"
-                            >
-                              <X size={12} />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmDeleteId(sheet.id)}
-                            className="p-2 border border-red-500/40 text-red-400 hover:bg-red-500/10 rounded-lg cursor-pointer transition"
-                            title="Excluir ficha"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        )}
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-xs opacity-75">Monstro Mais Derrotado pelos Jogadores</span>
+                          <span className="font-bold text-sm text-green-500 flex items-center gap-1"><Award size={11} /> {monsterPieData[0]?.name || 'Nenhum'}</span>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
+
+                    <div className={`p-3.5 border text-xs leading-relaxed opacity-85 mt-4 ${isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/40' : 'border-slate-800 bg-slate-950/40 rounded-lg'}`}>
+                      💬 <strong>Nota do Mestre da Masmorra:</strong> Os jogadores estão derrotando mais monstros do tipo <strong>{monsterPieData[0]?.name || 'Goblin'}</strong>. O perigo real que causa mais mortes é <strong>{mostDeadlyMonster}</strong>.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── ABA 4: AVENTURAS / SOCIAL ── */}
+            {activeAdminTab === 'aventuras' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Rankings */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Award size={16} className="text-yellow-500" /> Ranking Global de Riqueza (Ouro)
+                    </h3>
+
+                    {goldRanking.length === 0 ? (
+                      <p className="text-xs opacity-50 italic py-4">Nenhum ranking disponível.</p>
+                    ) : (
+                      <div className="space-y-2 text-xs">
+                        {goldRanking.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-bold w-4">{idx + 1}.</span>
+                              <div>
+                                <span className="font-bold">{item.name}</span>
+                                <span className="text-[10px] opacity-60 block">Ficha: {item.sheetTitle}</span>
+                              </div>
+                            </div>
+                            <span className="font-mono font-bold text-yellow-500">{item.value} ouro</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Swords size={16} className="text-cyan-400" /> Caçadores de Monstros (Vitórias de Combates)
+                    </h3>
+
+                    {hunterRanking.length === 0 ? (
+                      <p className="text-xs opacity-50 italic py-4">Nenhum ranking de combate disponível.</p>
+                    ) : (
+                      <div className="space-y-2 text-xs">
+                        {hunterRanking.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-bold w-4">{idx + 1}.</span>
+                              <span className="font-bold">{item.name}</span>
+                            </div>
+                            <span className="font-bold text-cyan-400">{item.value} monstros</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Seções/Itens mais visitados */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Compass size={16} /> Parágrafos/Itens mais visitados do Livro-Jogo
+                    </h3>
+
+                    {topSections.length === 0 ? (
+                      <p className="text-xs opacity-50 italic py-4">Nenhum dado registrado.</p>
+                    ) : (
+                      <div className="space-y-2 text-xs">
+                        {topSections.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
+                            <span className="font-bold">Item {item.section}</span>
+                            <span className="opacity-75">{item.count} visitas</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Consumos do Inventário */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Apple size={16} /> Telemetria de Consumíveis
+                    </h3>
+
+                    <div className="space-y-4 text-xs">
+                      <div className="flex justify-between items-center py-1.5 border-b border-current/5">
+                        <span>Provisões Consumidas (Curar Energia)</span>
+                        <span className="font-bold">
+                          {logs.filter(l => l.event_type === 'item_use' && l.event_data?.item === 'provisions').length} unidades
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center py-1.5 border-b border-current/5">
+                        <span>Total de Itens Coletados</span>
+                        <span className="font-bold">
+                          {logs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'add').length} itens
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center py-1.5">
+                        <span>Total de Itens Descartados</span>
+                        <span className="font-bold">
+                          {logs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'remove').length} itens
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
     </main>
+  );
+}
+
+// Pequeno helper para renderizar ícone de pizza no Lucide
+function PieChart3({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+      <path d="M22 12A10 10 0 0 0 12 2v10z" />
+    </svg>
   );
 }

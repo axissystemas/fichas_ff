@@ -272,7 +272,7 @@ export default function Home() {
       }
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       const activeUser = session?.user ?? null;
       if (activeUser) {
         setUser({
@@ -281,6 +281,11 @@ export default function Home() {
           provider: activeUser.app_metadata.provider,
           user_metadata: activeUser.user_metadata,
         });
+
+        // Update login streak and session profile
+        const store = useSheetStore.getState();
+        await store.updateUserSession();
+
         if (activeUser.app_metadata.provider === 'google') {
           loadSheetsList();
         }
@@ -290,6 +295,17 @@ export default function Home() {
       }
     });
   }, []);
+
+  // Track total game play time (increments every minute if a sheet is open)
+  useEffect(() => {
+    if (!user || !activeSheetId) return;
+
+    const interval = setInterval(() => {
+      useSheetStore.getState().incrementPlayTime();
+    }, 60000); // 1 minute
+
+    return () => clearInterval(interval);
+  }, [user, activeSheetId]);
 
   // Interceptar fechamento ou recarregamento do navegador
   useEffect(() => {
