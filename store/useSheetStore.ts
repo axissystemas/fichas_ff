@@ -31,6 +31,7 @@ export interface DbSheet {
   user_id: string;
   title: string;
   status?: 'playing' | 'victory' | 'defeat';
+  gamebook?: string;
   attributes: {
     skill: Attribute;
     energy: Attribute;
@@ -71,6 +72,7 @@ interface SheetState {
   activeTab: string;
   resetKey: number;
   status: 'playing' | 'victory' | 'defeat';
+  gamebook: string;
 
   // Supabase sync, list, and user state
   user: AuthUser | null;
@@ -79,6 +81,7 @@ interface SheetState {
     id: string;
     user_id?: string;
     title: string;
+    gamebook?: string;
     updated_at: string;
     status?: 'playing' | 'victory' | 'defeat';
     attributes?: {
@@ -125,7 +128,7 @@ interface SheetState {
   setSyncStatus: (status: SyncStatus) => void;
   loadSheetsList: (allSheets?: boolean) => Promise<void>;
   loadSheet: (id: string) => Promise<void>;
-  createSheet: (title: string) => Promise<void>;
+  createSheet: (title: string, gamebook: string) => Promise<void>;
   renameSheet: (id: string, newTitle: string) => Promise<void>;
   deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
@@ -177,6 +180,7 @@ export const useSheetStore = create<SheetState>()(
       activeTab: 'Ficha',
       resetKey: 0,
       status: 'playing',
+      gamebook: 'O Feiticeiro da Montanha de Fogo',
       user: null,
       activeSheetId: null,
       sheetsList: [],
@@ -201,6 +205,7 @@ export const useSheetStore = create<SheetState>()(
           activeTab: 'Ficha',
           resetKey: 0,
           status: 'playing',
+          gamebook: 'O Feiticeiro da Montanha de Fogo',
           user: null,
           activeSheetId: null,
           sheetsList: [],
@@ -262,6 +267,7 @@ export const useSheetStore = create<SheetState>()(
               theme: data.theme as 'papyrus' | 'night',
               combatLog: data.combat_log,
               status: (data.status || 'playing') as 'playing' | 'victory' | 'defeat',
+              gamebook: data.gamebook || 'O Feiticeiro da Montanha de Fogo',
               syncStatus: 'saved',
               lastSynced: new Date().toISOString(),
             });
@@ -272,7 +278,7 @@ export const useSheetStore = create<SheetState>()(
         }
       },
 
-      createSheet: async (title: string) => {
+      createSheet: async (title: string, gamebook: string) => {
         const user = get().user;
         if (!user) return;
         set({ syncStatus: 'saving' });
@@ -282,6 +288,7 @@ export const useSheetStore = create<SheetState>()(
             id: newSheetId,
             user_id: user.id,
             title: title || 'Nova Ficha',
+            gamebook: gamebook || 'O Feiticeiro da Montanha de Fogo',
             attributes: defaultAttributes,
             gold: 0,
             provisions: 10,
@@ -304,6 +311,7 @@ export const useSheetStore = create<SheetState>()(
               {
                 id: newSheetId,
                 title: payload.title,
+                gamebook: payload.gamebook,
                 updated_at: new Date().toISOString(),
                 attributes: defaultAttributes,
                 status: 'playing',
@@ -319,6 +327,7 @@ export const useSheetStore = create<SheetState>()(
             notes: '',
             combatLog: [],
             status: 'playing',
+            gamebook: payload.gamebook,
             syncStatus: 'saved',
             lastSynced: new Date().toISOString(),
           }));
@@ -396,6 +405,7 @@ export const useSheetStore = create<SheetState>()(
             theme: state.theme,
             combat_log: state.combatLog,
             status: state.status,
+            gamebook: state.gamebook,
           };
 
           const { error } = await supabase
@@ -417,6 +427,7 @@ export const useSheetStore = create<SheetState>()(
                     updated_at: new Date().toISOString(),
                     attributes: state.attributes,
                     status: state.status,
+                    gamebook: state.gamebook,
                   }
                 : s
             ),

@@ -18,12 +18,14 @@ import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
 } from 'lucide-react';
+import { GAMEBOOKS } from '@/lib/gamebooks';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
 function SheetDashboard() {
   const { theme, sheetsList, loadSheetsList, loadSheet, createSheet, renameSheet, deleteSheet, syncStatus } = useSheetStore();
   const [newTitle, setNewTitle] = useState('');
+  const [newGamebook, setNewGamebook] = useState<string>(GAMEBOOKS[0]);
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -36,8 +38,9 @@ function SheetDashboard() {
 
   const handleCreate = async () => {
     const title = newTitle.trim() || 'Nova Ficha';
-    await createSheet(title);
+    await createSheet(title, newGamebook);
     setNewTitle('');
+    setNewGamebook(GAMEBOOKS[0]);
     setCreating(false);
   };
 
@@ -91,25 +94,42 @@ function SheetDashboard() {
 
       {/* Create Sheet Form */}
       {creating && (
-        <div className={`p-4 ${cardBase} flex flex-col sm:flex-row items-stretch sm:items-center gap-3`}>
-          <input
-            className={`flex-1 ${inputBase}`}
-            placeholder="Nome da ficha (ex: Barbarian Run)"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-            autoFocus
-          />
-          <div className="flex gap-2">
+        <div className={`p-4 ${cardBase} flex flex-col gap-4 sm:flex-row sm:items-end`}>
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Nome do Personagem / Ficha</label>
+            <input
+              className={`w-full ${inputBase}`}
+              placeholder="Nome da ficha (ex: Barbarian Run)"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              autoFocus
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Selecionar Livro-Jogo</label>
+            <select
+              value={newGamebook}
+              onChange={(e) => setNewGamebook(e.target.value)}
+              className={`w-full ${inputBase}`}
+            >
+              {GAMEBOOKS.map((book) => (
+                <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                  {book}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2 shrink-0 sm:pb-0.5">
             <button
               onClick={handleCreate}
-              className={`flex items-center gap-1.5 px-4 py-2 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition' : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded'}`}
+              className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition' : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded'}`}
             >
               <Check size={14} /> Criar
             </button>
             <button
-              onClick={() => { setCreating(false); setNewTitle(''); }}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs uppercase font-bold tracking-wider ${btnBase}`}
+              onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); }}
+              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs uppercase font-bold tracking-wider ${btnBase}`}
             >
               <X size={14} />
             </button>
@@ -184,8 +204,13 @@ function SheetDashboard() {
                   </div>
                 )}
 
+                {/* Gamebook */}
+                <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
+                  📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                </p>
+
                 {/* Date */}
-                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
+                <p className={`text-[10px] font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
                   Atualizado em {dateStr} às {timeStr}
                 </p>
 

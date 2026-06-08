@@ -14,6 +14,7 @@ import {
   CompletionBarChart,
   ActivityHeatmap
 } from '@/components/DashboardCharts';
+import { GAMEBOOKS } from '@/lib/gamebooks';
 
 export default function PainelAdmin() {
   const {
@@ -44,6 +45,7 @@ export default function PainelAdmin() {
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [newGamebook, setNewGamebook] = useState<string>(GAMEBOOKS[0]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -210,8 +212,9 @@ export default function PainelAdmin() {
 
   const handleCreate = async () => {
     const title = newTitle.trim() || 'Nova Ficha Admin';
-    await createSheet(title);
+    await createSheet(title, newGamebook);
     setNewTitle('');
+    setNewGamebook(GAMEBOOKS[0]);
     setCreating(false);
   };
 
@@ -425,7 +428,18 @@ export default function PainelAdmin() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // 8. Histórico simulado de atributos para a ficha selecionada
+  // 8. Popularidade dos Livros-Jogo (Quantidade de fichas criadas por livro)
+  const gamebookPopularityMap: Record<string, number> = {};
+  sheetsList.forEach(sheet => {
+    const bookName = sheet.gamebook || 'O Feiticeiro da Montanha de Fogo';
+    gamebookPopularityMap[bookName] = (gamebookPopularityMap[bookName] || 0) + 1;
+  });
+  const gamebookPopularity = Object.entries(gamebookPopularityMap)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+
+  // 9. Histórico simulado de atributos para a ficha selecionada
   const selectedSheetAttributeHistory = selectedSheetLogs.map((l, idx) => {
     const initialSkill = selectedSheetDetails?.attributes?.skill?.initial || 10;
     const initialEnergy = selectedSheetDetails?.attributes?.energy?.initial || 14;
@@ -851,17 +865,38 @@ export default function PainelAdmin() {
                   </div>
 
                   {creating && (
-                    <div className={`p-4 border flex gap-2 ${isPapyrus ? 'border-[#5C4033]' : 'border-slate-800 rounded'}`}>
-                      <input
-                        placeholder="Título da Ficha"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        className={`flex-1 px-3 py-1.5 text-xs border ${
-                          isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
-                        }`}
-                      />
-                      <button onClick={handleCreate} className="px-3 py-1 text-xs font-bold uppercase border cursor-pointer">OK</button>
-                      <button onClick={() => setCreating(false)} className="px-3 py-1 text-xs border cursor-pointer">X</button>
+                    <div className={`p-4 border flex flex-col gap-3 sm:flex-row sm:items-end ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/50 rounded-lg'}`}>
+                      <div className="flex-1 flex flex-col gap-1">
+                        <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Título da Ficha</label>
+                        <input
+                          placeholder="Ex: Admin Campaign"
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          className={`w-full px-3 py-1.5 text-xs border ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
+                          }`}
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-col gap-1">
+                        <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Livro-Jogo</label>
+                        <select
+                          value={newGamebook}
+                          onChange={(e) => setNewGamebook(e.target.value)}
+                          className={`w-full px-3 py-1.5 text-xs border ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
+                          }`}
+                        >
+                          {GAMEBOOKS.map((book) => (
+                            <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                              {book}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex gap-2 shrink-0 pb-0.5">
+                        <button onClick={handleCreate} className="px-3 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded">Criar</button>
+                        <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); }} className="px-3 py-1.5 text-xs border cursor-pointer rounded">Cancelar</button>
+                      </div>
                     </div>
                   )}
 
@@ -893,7 +928,10 @@ export default function PainelAdmin() {
                             ) : (
                               <div>
                                 <h4 className="font-bold text-sm leading-tight">{sheet.title}</h4>
-                                <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
+                                <div className="flex flex-col gap-0.5 mt-0.5">
+                                  <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
+                                  <span className={`text-[10px] font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}</span>
+                                </div>
                               </div>
                             )}
 
@@ -1210,6 +1248,26 @@ export default function PainelAdmin() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Popularidade por Livro-Jogo */}
+                <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'} mt-6`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <BookOpen size={16} /> Popularidade por Livro-Jogo (Campanhas Iniciadas)
+                  </h3>
+
+                  {gamebookPopularity.length === 0 ? (
+                    <p className="text-xs opacity-50 italic py-4">Nenhum dado registrado.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                      {gamebookPopularity.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center py-2 px-3 border border-current/10 bg-current/5 rounded">
+                          <span className="font-bold truncate pr-2" title={item.name}>📚 {item.name}</span>
+                          <span className="font-mono font-bold shrink-0">{item.count} fichas</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
