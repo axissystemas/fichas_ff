@@ -284,6 +284,7 @@ export default function Home() {
     setActiveTab,
     resetKey,
     checkAdminStatus,
+    gamebook,
   } = useSheetStore();
 
   // Load user session on initial render (AuthStatus also handles it)
@@ -463,12 +464,47 @@ export default function Home() {
             >
               Aventuras Fantásticas
             </h1>
-            <div className="flex items-center gap-3 mt-1">
+            {/* Sub-header: character name, gamebook, sync status and auth */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
               {showSheet && activeSheetTitle && (
-                <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 rounded ${isPapyrus ? 'bg-[#5C4033]/10' : 'bg-white/10'}`}>
-                  {activeSheetTitle}
-                </span>
+                <>
+                  {/* Character name */}
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                      Personagem
+                    </span>
+                    <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 border ${
+                      isPapyrus
+                        ? 'bg-[#5C4033]/10 text-[#2D1D16] border-[#5C4033]/40'
+                        : 'bg-slate-800 text-slate-100 border-slate-600'
+                    }`}>
+                      🧙 {activeSheetTitle}
+                    </span>
+                  </div>
+
+                  {/* Separator */}
+                  <span className={`hidden sm:block text-xs opacity-30 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-500'}`}>|</span>
+
+                  {/* Gamebook */}
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                      Livrojogo
+                    </span>
+                    <span className={`text-xs font-bold italic px-2 py-0.5 border ${
+                      isPapyrus
+                        ? 'bg-[#8B4513]/10 text-[#6B3A2A] border-[#8B4513]/30'
+                        : 'bg-cyan-950/50 text-cyan-300 border-cyan-700/50'
+                    }`}>
+                      📚 {gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                    </span>
+                  </div>
+
+                  {/* Separator */}
+                  <span className={`hidden sm:block text-xs opacity-30 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-500'}`}>|</span>
+                </>
               )}
+
+              {/* Sync status + Auth always visible */}
               {showSheet && <SyncStatus />}
               <AuthStatus />
             </div>
