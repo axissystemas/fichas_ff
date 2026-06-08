@@ -28,6 +28,7 @@ export interface Monster {
 export interface AuthUser {
   id: string;
   email?: string;
+  provider?: string;
   user_metadata?: { avatar_url?: string; full_name?: string };
 }
 
@@ -64,9 +65,14 @@ interface SheetState {
       luck: Attribute;
       currentSection?: string;
     };
+    gold?: number;
+    provisions?: number;
+    inventory?: Item[];
+    monsters?: Monster[];
   }>;
   syncStatus: SyncStatus;
   lastSynced: string | null;
+  isAdmin: boolean | null;
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -97,6 +103,7 @@ interface SheetState {
   renameSheet: (id: string, newTitle: string) => Promise<void>;
   deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
+  checkAdminStatus: () => Promise<boolean>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -148,6 +155,7 @@ export const useSheetStore = create<SheetState>()(
       sheetsList: [],
       syncStatus: 'idle',
       lastSynced: null,
+      isAdmin: null,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
@@ -170,6 +178,7 @@ export const useSheetStore = create<SheetState>()(
           sheetsList: [],
           syncStatus: 'idle',
           lastSynced: null,
+          isAdmin: null,
         });
       },
 
@@ -182,7 +191,7 @@ export const useSheetStore = create<SheetState>()(
         try {
           const { data, error } = await supabase
             .from('adventure_sheets')
-            .select('id, title, updated_at, attributes')
+            .select('*')
             .eq('user_id', user.id)
             .order('updated_at', { ascending: false });
 
@@ -508,6 +517,30 @@ export const useSheetStore = create<SheetState>()(
 
         // Save the cleared state to Supabase instead of deleting the sheet
         await get().saveToSupabase();
+      },
+      checkAdminStatus: async () => {
+        const user = get().user;
+        if (!user) {
+          set({ isAdmin: false });
+          return false;
+        }
+        try {
+          const { data, error } = await supabase
+            .from('admin_users')
+            .select('is_admin')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          const isUserAdmin = !!data?.is_admin;
+          set({ isAdmin: isUserAdmin });
+          return isUserAdmin;
+        } catch (err) {
+          console.error('[Supabase] checkAdminStatus error:', err);
+          set({ isAdmin: false });
+          return false;
+        }
       },
     }),
     {

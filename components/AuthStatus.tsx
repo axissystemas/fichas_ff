@@ -5,7 +5,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { Loader2, LogOut } from 'lucide-react';
 
 export const AuthStatus = () => {
-  const { user, setUser, loadSheetsList, clearLocalState } = useSheetStore();
+  const { user, setUser, loadSheetsList, clearLocalState, checkAdminStatus } = useSheetStore();
   const [loading, setLoading] = useState(false);
 
   // Atualiza estado ao mudar sessão e sincroniza com Zustand
@@ -16,9 +16,11 @@ export const AuthStatus = () => {
         setUser({
           id: activeUser.id,
           email: activeUser.email,
+          provider: activeUser.app_metadata.provider,
           user_metadata: activeUser.user_metadata,
         });
         loadSheetsList();
+        checkAdminStatus();
       } else {
         clearLocalState();
       }
@@ -30,9 +32,11 @@ export const AuthStatus = () => {
         setUser({
           id: activeUser.id,
           email: activeUser.email,
+          provider: activeUser.app_metadata.provider,
           user_metadata: activeUser.user_metadata,
         });
         loadSheetsList();
+        checkAdminStatus();
       } else {
         clearLocalState();
       }

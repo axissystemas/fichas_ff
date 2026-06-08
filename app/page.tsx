@@ -258,19 +258,33 @@ export default function Home() {
     activeTab,
     setActiveTab,
     resetKey,
+    checkAdminStatus,
   } = useSheetStore();
 
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const redirect = sessionStorage.getItem('login_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('login_redirect');
+        window.location.href = redirect;
+        return;
+      }
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       const activeUser = session?.user ?? null;
       if (activeUser) {
         setUser({
           id: activeUser.id,
           email: activeUser.email,
+          provider: activeUser.app_metadata.provider,
           user_metadata: activeUser.user_metadata,
         });
-        loadSheetsList();
+        if (activeUser.app_metadata.provider === 'google') {
+          loadSheetsList();
+        }
+        checkAdminStatus();
       } else {
         clearLocalState();
       }
@@ -375,9 +389,9 @@ export default function Home() {
   // The child components will handle their own loading states.
 
   // Which view to render in the content area
-  const showLogin = !user;
-  const showDashboard = !!user && !activeSheetId;
-  const showSheet = !!user && !!activeSheetId;
+  const showLogin = !user || user.provider !== 'google';
+  const showDashboard = !!user && user.provider === 'google' && !activeSheetId;
+  const showSheet = !!user && user.provider === 'google' && !!activeSheetId;
   const activeSheetTitle = activeSheetId
     ? sheetsList.find(s => s.id === activeSheetId)?.title
     : null;
@@ -476,7 +490,67 @@ export default function Home() {
         {/* ── Tela de Login ── */}
         {showLogin && (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
-            {isPapyrus ? (
+            {user && user.provider !== 'google' ? (
+              isPapyrus ? (
+                <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-inner rounded-sm text-[#2D1D16]">
+                  <h2 className="text-3xl font-extrabold uppercase tracking-widest text-red-800">Sessão Administrativa</h2>
+                  <div className="w-24 h-0.5 bg-[#C5A059]"></div>
+                  <p className="text-sm font-serif leading-relaxed opacity-90 max-w-[340px]">
+                    Você está conectado com e-mail/senha. O jogo de fichas é exclusivo para acesso via Google.
+                  </p>
+                  <a
+                    href="/painel"
+                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer text-center"
+                  >
+                    Ir para o Painel
+                  </a>
+                  <button
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      clearLocalState();
+                    }}
+                    className="text-xs font-sans tracking-wide text-[#5C4033] hover:underline opacity-80 cursor-pointer"
+                  >
+                    Fazer Logout (Desconectar)
+                  </button>
+                </div>
+              ) : (
+                <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-red-500/40 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(239,68,68,0.1)] rounded-xl text-slate-300">
+                  <div className="w-16 h-16 border border-red-500/40 rounded-full flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)] mb-2 animate-pulse">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+                      Painel Conectado
+                    </h2>
+                    <p className="text-xs uppercase tracking-wider text-red-400/80 mt-1 font-mono font-bold">
+                      Acesso de Administrador
+                    </p>
+                  </div>
+                  <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                  <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
+                    Você está logado com credenciais administrativas. Para jogar, utilize o painel de gerenciamento ou desconecte para entrar com o Google.
+                  </p>
+                  <a
+                    href="/painel"
+                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-red-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-red-500/10 hover:border-red-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] cursor-pointer rounded-lg text-center"
+                  >
+                    Ir para o Painel
+                  </a>
+                  <button
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      clearLocalState();
+                    }}
+                    className="text-xs font-mono tracking-wide text-slate-500 hover:text-slate-300 hover:underline cursor-pointer"
+                  >
+                    Desconectar Sessão
+                  </button>
+                </div>
+              )
+            ) : isPapyrus ? (
               <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
                 <div className="flex items-center justify-center mb-2 drop-shadow-lg">
                   <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
