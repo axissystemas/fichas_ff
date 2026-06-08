@@ -97,7 +97,7 @@ interface SheetState {
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
-  loadSheetsList: () => Promise<void>;
+  loadSheetsList: (allSheets?: boolean) => Promise<void>;
   loadSheet: (id: string) => Promise<void>;
   createSheet: (title: string) => Promise<void>;
   renameSheet: (id: string, newTitle: string) => Promise<void>;
@@ -184,16 +184,20 @@ export const useSheetStore = create<SheetState>()(
 
       setActiveSheetId: (activeSheetId) => set({ activeSheetId }),
 
-      loadSheetsList: async () => {
+      loadSheetsList: async (allSheets = false) => {
         const user = get().user;
         if (!user) return;
         set({ syncStatus: 'loading' });
         try {
-          const { data, error } = await supabase
+          let query = supabase
             .from('adventure_sheets')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('updated_at', { ascending: false });
+            .select('*');
+
+          if (!allSheets) {
+            query = query.eq('user_id', user.id);
+          }
+
+          const { data, error } = await query.order('updated_at', { ascending: false });
 
           if (error) throw error;
 

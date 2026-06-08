@@ -60,7 +60,7 @@ export default function PainelAdmin() {
         // Verifica na tabela public.admin_users
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
-          await loadSheetsList();
+          await loadSheetsList(true);
         }
       } else {
         clearLocalState();
@@ -81,7 +81,7 @@ export default function PainelAdmin() {
         });
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
-          await loadSheetsList();
+          await loadSheetsList(true);
         }
       } else {
         clearLocalState();
@@ -119,7 +119,7 @@ export default function PainelAdmin() {
         
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
-          await loadSheetsList();
+          await loadSheetsList(true);
         }
       }
     } catch (err: any) {
