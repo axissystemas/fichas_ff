@@ -3,8 +3,8 @@
   "codigoLivro": "FF04",
   "monstros": [
     {
-      "id": "ff04-agauaaaradaaa-aaalaiaeanaiagaeanaaa-001",
-      "nome": "Ágáuáaárádáaá Áaáláiáeánáíágáeánáaá",
+      "id": "ff04-guarda-alienigena-001",
+      "nome": "Guarda Alienígena",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 14,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff04-acaraiaaatauaraaasa-adaoa-abaaara-002",
-      "nome": "Ácáráiáaátáuáráaásá Ádáoá Ábáaárá",
+      "id": "ff04-criaturas-do-bar-002",
+      "nome": "Criaturas Do Bar",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff04-agauaiaaaradaiaaa-003",
-      "nome": "Ágáuáíáaárádáíáaá",
+      "id": "ff04-guiardia-003",
+      "nome": "Guíardía",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 7,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff04-asaeaua-agauaiaaaradaiaaa-004",
-      "nome": "Ásáeáuá Ágáuáíáaárádáíáaá",
+      "id": "ff04-seu-guiardia-004",
+      "nome": "Seu Guíardía",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff04-avaaaoacaea-005",
-      "nome": "Áváãáoácáêá",
+      "id": "ff04-vaoce-005",
+      "nome": "Vãocê",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 7,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff04-araaaoabaoa-aaasasaiaaasasaianaaaoa-006",
-      "nome": "Áráãáoábáôá Áaásásáíáaásásáiánáãáoá",
+      "id": "ff04-raobo-assiassinao-006",
+      "nome": "Rãobô Assíassinão",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 4,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff04-aaagauaiaiaaa-007",
-      "nome": "Ááágáuáiáíáaá",
+      "id": "ff04-aguiia-007",
+      "nome": "Águiía",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 5,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff04-agaiaaanazaiagaiataiaaa-008",
-      "nome": "Ágáíáaánázáiágáiátáíáaá",
+      "id": "ff04-gianzigitia-008",
+      "nome": "Gíanzigitía",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff04-agauaiaaaradaiaaa-adaea-aiaaaramaiaaadauaraiaaa-009",
-      "nome": "Ágáuáíáaárádáíáaá Ádáeá Áíáaárámáíáaádáuáráíáaá",
+      "id": "ff04-guiardia-de-iarmiaduria-009",
+      "nome": "Guíardía De Íarmíaduría",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 14,

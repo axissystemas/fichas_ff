@@ -3,8 +3,8 @@
   "codigoLivro": "FF06",
   "monstros": [
     {
-      "id": "ff06-amaaanataeacaoaraaa-001",
-      "nome": "Ámáaánátáéácáoáráaá",
+      "id": "ff06-mantecora-001",
+      "nome": "Mantécora",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 11,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff06-amaoasacaaa-agaiagaaanataea-002",
-      "nome": "Ámáoásácáaá Ágáiágáaánátáeá",
+      "id": "ff06-mosca-gigante-002",
+      "nome": "Mosca Gigante",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff06-amaianaoataaauaraoa-003",
-      "nome": "Ámáiánáoátáaáuáráoá",
+      "id": "ff06-minotauro-003",
+      "nome": "Minotauro",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 9,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff06-ahaoabagaoabalaiana-004",
-      "nome": "Áháoábágáoábáláiáná",
+      "id": "ff06-hobgoblin-004",
+      "nome": "Hobgoblin",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 5,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff06-aearavaaa-005",
-      "nome": "Áeáráváaá",
+      "id": "ff06-erva-005",
+      "nome": "Erva",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 9,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff06-aeasacaoarapaiaaaoa-agaiagaaanataea-006",
-      "nome": "Áeásácáoárápáiáãáoá Ágáiágáaánátáeá",
+      "id": "ff06-escorpiao-gigante-006",
+      "nome": "Escorpião Gigante",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff06-aaanaaaoa-007",
-      "nome": "Áaánáãáoá",
+      "id": "ff06-anao-007",
+      "nome": "Anão",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff06-abaeasataaa-asaaanagaraeanataaa-008",
-      "nome": "Ábáeásátáaá Ásáaánágáráeánátáaá",
+      "id": "ff06-besta-sangrenta-008",
+      "nome": "Besta Sangrenta",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 10,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff06-adaiaaabaoa-adaoa-apaoacaoa-009",
-      "nome": "Ádáiáaábáoá Ádáoá Ápáoáçáoá",
+      "id": "ff06-diabo-do-poco-009",
+      "nome": "Diabo Do Poço",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 15,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff06-aiamaiataaadaoara-010",
-      "nome": "Áiámáiátáaádáoárá",
+      "id": "ff06-imitador-010",
+      "nome": "Imitador",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff06-avaearamaea-adaaa-araoacahaaa-011",
-      "nome": "Áváeárámáeá Ádáaá Áráoácáháaá",
+      "id": "ff06-verme-da-rocha-011",
+      "nome": "Verme Da Rocha",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 11,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff06-ataharaoama-012",
-      "nome": "Átáháráoámá",
+      "id": "ff06-throm-012",
+      "nome": "Throm",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 12,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff06-anaianajaaa-013",
-      "nome": "Ánáiánájáaá",
+      "id": "ff06-ninja-013",
+      "nome": "Ninja",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 9,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff06-adaeamaoanaiaoa-adaoa-aeasapaealahaoa-014",
-      "nome": "Ádáeámáôánáiáoá Ádáoá Áeásápáeáláháoá",
+      "id": "ff06-demonio-do-espelho-014",
+      "nome": "Demônio Do Espelho",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff06-agauaeararaeaiaraoa-aeasaqauaealaeataoa-015",
-      "nome": "Ágáuáeáráráeáiáráoá-Áeásáqáuáeáláeátáoá",
+      "id": "ff06-guerreiro-esqueleto-015",
+      "nome": "Guerreiro-Esqueleto",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff06-ataraoalala-adaaa-acaaavaearanaaa-016",
-      "nome": "Átáráoálálá Ádáaá Ácáaáváeáránáaá",
+      "id": "ff06-troll-da-caverna-016",
+      "nome": "Troll Da Caverna",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 11,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff06-ahaoamaeama-adaaa-acaaavaearanaaa-017",
-      "nome": "Áháoámáeámá Ádáaá Ácáaáváeáránáaá",
+      "id": "ff06-homem-da-caverna-017",
+      "nome": "Homem Da Caverna",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 7,

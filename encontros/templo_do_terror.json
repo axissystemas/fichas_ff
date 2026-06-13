@@ -3,8 +3,8 @@
   "codigoLivro": "FF14",
   "monstros": [
     {
-      "id": "ff14-acaoaiasaaa-acaoama-ataeanataaacaualaoasa-001",
-      "nome": "Ácáoáiásáaá Ácáoámá Átáeánátááácáuáláoásá",
+      "id": "ff14-coisa-com-tentaculos-001",
+      "nome": "Coisa Com Tentáculos",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 10,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff14-aparaiamaeaiaraiaaa-amaoasacaaa-aaagaualahaaa-002",
-      "nome": "Ápáráiámáeáiáráíáaá Ámáoásácáaá-Áaágáuáláháaá",
+      "id": "ff14-primeiria-mosca-agulha-002",
+      "nome": "Primeiría Mosca-Agulha",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 6,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff14-asaeagauanadaiaaa-amaoasacaaa-aaagaualahaaa-003",
-      "nome": "Ásáeágáuánádáíáaá Ámáoásácáaá-Áaágáuáláháaá",
+      "id": "ff14-segundia-mosca-agulha-003",
+      "nome": "Segundía Mosca-Agulha",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 7,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff14-ataearacaeaiaraiaaa-amaoasacaaa-aaagaualahaaa-004",
-      "nome": "Átáeárácáeáiáráíáaá Ámáoásácáaá-Áaágáuáláháaá",
+      "id": "ff14-terceiria-mosca-agulha-004",
+      "nome": "Terceiría Mosca-Agulha",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff14-apaiaraaataaa-005",
-      "nome": "Ápáiáráaátáaá",
+      "id": "ff14-pirata-005",
+      "nome": "Pirata",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff14-ahaoararaoara-anaoatauaranaoa-006",
-      "nome": "Áháoáráráoárá Ánáoátáuáránáoá",
+      "id": "ff14-horror-noturno-006",
+      "nome": "Horror Noturno",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff14-amaaalabaoaradauasa-007",
-      "nome": "Ámáaálábáoárádáuásá",
+      "id": "ff14-malbordus-007",
+      "nome": "Malbordus",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 18,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff14-acaraiaaadaoa-008",
-      "nome": "Ácáráiáaádáoá",
+      "id": "ff14-criado-008",
+      "nome": "Criado",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff14-acaaaoa-adaiaaa-amaoarataea-009",
-      "nome": "Ácáãáoá Ádáíáaá Ámáoárátáeá",
+      "id": "ff14-cao-dia-morte-009",
+      "nome": "Cão Día Morte",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 10,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff14-asaearapaeanataea-agauaaaradaiaaa-010",
-      "nome": "Ásáeárápáeánátáeá-Ágáuáaárádáiáãá",
+      "id": "ff14-serpente-guardia-010",
+      "nome": "Serpente-Guardiã",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff14-ahaoamaeama-aeasaqauaealaeataoa-011",
-      "nome": "Áháoámáeámá-Áeásáqáuáeáláeátáoá",
+      "id": "ff14-homem-esqueleto-011",
+      "nome": "Homem-Esqueleto",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 6,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff14-adaeamaoanaiaoa-012",
-      "nome": "Ádáeámáôánáiáoá",
+      "id": "ff14-demonio-012",
+      "nome": "Demônio",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 8,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff14-asaearapaeanataea-013",
-      "nome": "Ásáeárápáeánátáeá",
+      "id": "ff14-serpente-013",
+      "nome": "Serpente",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 6,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff14-aoaraca-amauataaanataea-014",
-      "nome": "Áoárácá Ámáuátáaánátáeá",
+      "id": "ff14-orc-mutante-014",
+      "nome": "Orc Mutante",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 11,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff14-agaoalaeama-adaea-apaeadaraaa-015",
-      "nome": "Ágáoáláeámá Ádáeá Ápáeádáráaá",
+      "id": "ff14-golem-de-pedra-015",
+      "nome": "Golem De Pedra",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 12,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff14-aaagauaiaaa-agaiagaaanataea-016",
-      "nome": "Ááágáuáiáaá Ágáiágáaánátáeá",
+      "id": "ff14-aguia-gigante-016",
+      "nome": "Águia Gigante",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 11,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff14-ataoaratauaraaadaoara-017",
-      "nome": "Átáoárátáuáráaádáoárá",
+      "id": "ff14-torturador-017",
+      "nome": "Torturador",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff14-aparaiamaeaiaraiaaa-aeasapaaadaaa-018",
-      "nome": "Ápáráiámáeáiáráíáaá Áeásápáaádáaá",
+      "id": "ff14-primeiria-espada-018",
+      "nome": "Primeiría Espada",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -255,8 +255,8 @@
       ]
     },
     {
-      "id": "ff14-asaeagauanadaiaaa-aeasapaaadaaa-019",
-      "nome": "Ásáeágáuánádáíáaá Áeásápáaádáaá",
+      "id": "ff14-segundia-espada-019",
+      "nome": "Segundía Espada",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "id": "ff14-ataearacaeaiaraiaaa-aeasapaaadaaa-020",
-      "nome": "Átáeárácáeáiáráíáaá Áeásápáaádáaá",
+      "id": "ff14-terceiria-espada-020",
+      "nome": "Terceiría Espada",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -283,8 +283,8 @@
       ]
     },
     {
-      "id": "ff14-aqauaiaaarataiaaa-aeasapaaadaaa-021",
-      "nome": "Áqáuáíáaárátáíáaá Áeásápáaádáaá",
+      "id": "ff14-quiartia-espada-021",
+      "nome": "Quíartía Espada",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -297,8 +297,8 @@
       ]
     },
     {
-      "id": "ff14-aeasacaraaavaoa-agauaaaradaiaaaoa-022",
-      "nome": "Áeásácáráaáváoá Ágáuáaárádáiáãáoá",
+      "id": "ff14-escravo-guardiao-022",
+      "nome": "Escravo Guardião",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -311,8 +311,8 @@
       ]
     },
     {
-      "id": "ff14-apataearaoadaaacataialaoa-023",
-      "nome": "Ápátáeáráoádááácátáiáláoá",
+      "id": "ff14-pterodactilo-023",
+      "nome": "Pterodáctilo",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,
@@ -325,8 +325,8 @@
       ]
     },
     {
-      "id": "ff14-acaeanataoapaeaiaaa-agaiagaaanataea-024",
-      "nome": "Ácáeánátáoápáéáiáaá Ágáiágáaánátáeá",
+      "id": "ff14-centopeia-gigante-024",
+      "nome": "Centopéia Gigante",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 7,
@@ -339,8 +339,8 @@
       ]
     },
     {
-      "id": "ff14-avaearamaea-adaaa-aaaraeaiaaa-agaiagaaanataea-025",
-      "nome": "Áváeárámáeá Ádáaá Áaáráeáiáaá Ágáiágáaánátáeá",
+      "id": "ff14-verme-da-areia-gigante-025",
+      "nome": "Verme Da Areia Gigante",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 20,
@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "ff14-ataraoalala-adaaa-acaaavaearanaaa-026",
-      "nome": "Átáráoálálá Ádáaá Ácáaáváeáránáaá",
+      "id": "ff14-troll-da-caverna-026",
+      "nome": "Troll Da Caverna",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,

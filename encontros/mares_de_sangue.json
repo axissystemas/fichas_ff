@@ -3,8 +3,8 @@
   "codigoLivro": "FF16",
   "monstros": [
     {
-      "id": "ff16-aaawakamauadaoa-001",
-      "nome": "Áaáwákámáuádáoá",
+      "id": "ff16-awkmudo-001",
+      "nome": "Awkmudo",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff16-asaiataha-aoaraba-002",
-      "nome": "Ásáiátáhá Áoárábá",
+      "id": "ff16-sith-orb-002",
+      "nome": "Sith Orb",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff16-apaiaraaataaa-auama-003",
-      "nome": "Ápáiáráaátáaá Áuámá",
+      "id": "ff16-pirata-um-003",
+      "nome": "Pirata Um",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 4,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff16-apaiaraaataaa-adaoaiasa-004",
-      "nome": "Ápáiáráaátáaá Ádáoáiásá",
+      "id": "ff16-pirata-dois-004",
+      "nome": "Pirata Dois",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff16-apaiaraaataaa-ataraeasa-005",
-      "nome": "Ápáiáráaátáaá Átáráêásá",
+      "id": "ff16-pirata-tres-005",
+      "nome": "Pirata Três",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff16-ajaiaaamaiala-aeala-afaaazaoauaka-006",
-      "nome": "Ájáiáaámáiálá Áeálá-Áfáaázáoáuáká",
+      "id": "ff16-jiamil-el-fazouk-006",
+      "nome": "Jiamil El-Fazouk",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 6,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff16-agaiagaaanataea-007",
-      "nome": "Ágáiágáaánátáeá",
+      "id": "ff16-gigante-007",
+      "nome": "Gigante",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff16-araoaca-008",
-      "nome": "Áráoácá",
+      "id": "ff16-roc-008",
+      "nome": "Roc",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 10,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff16-ataraoagalaoadaiataaa-auama-009",
-      "nome": "Átáráoágáláoádáiátáaá Áuámá",
+      "id": "ff16-troglodita-um-009",
+      "nome": "Troglodita Um",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 6,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff16-ataraoagalaoadaiataaa-adaoaiasa-010",
-      "nome": "Átáráoágáláoádáiátáaá Ádáoáiásá",
+      "id": "ff16-troglodita-dois-010",
+      "nome": "Troglodita Dois",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff16-ataraoagalaoadaiataaa-ataraeasa-011",
-      "nome": "Átáráoágáláoádáiátáaá Átáráêásá",
+      "id": "ff16-troglodita-tres-011",
+      "nome": "Troglodita Três",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 4,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff16-ataraoagalaoadaiataaa-aqauaaataraoa-012",
-      "nome": "Átáráoágáláoádáiátáaá Áqáuáaátáráoá",
+      "id": "ff16-troglodita-quatro-012",
+      "nome": "Troglodita Quatro",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 4,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff16-asahaaamaiata-agaaawaeala-anaeasataaafaaa-013",
-      "nome": "Ásáháaámáiátá Ágáaáwáeálá Ánáeásátáaáfáaá",
+      "id": "ff16-shamit-gawel-nestafa-013",
+      "nome": "Shamit Gawel Nestafa",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 6,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff16-aianavaiasaiavaeala-014",
-      "nome": "Áiánáváiásáíáváeálá",
+      "id": "ff16-invisivel-014",
+      "nome": "Invisível",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff16-aaacaoalaiataoa-auama-015",
-      "nome": "Áaácáóáláiátáoá Áuámá",
+      "id": "ff16-acolito-um-015",
+      "nome": "Acólito Um",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff16-aaacaoalaiataoa-adaoaiasa-016",
-      "nome": "Áaácáóáláiátáoá Ádáoáiásá",
+      "id": "ff16-acolito-dois-016",
+      "nome": "Acólito Dois",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff16-asaaalaaamaaanadaraaa-017",
-      "nome": "Ásáaáláaámáaánádáráaá",
+      "id": "ff16-salamandra-017",
+      "nome": "Salamandra",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 6,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff16-aealavaearaianaea-auama-018",
-      "nome": "Áeáláváeáráiánáeá Áuámá",
+      "id": "ff16-elverine-um-018",
+      "nome": "Elverine Um",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -255,8 +255,8 @@
       ]
     },
     {
-      "id": "ff16-aealavaearaianaea-adaoaiasa-019",
-      "nome": "Áeáláváeáráiánáeá Ádáoáiásá",
+      "id": "ff16-elverine-dois-019",
+      "nome": "Elverine Dois",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 4,
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "id": "ff16-aaaravaoaraea-a-a-a-a-a-a-a-a-amaoaradaeadaoaraaa-020",
-      "nome": "Áááráváoáráeá Á Á Á Á Á Á Á Á Ámáoárádáeádáoáráaá",
+      "id": "ff16-arvore-a-a-a-a-a-a-a-a-mordedora-020",
+      "nome": "Árvore         Mordedora",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -283,8 +283,8 @@
       ]
     },
     {
-      "id": "ff16-asaoamabaraaa-021",
-      "nome": "Ásáoámábáráaá",
+      "id": "ff16-sombra-021",
+      "nome": "Sombra",
       "tipo": "Monstro",
       "habilidade": 11,
       "energiaMaxima": 6,

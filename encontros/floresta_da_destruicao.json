@@ -3,8 +3,8 @@
   "codigoLivro": "FF03",
   "monstros": [
     {
-      "id": "ff03-agaoabalaiana-001",
-      "nome": "Ágáoábáláiáná",
+      "id": "ff03-goblin-001",
+      "nome": "Goblin",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 4,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff03-aaabaealahaaasa-aaasasaaasasaianaaasa-002",
-      "nome": "Áaábáeáláháaásá Áaásásáaásásáiánáaásá",
+      "id": "ff03-abelhas-assassinas-002",
+      "nome": "Abelhas Assassinas",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 3,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff03-avaearamaea-adaea-apaeacaoanahaaa-003",
-      "nome": "Áváeárámáeá Ádáeá Ápáeáçáoánáháaá",
+      "id": "ff03-verme-de-peconha-003",
+      "nome": "Verme De Peçonha",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 7,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff03-amaoanataaanahaeasa-asaealavaaagaeama-004",
-      "nome": "Ámáoánátáaánáháêásá Ásáeáláváaágáeámá",
+      "id": "ff03-montanhes-selvagem-004",
+      "nome": "Montanhês Selvagem",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 5,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff03-agaraeamalaiana-005",
-      "nome": "Ágáráeámáláiáná",
+      "id": "ff03-gremlin-005",
+      "nome": "Gremlin",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff03-amaoaracaeagaoa-avaaamapaiaraoa-006",
-      "nome": "Ámáoárácáeágáoá Áváaámápáiáráoá",
+      "id": "ff03-morcego-vampiro-006",
+      "nome": "Morcego Vampiro",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff03-abaiacahaoa-araoacahaeadaoa-007",
-      "nome": "Ábáiácáháoá Áráoácáháeádáoá",
+      "id": "ff03-bicho-rochedo-007",
+      "nome": "Bicho Rochedo",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 11,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff03-acaaaoa-adaea-acaaacaaa-008",
-      "nome": "Ácáãáoá-Ádáeá-Ácáaáçáaá",
+      "id": "ff03-cao-de-caca-008",
+      "nome": "Cão-De-Caça",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff03-abaaanadaiadaaa-009",
-      "nome": "Ábáaánádáiádáaá",
+      "id": "ff03-bandida-009",
+      "nome": "Bandida",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff03-abaaanadaiadaoa-aaa-010",
-      "nome": "Ábáaánádáiádáoá Áaá",
+      "id": "ff03-bandido-a-010",
+      "nome": "Bandido A",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff03-abaaanadaiadaoa-aba-011",
-      "nome": "Ábáaánádáiádáoá Ábá",
+      "id": "ff03-bandido-b-011",
+      "nome": "Bandido B",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff03-adaeamaoanaiaoa-adaea-afaoagaoa-012",
-      "nome": "Ádáeámáôánáiáoá Ádáeá Áfáoágáoá",
+      "id": "ff03-demonio-de-fogo-012",
+      "nome": "Demônio De Fogo",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff03-ajaaavaaalaia-asaealavaaagaeama-013",
-      "nome": "Ájáaáváaáláiá Ásáeáláváaágáeámá",
+      "id": "ff03-javali-selvagem-013",
+      "nome": "Javali Selvagem",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 5,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff03-ahaoamaeama-aaaravaoaraea-014",
-      "nome": "Áháoámáeámá-Áááráváoáráeá",
+      "id": "ff03-homem-arvore-014",
+      "nome": "Homem-Árvore",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff03-abaaarabaaaraoa-015",
-      "nome": "Ábááárábáaáráoá",
+      "id": "ff03-barbaro-015",
+      "nome": "Bárbaro",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 7,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff03-amaualahaeara-agaaataoa-016",
-      "nome": "Ámáuáláháeárá-Ágáaátáoá",
+      "id": "ff03-mulher-gato-016",
+      "nome": "Mulher-Gato",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 5,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff03-adaraaagaaaoa-aaalaaadaoa-017",
-      "nome": "Ádáráaágáãáoá Áaáláaádáoá",
+      "id": "ff03-dragao-alado-017",
+      "nome": "Dragão Alado",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 11,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff03-ahaoamaeama-apaeaiaxaea-018",
-      "nome": "Áháoámáeámá-Ápáeáiáxáeá",
+      "id": "ff03-homem-peixe-018",
+      "nome": "Homem-Peixe",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -255,8 +255,8 @@
       ]
     },
     {
-      "id": "ff03-aeanagauaiaaa-ahaeamaaataoafaaagaaa-019",
-      "nome": "Áeánágáuáiáaá Áháeámáaátáóáfáaágáaá",
+      "id": "ff03-enguia-hematofaga-019",
+      "nome": "Enguia Hematófaga",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 4,
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "id": "ff03-amauadaaa-afaoaramaaasa-020",
-      "nome": "Ámáuádáaá-Áfáoárámáaásá",
+      "id": "ff03-muda-formas-020",
+      "nome": "Muda-Formas",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -283,8 +283,8 @@
       ]
     },
     {
-      "id": "ff03-agauaeararaeaiaraoa-acalaoanaea-021",
-      "nome": "Ágáuáeáráráeáiáráoá-Ácáláoánáeá",
+      "id": "ff03-guerreiro-clone-021",
+      "nome": "Guerreiro-Clone",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -297,8 +297,8 @@
       ]
     },
     {
-      "id": "ff03-agahaoauala-022",
-      "nome": "Ágáháoáuálá",
+      "id": "ff03-ghoul-022",
+      "nome": "Ghoul",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 7,
@@ -311,8 +311,8 @@
       ]
     },
     {
-      "id": "ff03-agaaavaiaaaoa-adaaa-amaoarataea-023",
-      "nome": "Ágáaáváiáãáoá Ádáaá Ámáoárátáeá",
+      "id": "ff03-gaviao-da-morte-023",
+      "nome": "Gavião Da Morte",
       "tipo": "Monstro",
       "habilidade": 4,
       "energiaMaxima": 4,
@@ -325,8 +325,8 @@
       ]
     },
     {
-      "id": "ff03-auarasaoa-024",
-      "nome": "Áuárásáoá",
+      "id": "ff03-urso-024",
+      "nome": "Urso",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -339,8 +339,8 @@
       ]
     },
     {
-      "id": "ff03-agaiagaaanataea-adaaa-afalaoaraeasataaa-025",
-      "nome": "Ágáiágáaánátáeá Ádáaá Áfáláoáráeásátáaá",
+      "id": "ff03-gigante-da-floresta-025",
+      "nome": "Gigante Da Floresta",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 9,
@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "ff03-alaoabaiasaoamaeama-026",
-      "nome": "Áláoábáiásáoámáeámá",
+      "id": "ff03-lobisomem-026",
+      "nome": "Lobisomem",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,
@@ -367,8 +367,8 @@
       ]
     },
     {
-      "id": "ff03-aoagaraoa-027",
-      "nome": "Áoágáráoá",
+      "id": "ff03-ogro-027",
+      "nome": "Ogro",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 12,
@@ -381,8 +381,8 @@
       ]
     },
     {
-      "id": "ff03-aaaraaanahaaa-agaiagaaanataea-028",
-      "nome": "Áaáráaánáháaá Ágáiágáaánátáeá",
+      "id": "ff03-aranha-gigante-028",
+      "nome": "Aranha Gigante",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -395,8 +395,8 @@
       ]
     },
     {
-      "id": "ff03-apataearaoadaaacataialaoa-029",
-      "nome": "Ápátáeáráoádááácátáiáláoá",
+      "id": "ff03-pterodactilo-029",
+      "nome": "Pterodáctilo",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -409,8 +409,8 @@
       ]
     },
     {
-      "id": "ff03-ataraoalala-adaaa-acaaavaearanaaa-030",
-      "nome": "Átáráoálálá Ádáaá Ácáaáváeáránáaá",
+      "id": "ff03-troll-da-caverna-030",
+      "nome": "Troll Da Caverna",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,
@@ -423,8 +423,8 @@
       ]
     },
     {
-      "id": "ff03-aaanaaaoa-031",
-      "nome": "Áaánáãáoá",
+      "id": "ff03-anao-031",
+      "nome": "Anão",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 5,
@@ -437,8 +437,8 @@
       ]
     },
     {
-      "id": "ff03-ahaoamaeama-amaaacaaacaoa-032",
-      "nome": "Áháoámáeámá-Ámáaácáaácáoá",
+      "id": "ff03-homem-macaco-032",
+      "nome": "Homem-Macaco",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 7,
@@ -451,8 +451,8 @@
       ]
     },
     {
-      "id": "ff03-apaiagamaeaua-aaa-033",
-      "nome": "Ápáiágámáeáuá Áaá",
+      "id": "ff03-pigmeu-a-033",
+      "nome": "Pigmeu A",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -465,8 +465,8 @@
       ]
     },
     {
-      "id": "ff03-apaiagamaeaua-aba-034",
-      "nome": "Ápáiágámáeáuá Ábá",
+      "id": "ff03-pigmeu-b-034",
+      "nome": "Pigmeu B",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 6,

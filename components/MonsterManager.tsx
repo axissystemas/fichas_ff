@@ -77,12 +77,50 @@ export const MonsterManager = () => {
     setShowSuggestions(false);
   };
 
+  // Helper to normalize strings (remove accents) for better searching
+  const normalizeStr = (str: string) => 
+    str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  // Function to clean and capitalize monster names that have injected characters
+  const cleanMonsterName = (rawName: string): string => {
+    if (!rawName) return rawName;
+    const evenChars = [];
+    for (let i = 0; i < rawName.length; i += 2) {
+      evenChars.push(rawName[i]);
+    }
+    const accentAInjections = evenChars.filter(c => /[áÁãÃâÂàÀäÄéÉêÊíÍóÓõÕôÔúÚ]/.test(c));
+    const isObfuscated = rawName.length >= 3 && rawName.length % 2 === 1 && (accentAInjections.length / evenChars.length) >= 0.8;
+
+    if (isObfuscated) {
+      let cleaned = '';
+      for (let i = 1; i < rawName.length; i += 2) {
+        cleaned += rawName[i];
+      }
+      // Capitalize first letter of each word / subword
+      return cleaned
+        .split(' ')
+        .map(word => {
+          if (!word) return '';
+          return word
+            .split('-')
+            .map(subWord => subWord.charAt(0).toUpperCase() + subWord.slice(1))
+            .join('-');
+        })
+        .join(' ');
+    }
+    return rawName;
+  };
+
   const bookData = BOOK_MONSTERS_MAP[gamebook];
-  const bookMonsters = bookData ? bookData.monstros : [];
+  const rawBookMonsters = bookData ? bookData.monstros : [];
+  const bookMonsters = rawBookMonsters.map((m: any) => ({
+    ...m,
+    nome: cleanMonsterName(m.nome),
+  }));
 
   // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 3 letras) e se a opção está ativa
   const suggestions = (attributes.suggestionsEnabled !== false) && name.trim().length >= 3
-    ? bookMonsters.filter((m: any) => m.nome.toLowerCase().includes(name.toLowerCase()))
+    ? bookMonsters.filter((m: any) => normalizeStr(m.nome).includes(normalizeStr(name)))
     : [];
 
   return (

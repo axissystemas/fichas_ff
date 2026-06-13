@@ -3,8 +3,8 @@
   "codigoLivro": "FF02",
   "monstros": [
     {
-      "id": "ff02-agaaaraka-001",
-      "nome": "Ágáaáráká",
+      "id": "ff02-gark-001",
+      "nome": "Gark",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 11,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff02-afaearaaa-adaaasa-agaaararaaasa-002",
-      "nome": "Áfáeáráaá Ádáaásá Ágáaáráráaásá",
+      "id": "ff02-fera-das-garras-002",
+      "nome": "Fera Das Garras",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 14,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff02-ahaoamaeama-aaaraaanahaaa-003",
-      "nome": "Áháoámáeámá-Áaáráaánáháaá",
+      "id": "ff02-homem-aranha-003",
+      "nome": "Homem-Aranha",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 5,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff02-acaoabaraaa-adaea-aeasagaoataoa-004",
-      "nome": "Ácáoábáráaá Ádáeá Áeáságáoátáoá",
+      "id": "ff02-cobra-de-esgoto-004",
+      "nome": "Cobra De Esgoto",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 7,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff02-agaaaragaualaaa-005",
-      "nome": "Ágááárágáuáláaá",
+      "id": "ff02-gargula-005",
+      "nome": "Gárgula",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 10,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff02-amaaacaaacaoa-acaaacahaoararaoa-006",
-      "nome": "Ámáaácáaácáoá-Ácáaácáháoáráráoá",
+      "id": "ff02-macaco-cachorro-006",
+      "nome": "Macaco-Cachorro",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 4,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff02-acaaacahaoararaoa-amaaacaaacaoa-007",
-      "nome": "Ácáaácáháoáráráoá-Ámáaácáaácáoá",
+      "id": "ff02-cachorro-macaco-007",
+      "nome": "Cachorro-Macaco",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 6,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff02-agaoalaeama-008",
-      "nome": "Ágáoáláeámá",
+      "id": "ff02-golem-008",
+      "nome": "Golem",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 10,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff02-ahaoamaeama-aaalataoa-009",
-      "nome": "Áháoámáeámá Áaálátáoá",
+      "id": "ff02-homem-alto-009",
+      "nome": "Homem Alto",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff02-ahaoamaeama-abaaaiaxaoa-010",
-      "nome": "Áháoámáeámá Ábáaáiáxáoá",
+      "id": "ff02-homem-baixo-010",
+      "nome": "Homem Baixo",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff02-aaanaaaoa-011",
-      "nome": "Áaánáãáoá",
+      "id": "ff02-anao-011",
+      "nome": "Anão",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 6,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff02-agaoabalaiana-012",
-      "nome": "Ágáoábáláiáná",
+      "id": "ff02-goblin-012",
+      "nome": "Goblin",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 4,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff02-aoaracaaa-013",
-      "nome": "Áoárácáaá",
+      "id": "ff02-orca-013",
+      "nome": "Orca",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 5,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff02-acaaalaaacaoarama-014",
-      "nome": "Ácáaáláaácáoárámá",
+      "id": "ff02-calacorm-014",
+      "nome": "Calacorm",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff02-ahaoamaeama-araianaoa-015",
-      "nome": "Áháoámáeámá-Áráiánáoá",
+      "id": "ff02-homem-rino-015",
+      "nome": "Homem-Rino",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff02-aealafaoa-anaeagaraoa-016",
-      "nome": "Áeáláfáoá Ánáeágáráoá",
+      "id": "ff02-elfo-negro-016",
+      "nome": "Elfo Negro",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 4,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff02-amaiaaacaiaaacaaaoa-acaiaaacahaaaoararaaaoa-017",
-      "nome": "Ámáíáaácáíáaácáãáoá-Ácáíáaácáháãáoáráráãáoá",
+      "id": "ff02-miaciacao-ciachaorrao-017",
+      "nome": "Míacíacão-Cíachãorrão",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 4,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff02-acaiaaacahaaaoararaaaoa-amaiaaacaiaaacaaaoa-018",
-      "nome": "Ácáíáaácáháãáoáráráãáoá-Ámáíáaácáíáaácáãáoá",
+      "id": "ff02-ciachaorrao-miaciacao-018",
+      "nome": "Cíachãorrão-Míacíacão",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 6,
@@ -255,8 +255,8 @@
       ]
     },
     {
-      "id": "ff02-abaaalatahauasadaiaraea-019",
-      "nome": "Ábáaálátáháuásádáiáráeá",
+      "id": "ff02-balthusdire-019",
+      "nome": "Balthusdire",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 19,
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "id": "ff02-abaaalatahauasa-adaiaraea-020",
-      "nome": "Ábáaálátáháuásá Ádáiáráeá",
+      "id": "ff02-balthus-dire-020",
+      "nome": "Balthus Dire",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 19,
@@ -283,8 +283,8 @@
       ]
     },
     {
-      "id": "ff02-ahaiadaraaa-021",
-      "nome": "Áháiádáráaá",
+      "id": "ff02-hidra-021",
+      "nome": "Hidra",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 17,

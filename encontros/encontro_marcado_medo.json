@@ -3,8 +3,8 @@
   "codigoLivro": "FF08",
   "monstros": [
     {
-      "id": "ff08-aaasasaaasasaianaoa-001",
-      "nome": "Áaásásáaásásáiánáoá",
+      "id": "ff08-assassino-001",
+      "nome": "Assassino",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff08-aialalayaaa-akaaarapaoava-002",
-      "nome": "Áiáláláyáaá Ákáaárápáoává",
+      "id": "ff08-illya-karpov-002",
+      "nome": "Illya Karpov",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff08-amauamaiaaa-003",
-      "nome": "Ámáuámáiáaá",
+      "id": "ff08-mumia-003",
+      "nome": "Mumia",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 10,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff08-aja-araaadaiaoaaataiavaoa-auama-004",
-      "nome": "Ájá Áráaádáiáoáaátáiáváoá Áuámá",
+      "id": "ff08-j-radioativo-um-004",
+      "nome": "J Radioativo Um",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 5,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff08-araaadaiaoaaataiavaoa-adaaaoaiasa-005",
-      "nome": "Áráaádáiáoáaátáiáváoá Ádáãáoáiásá",
+      "id": "ff08-radioativo-daois-005",
+      "nome": "Radioativo Dãois",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 5,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff08-apaaapaaaia-araiacaoa-006",
-      "nome": "Ápáaápáaáiá Áráiácáoá",
+      "id": "ff08-papai-rico-006",
+      "nome": "Papai Rico",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff08-acaraiaaatauaraaa-adaaa-a-acaaaranalafalacaianaaa-007",
-      "nome": "Ácáráiáaátáuáráaá Ádáaá Á Ácáaáránáláfálácáiánáaá",
+      "id": "ff08-criatura-da-a-carnlflcina-007",
+      "nome": "Criatura Da  Carnlflcina",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 14,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff08-agaaataaa-ataiagaraea-008",
-      "nome": "Ágáaátáaá-Átáiágáráeá",
+      "id": "ff08-gata-tigre-008",
+      "nome": "Gata-Tigre",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff08-ataiagaraea-009",
-      "nome": "Átáiágáráeá",
+      "id": "ff08-tigre-009",
+      "nome": "Tigre",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff08-aaanadaraoaiadaea-010",
-      "nome": "Áaánádáráóáiádáeá",
+      "id": "ff08-androide-010",
+      "nome": "Andróide",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 11,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff08-aaanaiaoa-011",
-      "nome": "Áãánáiáoá",
+      "id": "ff08-anio-011",
+      "nome": "Ãnio",
       "tipo": "Monstro",
       "habilidade": 18,
       "energiaMaxima": 20,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff08-aralaaatauaraaa-adaaa-a-aaaranalaaacaianaaa-012",
-      "nome": "Áráláaátáuáráaá Ádáaá Á Áaáránáláaácáiánáaá",
+      "id": "ff08-rlatura-da-a-arnlacina-012",
+      "nome": "Rlatura Da  Arnlacina",
       "tipo": "Monstro",
       "habilidade": 12,
       "energiaMaxima": 14,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff08-acaraiaaatauaraaa-a-adaaa-afaoanataea-013",
-      "nome": "Ácáráiáaátáuáráaá Á Ádáaá Áfáoánátáeá",
+      "id": "ff08-criatura-a-da-fonte-013",
+      "nome": "Criatura  Da Fonte",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 11,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff08-amaaanataraaapapaeara-014",
-      "nome": "Ámáaánátáráaápápáeárá",
+      "id": "ff08-mantrapper-014",
+      "nome": "Mantrapper",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 7,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff08-acaaacahaoararaoa-a-araaadaiaoaaataiavaoa-015",
-      "nome": "Ácáaácáháoáráráoá Á Áráaádáiáoáaátáiáváoá",
+      "id": "ff08-cachorro-a-radioativo-015",
+      "nome": "Cachorro  Radioativo",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff08-asaiadanaeaya-akanaoaxa-016",
-      "nome": "Ásáiádánáeáyá Ákánáoáxá",
+      "id": "ff08-sidney-knox-016",
+      "nome": "Sidney Knox",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 6,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff08-araaaianahaaa-adaoa-agaealaoa-017",
-      "nome": "Áráaáiánáháaá Ádáoá Ágáeáláoá",
+      "id": "ff08-rainha-do-gelo-017",
+      "nome": "Rainha Do Gelo",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 8,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff08-aaalaqauaiamaiasataaa-auama-018",
-      "nome": "Áaáláqáuáiámáiásátáaá Áuámá",
+      "id": "ff08-alquimista-um-018",
+      "nome": "Alquimista Um",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 6,

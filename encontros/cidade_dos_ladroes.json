@@ -3,8 +3,8 @@
   "codigoLivro": "FF05",
   "monstros": [
     {
-      "id": "ff05-ahaoamaeama-aoaracaaa-001",
-      "nome": "Áháoámáeámá-Áoárácáaá",
+      "id": "ff05-homem-orca-001",
+      "nome": "Homem-Orca",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 5,
@@ -17,8 +17,8 @@
       ]
     },
     {
-      "id": "ff05-agauaaaradaaa-adaaa-acaiadaaadaea-002",
-      "nome": "Ágáuáaárádáaá Ádáaá Ácáiádáaádáeá",
+      "id": "ff05-guarda-da-cidade-002",
+      "nome": "Guarda Da Cidade",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 7,
@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "ff05-aoauaraiavaeasa-adaea-aparaaataaa-003",
-      "nome": "Áoáuáráiáváeásá Ádáeá Ápáráaátáaá",
+      "id": "ff05-ourives-de-prata-003",
+      "nome": "Ourives De Prata",
       "tipo": "Monstro",
       "habilidade": 4,
       "energiaMaxima": 8,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ff05-agaoabalaiana-004",
-      "nome": "Ágáoábáláiáná",
+      "id": "ff05-goblin-004",
+      "nome": "Goblin",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 4,
@@ -59,8 +59,8 @@
       ]
     },
     {
-      "id": "ff05-abaaararaiagaaa-aaazaeadaaa-005",
-      "nome": "Ábáaáráráiágáaá Áaázáeádáaá",
+      "id": "ff05-barriga-azeda-005",
+      "nome": "Barriga Azeda",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 11,
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "id": "ff05-anaaaraiaza-agaoaradaoa-006",
-      "nome": "Ánáaáráiázá Ágáoárádáoá",
+      "id": "ff05-nariz-gordo-006",
+      "nome": "Nariz Gordo",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 10,
@@ -87,8 +87,8 @@
       ]
     },
     {
-      "id": "ff05-araaaianahaaa-asaearapaeanataea-007",
-      "nome": "Áráaáiánáháaá Ásáeárápáeánátáeá",
+      "id": "ff05-rainha-serpente-007",
+      "nome": "Rainha Serpente",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 7,
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "id": "ff05-aoagaraoa-008",
-      "nome": "Áoágáráoá",
+      "id": "ff05-ogro-008",
+      "nome": "Ogro",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 9,
@@ -115,8 +115,8 @@
       ]
     },
     {
-      "id": "ff05-abarauaxaaa-009",
-      "nome": "Ábáráuáxáaá",
+      "id": "ff05-bruxa-009",
+      "nome": "Bruxa",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 7,
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "id": "ff05-apaiaraaataaa-010",
-      "nome": "Ápáiáráaátáaá",
+      "id": "ff05-pirata-010",
+      "nome": "Pirata",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 5,
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "id": "ff05-acaeanataoapaeaiaaa-agaiagaaanataea-011",
-      "nome": "Ácáeánátáoápáéáiáaá Ágáiágáaánátáeá",
+      "id": "ff05-centopeia-gigante-011",
+      "nome": "Centopéia Gigante",
       "tipo": "Monstro",
       "habilidade": 10,
       "energiaMaxima": 5,
@@ -157,8 +157,8 @@
       ]
     },
     {
-      "id": "ff05-ajaoaaalahaeaiaraoa-012",
-      "nome": "Ájáoáaáláháeáiáráoá",
+      "id": "ff05-joalheiro-012",
+      "nome": "Joalheiro",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 8,
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "id": "ff05-afaearaaasa-avaeagaeataaaiasa-013",
-      "nome": "Áfáeáráaásá Áváeágáeátáaáiásá",
+      "id": "ff05-feras-vegetais-013",
+      "nome": "Feras Vegetais",
       "tipo": "Monstro",
       "habilidade": 6,
       "energiaMaxima": 6,
@@ -185,8 +185,8 @@
       ]
     },
     {
-      "id": "ff05-amauamaiaaa-014",
-      "nome": "Ámáúámáiáaá",
+      "id": "ff05-mumia-014",
+      "nome": "Múmia",
       "tipo": "Monstro",
       "habilidade": 7,
       "energiaMaxima": 12,
@@ -199,8 +199,8 @@
       ]
     },
     {
-      "id": "ff05-araaaianahaaasaearapaeanataea-015",
-      "nome": "Áráaáiánáháaásáeárápáeánátáeá",
+      "id": "ff05-rainhaserpente-015",
+      "nome": "Rainhaserpente",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 7,
@@ -213,8 +213,8 @@
       ]
     },
     {
-      "id": "ff05-acaoabaraaasa-016",
-      "nome": "Ácáoábáráaásá",
+      "id": "ff05-cobras-016",
+      "nome": "Cobras",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -227,8 +227,8 @@
       ]
     },
     {
-      "id": "ff05-ataraoalala-017",
-      "nome": "Átáráoálálá",
+      "id": "ff05-troll-017",
+      "nome": "Troll",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "id": "ff05-alaoabaoa-018",
-      "nome": "Áláoábáoá",
+      "id": "ff05-lobo-018",
+      "nome": "Lobo",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -255,8 +255,8 @@
       ]
     },
     {
-      "id": "ff05-afaeararaeaiaraoa-019",
-      "nome": "Áfáeáráráeáiáráoá",
+      "id": "ff05-ferreiro-019",
+      "nome": "Ferreiro",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 9,
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "id": "ff05-alaoauacaoa-020",
-      "nome": "Áláoáuácáoá",
+      "id": "ff05-louco-020",
+      "nome": "Louco",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -283,8 +283,8 @@
       ]
     },
     {
-      "id": "ff05-adaiaaabaoa-adaea-afaoagaoa-021",
-      "nome": "Ádáiáaábáoá Ádáeá Áfáoágáoá",
+      "id": "ff05-diabo-de-fogo-021",
+      "nome": "Diabo De Fogo",
       "tipo": "Monstro",
       "habilidade": 9,
       "energiaMaxima": 4,
@@ -297,8 +297,8 @@
       ]
     },
     {
-      "id": "ff05-aparaiamaeaiaraiaaa-araaataaazaaanaaa-022",
-      "nome": "Ápáráiámáeáiáráíáaá Áráaátáaázáaánáaá",
+      "id": "ff05-primeiria-ratazana-022",
+      "nome": "Primeiría Ratazana",
       "tipo": "Monstro",
       "habilidade": 4,
       "energiaMaxima": 4,
@@ -311,8 +311,8 @@
       ]
     },
     {
-      "id": "ff05-asaeagauanadaiaaa-araaataaazaaanaaa-023",
-      "nome": "Ásáeágáuánádáíáaá Áráaátáaázáaánáaá",
+      "id": "ff05-segundia-ratazana-023",
+      "nome": "Segundía Ratazana",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 4,
@@ -325,8 +325,8 @@
       ]
     },
     {
-      "id": "ff05-ataearacaeaiaraiaaa-araaataaazaaanaaa-024",
-      "nome": "Átáeárácáeáiáráíáaá Áráaátáaázáaánáaá",
+      "id": "ff05-terceiria-ratazana-024",
+      "nome": "Terceiría Ratazana",
       "tipo": "Monstro",
       "habilidade": 5,
       "energiaMaxima": 5,
@@ -339,8 +339,8 @@
       ]
     },
     {
-      "id": "ff05-alaaagaaarataianaoa-025",
-      "nome": "Áláaágáaárátáiánáoá",
+      "id": "ff05-lagartino-025",
+      "nome": "Lagartino",
       "tipo": "Monstro",
       "habilidade": 8,
       "energiaMaxima": 8,

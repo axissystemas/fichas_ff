@@ -205,8 +205,8 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
     for (let i = 27; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-      // Random activity count (0 to 4)
-      const count = Math.floor(Math.random() * 5);
+      // Deterministic activity count (0 to 4) instead of Math.random to satisfy react-hooks/purity
+      const count = (d.getDate() + i) % 5;
       arr.push({ date: dateStr, count });
     }
     return arr;
