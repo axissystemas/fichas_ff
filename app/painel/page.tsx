@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
@@ -53,6 +53,9 @@ export default function PainelAdmin() {
 
   // Aba ativa do Painel Admin
   const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras'>('geral');
+
+  // Filtro por livro-jogo global para as estatísticas
+  const [selectedGamebookFilter, setSelectedGamebookFilter] = useState<string>('all');
 
   // Dados de telemetria carregados do Supabase
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -294,37 +297,81 @@ export default function PainelAdmin() {
   // Temas
   const isPapyrus = theme === 'papyrus';
 
-  // Filtro de buscas
-  const filteredSheets = sheetsList.filter(s =>
-    s.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtro de buscas e filtro por Livro-Jogo (Em Memória)
+  const sheetMap = useMemo(() => new Map(sheetsList.map(s => [s.id, s])), [sheetsList]);
+
+  // Lista de fichas filtrada pelo livro selecionado + busca (usada no grid e listas)
+  const filteredSheets = useMemo(() => {
+    let result = sheetsList;
+    if (selectedGamebookFilter !== 'all') {
+      result = result.filter(s => s.gamebook === selectedGamebookFilter);
+    }
+    if (searchQuery.trim() !== '') {
+      result = result.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    return result;
+  }, [sheetsList, selectedGamebookFilter, searchQuery]);
+
+  // Fichas usadas para os cálculos de estatísticas do painel
+  const statsSheets = useMemo(() => {
+    if (selectedGamebookFilter === 'all') return sheetsList;
+    return sheetsList.filter(s => s.gamebook === selectedGamebookFilter);
+  }, [sheetsList, selectedGamebookFilter]);
+
+  // Logs usados para os cálculos de estatísticas do painel (filtrados por livro do sheet correspondente)
+  const statsLogs = useMemo(() => {
+    if (selectedGamebookFilter === 'all') return logs;
+    return logs.filter(log => {
+      const sheet = sheetMap.get(log.sheet_id);
+      return sheet?.gamebook === selectedGamebookFilter;
+    });
+  }, [logs, selectedGamebookFilter, sheetMap]);
 
   // ─── Métricas Agregadas e Dados para os Gráficos ─────────────────────────────
-  const totalSheets = sheetsList.length;
+  const totalSheets = statsSheets.length;
+
+  // Médias Atuais
   const avgSkill = totalSheets > 0 
-    ? Math.round(sheetsList.reduce((acc, s) => acc + (s.attributes?.skill?.current ?? 0), 0) / totalSheets)
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.skill?.current ?? 0), 0) / totalSheets) * 10) / 10
     : 0;
   const avgEnergy = totalSheets > 0 
-    ? Math.round(sheetsList.reduce((acc, s) => acc + (s.attributes?.energy?.current ?? 0), 0) / totalSheets)
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.energy?.current ?? 0), 0) / totalSheets) * 10) / 10
     : 0;
   const avgLuck = totalSheets > 0 
-    ? Math.round(sheetsList.reduce((acc, s) => acc + (s.attributes?.luck?.current ?? 0), 0) / totalSheets)
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.luck?.current ?? 0), 0) / totalSheets) * 10) / 10
     : 0;
 
-  const totalGold = sheetsList.reduce((acc, s) => acc + (s.gold ?? 0), 0);
-  const totalProvisions = sheetsList.reduce((acc, s) => acc + (s.provisions ?? 0), 0);
-  const totalMonstersDefeated = sheetsList.reduce(
+  // Médias Iniciais
+  const avgSkillInitial = totalSheets > 0 
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.skill?.initial ?? 0), 0) / totalSheets) * 10) / 10
+    : 0;
+  const avgEnergyInitial = totalSheets > 0 
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.energy?.initial ?? 0), 0) / totalSheets) * 10) / 10
+    : 0;
+  const avgLuckInitial = totalSheets > 0 
+    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.luck?.initial ?? 0), 0) / totalSheets) * 10) / 10
+    : 0;
+
+  // Taxa de Sucesso (Win Rate)
+  const victoryCount = statsSheets.filter(s => s.status === 'victory').length;
+  const defeatCount = statsSheets.filter(s => s.status === 'defeat').length;
+  const totalFinished = victoryCount + defeatCount;
+  const winRate = totalFinished > 0 ? Math.round((victoryCount / totalFinished) * 100) : 0;
+
+  const totalGold = statsSheets.reduce((acc, s) => acc + (s.gold ?? 0), 0);
+  const totalProvisions = statsSheets.reduce((acc, s) => acc + (s.provisions ?? 0), 0);
+  const totalMonstersDefeated = statsSheets.reduce(
     (acc, s) => acc + (s.monsters?.filter(m => m.status === 'defeated').length ?? 0),
     0
   );
-  const totalItemsEquipped = sheetsList.reduce(
+  const totalItemsEquipped = statsSheets.reduce(
     (acc, s) => acc + (s.inventory?.filter(i => i.equipped).length ?? 0),
     0
   );
 
-  // 1. Monstros derrotados (Pie Chart)
+  // 1. Monstros derrotados (Pie Chart) - Baseado nos logs filtrados
   const monsterDefeatedCounts: Record<string, number> = {};
-  logs.forEach(log => {
+  statsLogs.forEach(log => {
     if (log.event_type === 'combat' && log.event_data?.monster) {
       const name = log.event_data.monster;
       monsterDefeatedCounts[name] = (monsterDefeatedCounts[name] || 0) + 1;
@@ -335,24 +382,67 @@ export default function PainelAdmin() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // 2. Parágrafos mais visitados
-  const sectionVisits: Record<string, number> = {};
-  logs.forEach(log => {
+  // 2. Parágrafos mais visitados agrupados por livro
+  const sectionVisits: Record<string, { count: number; gamebook: string }> = {};
+  statsLogs.forEach(log => {
     if (log.event_type === 'section_visit' && log.event_data?.section) {
       const sec = String(log.event_data.section);
-      sectionVisits[sec] = (sectionVisits[sec] || 0) + 1;
+      const sheet = sheetMap.get(log.sheet_id);
+      const gamebook = sheet?.gamebook || 'Desconhecido';
+      const key = `${sec}::${gamebook}`;
+      
+      if (!sectionVisits[key]) {
+        sectionVisits[key] = { count: 0, gamebook };
+      }
+      sectionVisits[key].count += 1;
     }
   });
   const topSections = Object.entries(sectionVisits)
-    .map(([section, count]) => ({ section, count }))
+    .map(([key, data]) => {
+      const [section] = key.split('::');
+      return { section, count: data.count, gamebook: data.gamebook };
+    })
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  // 3. Mortes por tipo / Causa
+  // 3. Parágrafos Mais Mortais (Deadliest Sections) com Fallback Cronológico
+  const deathSections: Record<string, { count: number; gamebook: string }> = {};
+  statsLogs.forEach(log => {
+    if (log.event_type === 'death') {
+      const sheet = sheetMap.get(log.sheet_id);
+      const gamebook = sheet?.gamebook || 'Desconhecido';
+      
+      let section = log.event_data?.section;
+      if (!section) {
+        // Fallback: busca retroativa do último section_visit deste sheet antes da morte
+        const sheetLogs = logs.filter(l => l.sheet_id === log.sheet_id);
+        const visitLogsBeforeDeath = sheetLogs
+          .filter(l => l.event_type === 'section_visit' && new Date(l.created_at) <= new Date(log.created_at))
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        section = visitLogsBeforeDeath[0]?.event_data?.section || 'Início';
+      }
+      
+      const sec = String(section);
+      const key = `${sec}::${gamebook}`;
+      if (!deathSections[key]) {
+        deathSections[key] = { count: 0, gamebook };
+      }
+      deathSections[key].count += 1;
+    }
+  });
+  const topDeadlySections = Object.entries(deathSections)
+    .map(([key, data]) => {
+      const [section] = key.split('::');
+      return { section, count: data.count, gamebook: data.gamebook };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // 4. Mortes por tipo / Causa
   let deathsCombat = 0;
   let deathsTrap = 0;
   const killerMonsters: Record<string, number> = {};
-  logs.forEach(log => {
+  statsLogs.forEach(log => {
     if (log.event_type === 'death') {
       if (log.event_data?.cause === 'combat') {
         deathsCombat++;
@@ -367,13 +457,13 @@ export default function PainelAdmin() {
   const mostDeadlyMonster = Object.entries(killerMonsters)
     .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Nenhum';
 
-  // 4. Atividade para o Heatmap (últimos 28 dias)
+  // 5. Atividade para o Heatmap (últimos 28 dias)
   const activityData: { date: string; count: number }[] = [];
   const todayDate = new Date();
   for (let i = 27; i >= 0; i--) {
     const d = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - i);
     const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    const count = logs.filter(log => {
+    const count = statsLogs.filter(log => {
       const logDate = new Date(log.created_at);
       return logDate.getDate() === d.getDate() &&
              logDate.getMonth() === d.getMonth() &&
@@ -382,9 +472,9 @@ export default function PainelAdmin() {
     activityData.push({ date: dateStr, count });
   }
 
-  // 5. Conclusões por jogador (Bar Chart)
+  // 6. Conclusões por jogador (Bar Chart)
   const userCompletionMap: Record<string, { name: string; iniciadas: number; concluidas: number }> = {};
-  sheetsList.forEach(sheet => {
+  statsSheets.forEach(sheet => {
     const userId = sheet.user_id;
     if (!userId) return;
     const profile = profiles.find(p => p.id === userId);
@@ -400,8 +490,8 @@ export default function PainelAdmin() {
   });
   const completionBarData = Object.values(userCompletionMap).slice(0, 5);
 
-  // 6. Ranking de Ouro
-  const goldRanking = [...sheetsList]
+  // 7. Ranking de Ouro
+  const goldRanking = [...statsSheets]
     .sort((a, b) => (b.gold || 0) - (a.gold || 0))
     .slice(0, 5)
     .map(s => {
@@ -413,9 +503,9 @@ export default function PainelAdmin() {
       };
     });
 
-  // 7. Caçadores globais (monstros derrotados)
+  // 8. Caçadores globais (monstros derrotados)
   const hunterRankingMap: Record<string, { name: string; value: number }> = {};
-  logs.forEach(log => {
+  statsLogs.forEach(log => {
     if (log.event_type === 'combat') {
       const userId = log.user_id;
       const p = profiles.find(prof => prof.id === userId);
@@ -430,7 +520,7 @@ export default function PainelAdmin() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // 8. Popularidade dos Livros-Jogo (Quantidade de fichas criadas por livro)
+  // 9. Popularidade dos Livros-Jogo (Quantidade de fichas criadas por livro - Sempre Global)
   const gamebookPopularityMap: Record<string, number> = {};
   sheetsList.forEach(sheet => {
     const bookName = sheet.gamebook || 'O Feiticeiro da Montanha de Fogo';
@@ -771,6 +861,33 @@ export default function PainelAdmin() {
               ))}
             </div>
 
+            {/* Seletor de Livro-Jogo Global para Filtro */}
+            <div className={`p-4 border flex flex-col sm:flex-row items-center justify-between gap-4 ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/40 rounded-xl'}`}>
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
+                <span className="text-sm font-bold uppercase tracking-wider">Filtrar por Livro-Jogo:</span>
+              </div>
+              <select
+                id="global-gamebook-filter"
+                value={selectedGamebookFilter}
+                onChange={(e) => setSelectedGamebookFilter(e.target.value)}
+                className={`w-full sm:w-72 px-3 py-1.5 text-xs border focus:outline-none transition-all ${
+                  isPapyrus
+                    ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]'
+                    : 'border-slate-700 bg-slate-950 text-[#cbd5e0] focus:ring-1 focus:ring-cyan-500/50 rounded-lg'
+                }`}
+              >
+                <option value="all" className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                  [ Todos os Livros-Jogo ]
+                </option>
+                {GAMEBOOKS.map((book) => (
+                  <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                    {book} {BOOKS_WITH_SUGGESTIONS.includes(book as any) ? '👾' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Carregando dados da telemetria */}
             {statsLoading && (
               <div className="flex justify-center py-6 gap-2 text-xs uppercase tracking-widest text-slate-500">
@@ -814,6 +931,45 @@ export default function PainelAdmin() {
                     <div>
                       <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Total Usuários</p>
                       <p className="text-xl font-bold">{profiles.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Segunda Fileira de Cards: Médias e Balanceamento */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-emerald-500/10 text-emerald-400"><Award size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Taxa de Sucesso</p>
+                      <p className="text-xl font-bold">{winRate}%</p>
+                      <p className="text-[10px] opacity-50 mt-0.5">{victoryCount} Vit / {defeatCount} Der</p>
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-slate-500/10 text-slate-300"><Shield size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Habilidade Média</p>
+                      <p className="text-xl font-bold">{avgSkill}</p>
+                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgSkillInitial}</p>
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-red-500/10 text-red-400"><Flame size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Energia Média</p>
+                      <p className="text-xl font-bold">{avgEnergy}</p>
+                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgEnergyInitial}</p>
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
+                    <div className="p-2 rounded bg-blue-500/10 text-blue-400"><Sun size={18} /></div>
+                    <div>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Sorte Média</p>
+                      <p className="text-xl font-bold">{avgLuck}</p>
+                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgLuckInitial}</p>
                     </div>
                   </div>
                 </div>
@@ -1018,7 +1174,8 @@ export default function PainelAdmin() {
                     <div className="flex justify-between items-start border-b pb-3 mb-4">
                       <div>
                         <h3 className="font-bold text-lg">Histórico de Run: {selectedSheetDetails.title}</h3>
-                        <p className="text-xs opacity-75">UID: {selectedSheetDetails.id}</p>
+                        <p className={`text-xs font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>📚 {selectedSheetDetails.gamebook || 'O Feiticeiro da Montanha de Fogo'}</p>
+                        <p className="text-[10px] opacity-50 mt-0.5">UID da Ficha: {selectedSheetDetails.id}</p>
                       </div>
                       <button onClick={() => setSelectedSheetDetails(null)} className="p-1 hover:text-red-500"><X size={18} /></button>
                     </div>
@@ -1042,15 +1199,31 @@ export default function PainelAdmin() {
                         {/* Listagem Cronológica dos Eventos */}
                         <div className="space-y-2">
                           <h4 className="text-xs font-bold uppercase tracking-wider">Eventos do Escriba (Últimos {selectedSheetLogs.length})</h4>
-                          <div className="max-h-48 overflow-y-auto pr-1 text-xs space-y-1.5">
+                          <div className="max-h-56 overflow-y-auto pr-1 text-xs space-y-1.5">
                             {selectedSheetLogs.map((l, i) => {
                               const date = new Date(l.created_at).toLocaleTimeString('pt-BR');
                               return (
                                 <div key={i} className="flex justify-between items-center border-b border-current/5 pb-1">
-                                  <div>
+                                  <div className="flex items-center flex-wrap gap-1">
                                     <span className="font-mono text-[10px] opacity-50 mr-2">{date}</span>
-                                    <span className="font-bold uppercase text-[10px] text-cyan-400 mr-2">[{l.event_type}]</span>
-                                    <span className="font-sans opacity-95">{JSON.stringify(l.event_data)}</span>
+                                    {l.event_type === 'death' ? (
+                                      <span className="font-bold uppercase text-[10px] text-red-500 mr-2 flex items-center gap-1">
+                                        <Skull size={10} /> [DEATH]
+                                      </span>
+                                    ) : (
+                                      <span className={`font-bold uppercase text-[10px] mr-2 ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                                        [{l.event_type}]
+                                      </span>
+                                    )}
+                                    <span className="font-sans opacity-95">
+                                      {l.event_type === 'section_visit' && `Visitou a Seção ${l.event_data?.section}`}
+                                      {l.event_type === 'combat' && `Combate contra ${l.event_data?.monster} (${l.event_data?.result === 'victory' ? 'Vitória' : 'Derrota'})`}
+                                      {l.event_type === 'death' && `Morreu por ${l.event_data?.cause === 'combat' ? `combate contra ${l.event_data?.monster}` : 'armadilha/parágrafo'}${l.event_data?.section ? ` na Seção ${l.event_data?.section}` : ''}`}
+                                      {l.event_type === 'item_use' && `Usou consumível: ${l.event_data?.item === 'provisions' ? 'Provisão' : l.event_data?.item} (Qtd: ${l.event_data?.quantity ?? 1})`}
+                                      {l.event_type === 'inventory_change' && `${l.event_data?.action === 'add' ? 'Adicionou' : 'Removeu'} item: ${l.event_data?.item}`}
+                                      {l.event_type === 'game_completion' && `Concluiu o jogo com status: ${l.event_data?.status === 'victory' ? 'Vitória' : 'Derrota'}`}
+                                      {!['section_visit', 'combat', 'death', 'item_use', 'inventory_change', 'game_completion'].includes(l.event_type) && JSON.stringify(l.event_data)}
+                                    </span>
                                   </div>
                                 </div>
                               );
@@ -1134,7 +1307,7 @@ export default function PainelAdmin() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center py-2 border-b border-current/5">
                           <span className="text-xs opacity-75">Total de Combates Iniciados</span>
-                          <span className="font-bold text-sm">{logs.filter(l => l.event_type === 'combat').length}</span>
+                          <span className="font-bold text-sm">{statsLogs.filter(l => l.event_type === 'combat').length}</span>
                         </div>
 
                         <div className="flex justify-between items-center py-2 border-b border-current/5">
@@ -1233,7 +1406,10 @@ export default function PainelAdmin() {
                       <div className="space-y-2 text-xs">
                         {topSections.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
-                            <span className="font-bold">Item {item.section}</span>
+                            <div className="flex flex-col">
+                              <span className="font-bold">Item {item.section}</span>
+                              <span className="text-[10px] opacity-50">{item.gamebook}</span>
+                            </div>
                             <span className="opacity-75">{item.count} visitas</span>
                           </div>
                         ))}
@@ -1241,6 +1417,31 @@ export default function PainelAdmin() {
                     )}
                   </div>
 
+                  {/* Parágrafos/Itens Mais Mortais */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Skull className="text-red-500" size={16} /> Parágrafos/Itens Mais Mortais
+                    </h3>
+
+                    {topDeadlySections.length === 0 ? (
+                      <p className="text-xs opacity-50 italic py-4">Nenhuma morte registrada.</p>
+                    ) : (
+                      <div className="space-y-2 text-xs">
+                        {topDeadlySections.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
+                            <div className="flex flex-col">
+                              <span className="font-bold">Item {item.section}</span>
+                              <span className="text-[10px] opacity-50">{item.gamebook}</span>
+                            </div>
+                            <span className="text-red-500 font-bold">{item.count} mortes</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Consumos do Inventário */}
                   <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
                     <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -1251,45 +1452,45 @@ export default function PainelAdmin() {
                       <div className="flex justify-between items-center py-1.5 border-b border-current/5">
                         <span>Provisões Consumidas (Curar Energia)</span>
                         <span className="font-bold">
-                          {logs.filter(l => l.event_type === 'item_use' && l.event_data?.item === 'provisions').length} unidades
+                          {statsLogs.filter(l => l.event_type === 'item_use' && l.event_data?.item === 'provisions').length} unidades
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center py-1.5 border-b border-current/5">
                         <span>Total de Itens Coletados</span>
                         <span className="font-bold">
-                          {logs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'add').length} itens
+                          {statsLogs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'add').length} itens
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center py-1.5">
                         <span>Total de Itens Descartados</span>
                         <span className="font-bold">
-                          {logs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'remove').length} itens
+                          {statsLogs.filter(l => l.event_type === 'inventory_change' && l.event_data?.action === 'remove').length} itens
                         </span>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Popularidade por Livro-Jogo */}
-                <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'} mt-6`}>
-                  <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <BookOpen size={16} /> Popularidade por Livro-Jogo (Campanhas Iniciadas)
-                  </h3>
+                  {/* Popularidade por Livro-Jogo (Sempre Global) */}
+                  <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <BookOpen size={16} /> Popularidade por Livro-Jogo (Campanhas)
+                    </h3>
 
-                  {gamebookPopularity.length === 0 ? (
-                    <p className="text-xs opacity-50 italic py-4">Nenhum dado registrado.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-                      {gamebookPopularity.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center py-2 px-3 border border-current/10 bg-current/5 rounded">
-                          <span className="font-bold truncate pr-2" title={item.name}>📚 {item.name}</span>
-                          <span className="font-mono font-bold shrink-0">{item.count} fichas</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    {gamebookPopularity.length === 0 ? (
+                      <p className="text-xs opacity-50 italic py-4">Nenhum dado registrado.</p>
+                    ) : (
+                      <div className="space-y-2 text-xs">
+                        {gamebookPopularity.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
+                            <span className="font-bold truncate pr-2" title={item.name}>📚 {item.name}</span>
+                            <span className="font-mono font-bold shrink-0">{item.count} fichas</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

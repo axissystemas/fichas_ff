@@ -485,6 +485,7 @@ export const useSheetStore = create<SheetState>()(
           get().logTelemetry('death', {
             cause: activeMonster ? 'combat' : 'trap',
             monster: activeMonster ? activeMonster.name : null,
+            section: get().attributes.currentSection || null,
           });
           get().setStatus('defeat');
         }
