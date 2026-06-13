@@ -12,7 +12,15 @@ const BOOK_MONSTERS_MAP: Record<string, any> = {
 };
 
 export const MonsterManager = () => {
-  const { monsters, addMonster, removeMonster, updateMonsterEnergy, gamebook } = useSheetStore();
+  const { 
+    monsters, 
+    addMonster, 
+    removeMonster, 
+    updateMonsterEnergy, 
+    gamebook,
+    attributes,
+    setSuggestionsEnabled
+  } = useSheetStore();
   const [name, setName] = useState('');
   const [skill, setSkill] = useState(6);
   const [energy, setEnergy] = useState(6);
@@ -38,8 +46,8 @@ export const MonsterManager = () => {
   const bookData = BOOK_MONSTERS_MAP[gamebook];
   const bookMonsters = bookData ? bookData.monstros : [];
 
-  // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 3 letras)
-  const suggestions = name.trim().length >= 3
+  // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 3 letras) e se a opção está ativa
+  const suggestions = (attributes.suggestionsEnabled !== false) && name.trim().length >= 3
     ? bookMonsters.filter((m: any) => m.nome.toLowerCase().includes(name.toLowerCase()))
     : [];
 
@@ -88,7 +96,21 @@ export const MonsterManager = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-sm sm:text-base font-bold text-[#2C1E14]">
         <label className="flex flex-col gap-1 relative">
-          Nome
+          <div className="flex items-center justify-between mb-0.5">
+            <span>Nome</span>
+            {bookMonsters && bookMonsters.length > 0 && (
+              <span className="flex items-center gap-1 cursor-pointer select-none text-[9px] uppercase font-bold text-[#5C4033]/70 font-sans">
+                <input 
+                  type="checkbox"
+                  id="toggle-suggestions-combat"
+                  checked={attributes.suggestionsEnabled !== false}
+                  onChange={(e) => setSuggestionsEnabled(e.target.checked)}
+                  className="w-3.5 h-3.5 accent-[#5C4033] cursor-pointer"
+                />
+                <label htmlFor="toggle-suggestions-combat" className="cursor-pointer">Sugerir</label>
+              </span>
+            )}
+          </div>
           <input 
             type="text" 
             value={name} 

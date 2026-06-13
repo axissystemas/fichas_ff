@@ -46,6 +46,7 @@ export default function PainelAdmin() {
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newGamebook, setNewGamebook] = useState<string>(GAMEBOOKS[0]);
+  const [newSuggestionsEnabled, setNewSuggestionsEnabled] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -212,9 +213,10 @@ export default function PainelAdmin() {
 
   const handleCreate = async () => {
     const title = newTitle.trim() || 'Nova Ficha Admin';
-    await createSheet(title, newGamebook);
+    await createSheet(title, newGamebook, newSuggestionsEnabled);
     setNewTitle('');
     setNewGamebook(GAMEBOOKS[0]);
+    setNewSuggestionsEnabled(true);
     setCreating(false);
   };
 
@@ -865,37 +867,54 @@ export default function PainelAdmin() {
                   </div>
 
                   {creating && (
-                    <div className={`p-4 border flex flex-col gap-3 sm:flex-row sm:items-end ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/50 rounded-lg'}`}>
-                      <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Título da Ficha</label>
-                        <input
-                          placeholder="Ex: Admin Campaign"
-                          value={newTitle}
-                          onChange={(e) => setNewTitle(e.target.value)}
-                          className={`w-full px-3 py-1.5 text-xs border ${
-                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
-                          }`}
-                        />
+                    <div className={`p-4 border flex flex-col gap-4 ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/50 rounded-lg'}`}>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                        <div className="flex-1 flex flex-col gap-1">
+                          <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Título da Ficha</label>
+                          <input
+                            placeholder="Ex: Admin Campaign"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            className={`w-full px-3 py-1.5 text-xs border ${
+                              isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
+                            }`}
+                          />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Livro-Jogo</label>
+                          <select
+                            value={newGamebook}
+                            onChange={(e) => setNewGamebook(e.target.value)}
+                            className={`w-full px-3 py-1.5 text-xs border ${
+                              isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
+                            }`}
+                          >
+                            {GAMEBOOKS.map((book) => (
+                              <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                                {book}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                      <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-[9px] uppercase font-bold tracking-wider opacity-75 font-sans">Livro-Jogo</label>
-                        <select
-                          value={newGamebook}
-                          onChange={(e) => setNewGamebook(e.target.value)}
-                          className={`w-full px-3 py-1.5 text-xs border ${
-                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
-                          }`}
-                        >
-                          {GAMEBOOKS.map((book) => (
-                            <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
-                              {book}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="flex gap-2 shrink-0 pb-0.5">
-                        <button onClick={handleCreate} className="px-3 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded">Criar</button>
-                        <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); }} className="px-3 py-1.5 text-xs border cursor-pointer rounded">Cancelar</button>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t pt-3 border-current/10">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="admin-new-suggestions-toggle"
+                            checked={newSuggestionsEnabled}
+                            onChange={(e) => setNewSuggestionsEnabled(e.target.checked)}
+                            className={`w-3.5 h-3.5 cursor-pointer ${isPapyrus ? 'accent-[#5C4033]' : 'accent-cyan-500'}`}
+                          />
+                          <label htmlFor="admin-new-suggestions-toggle" className={`text-[10px] uppercase font-bold tracking-wider cursor-pointer select-none ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-300'}`}>
+                            Sugerir monstros do livro ao digitar
+                          </label>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button onClick={handleCreate} className={`px-3 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Criar</button>
+                          <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); }} className={`px-3 py-1.5 text-xs border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Cancelar</button>
+                        </div>
                       </div>
                     </div>
                   )}

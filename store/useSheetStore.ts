@@ -37,6 +37,7 @@ export interface DbSheet {
     energy: Attribute;
     luck: Attribute;
     currentSection?: string;
+    suggestionsEnabled?: boolean;
   };
   gold?: number;
   provisions?: number;
@@ -61,6 +62,7 @@ interface SheetState {
     energy: Attribute;
     luck: Attribute;
     currentSection?: string;
+    suggestionsEnabled?: boolean;
   };
   gold: number;
   provisions: number;
@@ -89,6 +91,7 @@ interface SheetState {
       energy: Attribute;
       luck: Attribute;
       currentSection?: string;
+      suggestionsEnabled?: boolean;
     };
     gold?: number;
     provisions?: number;
@@ -118,6 +121,7 @@ interface SheetState {
   addCombatLog: (log: { type: string; value: string; timestamp?: string }) => void;
   setNotes: (notes: string) => void;
   setCurrentSection: (section: string) => void;
+  setSuggestionsEnabled: (enabled: boolean) => void;
   resetSheet: () => void;
   setStatus: (status: 'playing' | 'victory' | 'defeat') => Promise<void>;
   logTelemetry: (eventType: string, eventData: any) => Promise<void>;
@@ -128,7 +132,7 @@ interface SheetState {
   setSyncStatus: (status: SyncStatus) => void;
   loadSheetsList: (allSheets?: boolean) => Promise<void>;
   loadSheet: (id: string) => Promise<void>;
-  createSheet: (title: string, gamebook: string) => Promise<void>;
+  createSheet: (title: string, gamebook: string, suggestionsEnabled?: boolean) => Promise<void>;
   renameSheet: (id: string, newTitle: string) => Promise<void>;
   deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
@@ -155,6 +159,7 @@ const defaultAttributes = {
   energy: { initial: 14, current: 14 },
   luck: { initial: 8, current: 8 },
   currentSection: '',
+  suggestionsEnabled: true,
 };
 
 const getDefaultInventory = (): Item[] => [
@@ -278,18 +283,22 @@ export const useSheetStore = create<SheetState>()(
         }
       },
 
-      createSheet: async (title: string, gamebook: string) => {
+      createSheet: async (title: string, gamebook: string, suggestionsEnabled = true) => {
         const user = get().user;
         if (!user) return;
         set({ syncStatus: 'saving' });
         try {
           const newSheetId = crypto.randomUUID();
+          const customAttributes = {
+            ...defaultAttributes,
+            suggestionsEnabled,
+          };
           const payload = {
             id: newSheetId,
             user_id: user.id,
             title: title || 'Nova Ficha',
             gamebook: gamebook || 'O Feiticeiro da Montanha de Fogo',
-            attributes: defaultAttributes,
+            attributes: customAttributes,
             gold: 0,
             provisions: 10,
             inventory: getDefaultInventory(),
@@ -313,13 +322,13 @@ export const useSheetStore = create<SheetState>()(
                 title: payload.title,
                 gamebook: payload.gamebook,
                 updated_at: new Date().toISOString(),
-                attributes: defaultAttributes,
+                attributes: customAttributes,
                 status: 'playing',
               },
               ...state.sheetsList,
             ],
             activeSheetId: newSheetId,
-            attributes: defaultAttributes,
+            attributes: customAttributes,
             gold: 0,
             provisions: 10,
             inventory: getDefaultInventory(),
@@ -491,6 +500,15 @@ export const useSheetStore = create<SheetState>()(
         if (section) {
           get().logTelemetry('section_visit', { section });
         }
+      },
+      setSuggestionsEnabled: (enabled) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            suggestionsEnabled: enabled,
+          },
+        }));
+        scheduleSave(get());
       },
 
       // ── Gold & Provisions ─────────────────────────────────────────────────

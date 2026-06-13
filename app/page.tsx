@@ -26,6 +26,7 @@ function SheetDashboard() {
   const { theme, sheetsList, loadSheetsList, loadSheet, createSheet, renameSheet, deleteSheet, syncStatus } = useSheetStore();
   const [newTitle, setNewTitle] = useState('');
   const [newGamebook, setNewGamebook] = useState<string>(GAMEBOOKS[0]);
+  const [newSuggestionsEnabled, setNewSuggestionsEnabled] = useState(true);
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -38,9 +39,10 @@ function SheetDashboard() {
 
   const handleCreate = async () => {
     const title = newTitle.trim() || 'Nova Ficha';
-    await createSheet(title, newGamebook);
+    await createSheet(title, newGamebook, newSuggestionsEnabled);
     setNewTitle('');
     setNewGamebook(GAMEBOOKS[0]);
+    setNewSuggestionsEnabled(true);
     setCreating(false);
   };
 
@@ -94,45 +96,62 @@ function SheetDashboard() {
 
       {/* Create Sheet Form */}
       {creating && (
-        <div className={`p-4 ${cardBase} flex flex-col gap-4 sm:flex-row sm:items-end`}>
-          <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs uppercase font-bold tracking-wider opacity-75">Nome do Personagem / Ficha</label>
-            <input
-              className={`w-full ${inputBase}`}
-              placeholder="Nome da ficha (ex: Barbarian Run)"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              autoFocus
-            />
+        <div className={`p-4 ${cardBase} flex flex-col gap-4`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex-1 flex flex-col gap-1.5">
+              <label className="text-xs uppercase font-bold tracking-wider opacity-75">Nome do Personagem / Ficha</label>
+              <input
+                className={`w-full ${inputBase}`}
+                placeholder="Nome da ficha (ex: Barbarian Run)"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                autoFocus
+              />
+            </div>
+            <div className="flex-1 flex flex-col gap-1.5">
+              <label className="text-xs uppercase font-bold tracking-wider opacity-75">Selecionar Livro-Jogo</label>
+              <select
+                value={newGamebook}
+                onChange={(e) => setNewGamebook(e.target.value)}
+                className={`w-full ${inputBase}`}
+              >
+                {GAMEBOOKS.map((book) => (
+                  <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                    {book}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs uppercase font-bold tracking-wider opacity-75">Selecionar Livro-Jogo</label>
-            <select
-              value={newGamebook}
-              onChange={(e) => setNewGamebook(e.target.value)}
-              className={`w-full ${inputBase}`}
-            >
-              {GAMEBOOKS.map((book) => (
-                <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
-                  {book}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-2 shrink-0 sm:pb-0.5">
-            <button
-              onClick={handleCreate}
-              className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition' : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded'}`}
-            >
-              <Check size={14} /> Criar
-            </button>
-            <button
-              onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); }}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs uppercase font-bold tracking-wider ${btnBase}`}
-            >
-              <X size={14} />
-            </button>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t pt-3 border-current/10">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="new-suggestions-toggle"
+                checked={newSuggestionsEnabled}
+                onChange={(e) => setNewSuggestionsEnabled(e.target.checked)}
+                className={`w-4 h-4 cursor-pointer ${isPapyrus ? 'accent-[#5C4033]' : 'accent-cyan-500'}`}
+              />
+              <label htmlFor="new-suggestions-toggle" className={`text-xs uppercase font-bold tracking-wider cursor-pointer select-none ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-300'}`}>
+                Sugerir monstros do livro ao digitar
+              </label>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={handleCreate}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition' : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded'}`}
+              >
+                <Check size={14} /> Criar
+              </button>
+              <button
+                onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); }}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs uppercase font-bold tracking-wider ${btnBase}`}
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         </div>
       )}
