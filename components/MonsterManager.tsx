@@ -16,6 +16,7 @@ export const MonsterManager = () => {
   const [name, setName] = useState('');
   const [skill, setSkill] = useState(6);
   const [energy, setEnergy] = useState(6);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleAddMonster = () => {
     if (!name.trim()) return;
@@ -31,10 +32,16 @@ export const MonsterManager = () => {
     setName('');
     setSkill(6);
     setEnergy(6);
+    setShowSuggestions(false);
   };
 
   const bookData = BOOK_MONSTERS_MAP[gamebook];
   const bookMonsters = bookData ? bookData.monstros : [];
+
+  // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 2 letras)
+  const suggestions = name.trim().length >= 2
+    ? bookMonsters.filter((m: any) => m.nome.toLowerCase().includes(name.toLowerCase()))
+    : [];
 
   return (
     <div>
@@ -79,61 +86,49 @@ export const MonsterManager = () => {
         ))}
       </div>
 
-      {bookMonsters && bookMonsters.length > 0 && (
-        <div className="mb-6 text-sm font-bold text-[#2C1E14]">
-          <label className="flex flex-col gap-1.5">
-            Adicionar Criatura do Livro-Jogo
-            <select 
-              onChange={(e) => {
-                const selectedId = e.target.value;
-                if (!selectedId) return;
-                const template = bookMonsters.find((m: any) => m.id === selectedId);
-                if (template) {
-                  const newMonster: Monster = {
-                    id: crypto.randomUUID(),
-                    name: template.nome,
-                    skill: template.habilidade,
-                    energyMax: template.energiaMaxima,
-                    energyCurrent: template.energiaMaxima,
-                    status: 'alive'
-                  };
-                  addMonster(newMonster);
-                }
-                e.target.value = ''; // reseta o select para a opção padrão
-              }}
-              className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
-            >
-              <option value="">-- Selecione uma criatura para combate rápido --</option>
-              {bookMonsters.map((m: any) => (
-                <option key={m.id} value={m.id}>
-                  {m.nome} (Hab: {m.habilidade}, Ener: {m.energiaMaxima}){m.boss ? ' 👑 CHEFE' : ''}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      )}
-
-      {bookMonsters && bookMonsters.length > 0 && (
-        <div className="relative flex items-center justify-center my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[#5C4033] opacity-30"></div>
-          </div>
-          <span className="relative px-3 bg-[#EAD8B8] text-[10px] uppercase font-bold text-[#5C4033] tracking-widest">
-            ou Criar Monstro Customizado
-          </span>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-sm sm:text-base font-bold text-[#2C1E14]">
-        <label className="flex flex-col gap-1">Nome
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base" />
+        <label className="flex flex-col gap-1 relative">
+          Nome
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => {
+              setName(e.target.value);
+              setShowSuggestions(true);
+            }} 
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => {
+              // Pequeno timeout para permitir que o clique na sugestão registre antes de ocultar
+              setTimeout(() => setShowSuggestions(false), 200);
+            }}
+            placeholder="Nome do monstro" 
+            className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]" 
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-20 mt-1 bg-[#FDF6E3] border-2 border-[#5C4033] shadow-lg max-h-48 overflow-y-auto rounded-sm">
+              {suggestions.map((m: any) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => {
+                    setName(m.nome);
+                    setSkill(m.habilidade);
+                    setEnergy(m.energiaMaxima);
+                    setShowSuggestions(false);
+                  }}
+                  className="w-full text-left px-3 py-2.5 hover:bg-[#EAD8B8] text-[#2C1E14] text-xs font-bold border-b border-[#5C4033]/20 last:border-0 cursor-pointer transition-colors"
+                >
+                  ✨ {m.nome} (Hab: {m.habilidade}, Ener: {m.energiaMaxima}){m.boss ? ' 👑 CHEFE' : ''}
+                </button>
+              ))}
+            </div>
+          )}
         </label>
         <label className="flex flex-col gap-1">Habilidade
-          <input type="number" value={skill} onChange={e => setSkill(parseInt(e.target.value) || 0)} placeholder="Hab" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base" />
+          <input type="number" value={skill} onChange={e => setSkill(parseInt(e.target.value) || 0)} placeholder="Hab" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]" />
         </label>
         <label className="flex flex-col gap-1">Energia
-          <input type="number" value={energy} onChange={e => setEnergy(parseInt(e.target.value) || 0)} placeholder="Energia" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base" />
+          <input type="number" value={energy} onChange={e => setEnergy(parseInt(e.target.value) || 0)} placeholder="Energia" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]" />
         </label>
       </div>
       <button onClick={handleAddMonster} className="w-full bg-[#2C1E14] text-[#EAD8B8] py-3 uppercase font-bold text-sm tracking-widest hover:bg-[#4A3728] transition">
