@@ -38,8 +38,8 @@ export const MonsterManager = () => {
   const bookData = BOOK_MONSTERS_MAP[gamebook];
   const bookMonsters = bookData ? bookData.monstros : [];
 
-  // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 2 letras)
-  const suggestions = name.trim().length >= 2
+  // Filtra as sugestões do livro com base no que o jogador está digitando (mínimo de 3 letras)
+  const suggestions = name.trim().length >= 3
     ? bookMonsters.filter((m: any) => m.nome.toLowerCase().includes(name.toLowerCase()))
     : [];
 
@@ -118,7 +118,7 @@ export const MonsterManager = () => {
                   }}
                   className="w-full text-left px-3 py-2.5 hover:bg-[#EAD8B8] text-[#2C1E14] text-xs font-bold border-b border-[#5C4033]/20 last:border-0 cursor-pointer transition-colors"
                 >
-                  ✨ {m.nome} (Hab: {m.habilidade}, Ener: {m.energiaMaxima}){m.boss ? ' 👑 CHEFE' : ''}
+                  ✨ {m.nome}
                 </button>
               ))}
             </div>
