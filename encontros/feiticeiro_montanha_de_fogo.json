@@ -1,0 +1,407 @@
+{
+  "livro": "O Feiticeiro da Montanha de Fogo",
+  "codigoLivro": "FF01",
+  "monstros": [
+    {
+      "id": "ff01-goblin-001",
+      "nome": "Goblin",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Pequena criatura humanoide agressiva.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna",
+        "Masmorra"
+      ]
+    },
+    {
+      "id": "ff01-orca-001",
+      "nome": "Orc",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Guerreiro bruto a serviço de Zagor.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Fortaleza",
+        "Corredor"
+      ]
+    },
+    {
+      "id": "ff01-gremlin-001",
+      "nome": "Gremlin",
+      "tipo": "Fada Sombria",
+      "habilidade": 6,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Criatura travessa e hostil.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-ratazana-gigante-001",
+      "nome": "Ratazana Gigante",
+      "tipo": "Animal",
+      "habilidade": 5,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Roedor monstruoso encontrado nos túneis.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Esgoto",
+        "Túnel"
+      ]
+    },
+    {
+      "id": "ff01-esqueleto-001",
+      "nome": "Esqueleto",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Guerreiro reanimado por magia.",
+      "habilidadesEspeciais": [
+        "Morto-vivo"
+      ],
+      "ambientes": [
+        "Cripta"
+      ]
+    },
+    {
+      "id": "ff01-troll-001",
+      "nome": "Troll",
+      "tipo": "Gigante",
+      "habilidade": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Criatura grande e extremamente forte.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Ponte",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-minotauro-001",
+      "nome": "Minotauro",
+      "tipo": "Monstro",
+      "habilidade": 9,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Criatura metade homem metade touro.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Labirinto"
+      ]
+    },
+    {
+      "id": "ff01-dragao-001",
+      "nome": "Dragão",
+      "tipo": "Dragão",
+      "habilidade": 10,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Dragão guardião de tesouros.",
+      "habilidadesEspeciais": [
+        "Sopro de fogo"
+      ],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-vampiro-001",
+      "nome": "Vampiro",
+      "tipo": "Morto-vivo",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Morto-vivo poderoso que se alimenta de sangue.",
+      "habilidadesEspeciais": [
+        "Morto-vivo"
+      ],
+      "ambientes": [
+        "Cripta"
+      ]
+    },
+    {
+      "id": "ff01-zagor-001",
+      "nome": "Zagor",
+      "tipo": "Feiticeiro",
+      "habilidade": 11,
+      "energiaMaxima": 18,
+      "boss": true,
+      "descricao": "Senhor da Montanha de Fogo.",
+      "habilidadesEspeciais": [
+        "Magia"
+      ],
+      "ambientes": [
+        "Sala Final"
+      ]
+    },
+    {
+      "id": "ff01-barbaro-001",
+      "nome": "Bárbaro",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Bárbaro enlouquecido brandindo uma grande arma.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Corredor"
+      ]
+    },
+    {
+      "id": "ff01-ogro-001",
+      "nome": "Ogro",
+      "tipo": "Humanoide",
+      "habilidade": 8,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Criatura grande, brutal e de pouca inteligência.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna",
+        "Corredor"
+      ]
+    },
+    {
+      "id": "ff01-anao-001",
+      "nome": "Anão",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Anão hostil defendendo seu território.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-aranha-gigante-001",
+      "nome": "Aranha Gigante",
+      "tipo": "Inseto",
+      "habilidade": 7,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Aranha monstruosa que tece teias mortais.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Túnel",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-crocodilo-001",
+      "nome": "Crocodilo",
+      "tipo": "Animal",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Grande réptil faminto habitando as águas subterrâneas.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Rio"
+      ]
+    },
+    {
+      "id": "ff01-mao-001",
+      "nome": "Mão",
+      "tipo": "Monstro",
+      "habilidade": 6,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Uma mão decepada e animada por magia que ataca invasores.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-verme-areia-gigante-001",
+      "nome": "Verme da Areia Gigante",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Criatura serpentina gigante que emerge do solo arenoso.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-piranhas-001",
+      "nome": "Piranhas",
+      "tipo": "Animal",
+      "habilidade": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Cardume de peixes carnívoros vorazes nas águas do rio subterrâneo.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Rio"
+      ]
+    },
+    {
+      "id": "ff01-gigante-001",
+      "nome": "Gigante",
+      "tipo": "Gigante",
+      "habilidade": 8,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Um enorme gigante armado com um porrete pesado.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-ratisomem-001",
+      "nome": "Ratisomem",
+      "tipo": "Humanoide",
+      "habilidade": 8,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Metade homem, metade rato, ágil e traiçoeiro.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Esgoto",
+        "Túnel"
+      ]
+    },
+    {
+      "id": "ff01-homem-caverna-001",
+      "nome": "Homem da Caverna",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Guerreiro primitivo e territorial.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-espectro-001",
+      "nome": "Espectro",
+      "tipo": "Morto-vivo",
+      "habilidade": 8,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Espírito sombrio com capacidade de drenar forças.",
+      "habilidadesEspeciais": [
+        "Morto-vivo"
+      ],
+      "ambientes": [
+        "Cripta",
+        "Masmorra"
+      ]
+    },
+    {
+      "id": "ff01-serpente-001",
+      "nome": "Serpente",
+      "tipo": "Animal",
+      "habilidade": 5,
+      "energiaMaxima": 2,
+      "boss": false,
+      "descricao": "Cobra peçonhenta e rápida.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna",
+        "Masmorra"
+      ]
+    },
+    {
+      "id": "ff01-cachorro-001",
+      "nome": "Cachorro",
+      "tipo": "Animal",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Cão de guarda feroz que cospe fogo.",
+      "habilidadesEspeciais": [
+        "Sopro de fogo"
+      ],
+      "ambientes": [
+        "Corredor"
+      ]
+    },
+    {
+      "id": "ff01-morcegos-gigantes-001",
+      "nome": "Morcegos Gigantes",
+      "tipo": "Animal",
+      "habilidade": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Bando de morcegos de tamanho descomunal que atacam em conjunto.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff01-zumbi-001",
+      "nome": "Zumbi",
+      "tipo": "Morto-vivo",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Corpo reanimado resistente que ataca sem medo.",
+      "habilidadesEspeciais": [
+        "Morto-vivo"
+      ],
+      "ambientes": [
+        "Cripta",
+        "Masmorra"
+      ]
+    },
+    {
+      "id": "ff01-ciclope-ferro-001",
+      "nome": "Ciclope de Ferro",
+      "tipo": "Constructo",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Estátua viva de ferro representando um gigante ciclope.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra"
+      ]
+    },
+    {
+      "id": "ff01-chefe-orcs-001",
+      "nome": "Chefe dos Orcs",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "O líder do bando local de Orcs.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Fortaleza"
+      ]
+    },
+    {
+      "id": "ff01-gremlin-alado-001",
+      "nome": "Gremlin Alado",
+      "tipo": "Fada Sombria",
+      "habilidade": 5,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Criatura alada travessa, irritante e hostil.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Caverna"
+      ]
+    }
+  ]
+}

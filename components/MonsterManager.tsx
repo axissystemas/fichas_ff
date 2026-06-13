@@ -4,8 +4,15 @@ import { useState } from 'react';
 import { useSheetStore, Monster } from '@/store/useSheetStore';
 import { User } from 'lucide-react';
 
+// Importando arquivos de encontros dos livros
+import feiticeiroMontanhaJSON from '@/encontros/feiticeiro_montanha_de_fogo.json';
+
+const BOOK_MONSTERS_MAP: Record<string, any> = {
+  'O Feiticeiro da Montanha de Fogo': feiticeiroMontanhaJSON,
+};
+
 export const MonsterManager = () => {
-  const { monsters, addMonster, removeMonster, updateMonsterEnergy } = useSheetStore();
+  const { monsters, addMonster, removeMonster, updateMonsterEnergy, gamebook } = useSheetStore();
   const [name, setName] = useState('');
   const [skill, setSkill] = useState(6);
   const [energy, setEnergy] = useState(6);
@@ -26,10 +33,13 @@ export const MonsterManager = () => {
     setEnergy(6);
   };
 
+  const bookData = BOOK_MONSTERS_MAP[gamebook];
+  const bookMonsters = bookData ? bookData.monstros : [];
+
   return (
     <div>
       <h2 className="text-xl font-bold uppercase text-center border-b-2 border-[#2C1E14] pb-2 mb-4">Encontro com Monstros</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 max-h-80 overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 max-h-80 overflow-y-auto pr-1">
         {monsters.map(monster => {
           const isLowEnergy = (monster.energyCurrent / monster.energyMax) < 0.25;
           return (
@@ -68,6 +78,53 @@ export const MonsterManager = () => {
           </div>
         ))}
       </div>
+
+      {bookMonsters && bookMonsters.length > 0 && (
+        <div className="mb-6 text-sm font-bold text-[#2C1E14]">
+          <label className="flex flex-col gap-1.5">
+            Adicionar Criatura do Livro-Jogo
+            <select 
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                if (!selectedId) return;
+                const template = bookMonsters.find((m: any) => m.id === selectedId);
+                if (template) {
+                  const newMonster: Monster = {
+                    id: crypto.randomUUID(),
+                    name: template.nome,
+                    skill: template.habilidade,
+                    energyMax: template.energiaMaxima,
+                    energyCurrent: template.energiaMaxima,
+                    status: 'alive'
+                  };
+                  addMonster(newMonster);
+                }
+                e.target.value = ''; // reseta o select para a opção padrão
+              }}
+              className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+            >
+              <option value="">-- Selecione uma criatura para combate rápido --</option>
+              {bookMonsters.map((m: any) => (
+                <option key={m.id} value={m.id}>
+                  {m.nome} (Hab: {m.habilidade}, Ener: {m.energiaMaxima}){m.boss ? ' 👑 CHEFE' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
+      {bookMonsters && bookMonsters.length > 0 && (
+        <div className="relative flex items-center justify-center my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#5C4033] opacity-30"></div>
+          </div>
+          <span className="relative px-3 bg-[#EAD8B8] text-[10px] uppercase font-bold text-[#5C4033] tracking-widest">
+            ou Criar Monstro Customizado
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-sm sm:text-base font-bold text-[#2C1E14]">
         <label className="flex flex-col gap-1">Nome
           <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base" />
