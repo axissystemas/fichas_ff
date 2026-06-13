@@ -96,7 +96,7 @@ function SheetDashboard() {
       {creating && (
         <div className={`p-4 ${cardBase} flex flex-col gap-4 sm:flex-row sm:items-end`}>
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Nome do Personagem / Ficha</label>
+            <label className="text-xs uppercase font-bold tracking-wider opacity-75">Nome do Personagem / Ficha</label>
             <input
               className={`w-full ${inputBase}`}
               placeholder="Nome da ficha (ex: Barbarian Run)"
@@ -107,7 +107,7 @@ function SheetDashboard() {
             />
           </div>
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Selecionar Livro-Jogo</label>
+            <label className="text-xs uppercase font-bold tracking-wider opacity-75">Selecionar Livro-Jogo</label>
             <select
               value={newGamebook}
               onChange={(e) => setNewGamebook(e.target.value)}
@@ -210,7 +210,7 @@ function SheetDashboard() {
                 </p>
 
                 {/* Date */}
-                <p className={`text-[10px] font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
+                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
                   Atualizado em {dateStr} às {timeStr}
                 </p>
 
@@ -470,7 +470,7 @@ export default function Home() {
                 <>
                   {/* Character name */}
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-[10px] uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                    <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
                       Personagem
                     </span>
                     <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 border ${
@@ -487,7 +487,7 @@ export default function Home() {
 
                   {/* Gamebook */}
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-[10px] uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                    <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
                       Livrojogo
                     </span>
                     <span className={`text-xs font-bold italic px-2 py-0.5 border ${
@@ -515,7 +515,7 @@ export default function Home() {
             {showSheet && (
               <button
                 onClick={handleBackToDashboard}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-xs uppercase font-bold tracking-wider cursor-pointer"
               >
                 <ArrowLeft size={12} /> Fichas
               </button>
@@ -526,13 +526,13 @@ export default function Home() {
               <>
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-xs uppercase font-bold tracking-wider cursor-pointer"
                 >
                   <Upload size={12} /> Exportar
                 </button>
                 <button
                   onClick={handleImport}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-xs uppercase font-bold tracking-wider cursor-pointer"
                 >
                   <Download size={12} /> Importar
                 </button>
@@ -556,7 +556,7 @@ export default function Home() {
                     resetSheet();
                   }
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition text-[10px] sm:text-xs uppercase font-bold tracking-wider cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition text-xs uppercase font-bold tracking-wider cursor-pointer"
               >
                 <RotateCcw size={12} /> Resetar
               </button>

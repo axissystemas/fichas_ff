@@ -59,6 +59,16 @@ export const AttributeHistoryLineChart = ({ data }: { data: AttributePoint[] }) 
     { name: 'Sec 89', skill: 9, energy: 13, luck: 7 },
   ];
 
+  const lineColors = theme === 'papyrus' ? {
+    skill: '#000000',  // Preto
+    energy: '#DC2626', // Vermelho
+    luck: '#1E3A8A'    // Azul Escuro
+  } : {
+    skill: '#CBD5E1',  // Contraste para Preto (Slate-300)
+    energy: '#EF4444', // Contraste para Vermelho
+    luck: '#3B82F6'    // Contraste para Azul Escuro (Azul Claro)
+  };
+
   return (
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
@@ -76,9 +86,9 @@ export const AttributeHistoryLineChart = ({ data }: { data: AttributePoint[] }) 
             }}
           />
           <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-          <Line type="monotone" dataKey="skill" name="Habilidade" stroke={colors.chartColors[0]} strokeWidth={2} activeDot={{ r: 6 }} />
-          <Line type="monotone" dataKey="energy" name="Energia" stroke={colors.chartColors[1]} strokeWidth={2} />
-          <Line type="monotone" dataKey="luck" name="Sorte" stroke={colors.chartColors[2]} strokeWidth={2} />
+          <Line type="monotone" dataKey="skill" name="Habilidade" stroke={lineColors.skill} strokeWidth={2} activeDot={{ r: 6 }} />
+          <Line type="monotone" dataKey="energy" name="Energia" stroke={lineColors.energy} strokeWidth={2} />
+          <Line type="monotone" dataKey="luck" name="Sorte" stroke={lineColors.luck} strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -227,15 +237,15 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
         {heatmapData.map((item, idx) => (
           <div
             key={idx}
-            className={`aspect-square flex flex-col items-center justify-center border text-[9px] font-bold transition-all rounded ${getCellColor(item.count)}`}
+            className={`aspect-square flex flex-col items-center justify-center border text-xs font-bold transition-all rounded ${getCellColor(item.count)}`}
             title={`${item.date}: ${item.count} ações`}
           >
             <span>{item.date}</span>
-            <span className="opacity-75 font-mono text-[7px]">{item.count}</span>
+            <span className="opacity-75 font-mono text-[10px]">{item.count}</span>
           </div>
         ))}
       </div>
-      <div className="flex justify-center items-center gap-4 mt-4 text-[10px] uppercase font-bold tracking-wider opacity-80">
+      <div className="flex justify-center items-center gap-4 mt-4 text-xs uppercase font-bold tracking-wider opacity-80">
         <span>Menos ativo</span>
         <div className="flex gap-1">
           <div className={`w-3.5 h-3.5 border rounded ${getCellColor(0)}`}></div>
