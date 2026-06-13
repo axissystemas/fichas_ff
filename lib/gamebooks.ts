@@ -41,3 +41,16 @@ export const GAMEBOOKS = [
 ] as const;
 
 export type Gamebook = typeof GAMEBOOKS[number];
+
+export const BOOKS_WITH_SUGGESTIONS = [
+  'O Feiticeiro da Montanha de Fogo',
+  'A Cidadela do Caos',
+  'A Floresta da Destruição',
+  'A Cidade dos Ladrões',
+  'A Masmorra da Morte',
+  'Nave Espacial Traveller',
+  'O Templo do Terror',
+  'As Coligações de Kether',
+  'Mares de Sangue',
+  'Encontro Marcado com o M.E.D.O.'
+] as const;

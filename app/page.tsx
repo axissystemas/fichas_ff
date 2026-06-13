@@ -18,7 +18,7 @@ import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
 } from 'lucide-react';
-import { GAMEBOOKS } from '@/lib/gamebooks';
+import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
@@ -116,11 +116,14 @@ function SheetDashboard() {
                 onChange={(e) => setNewGamebook(e.target.value)}
                 className={`w-full ${inputBase}`}
               >
-                {GAMEBOOKS.map((book) => (
-                  <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
-                    {book}
-                  </option>
-                ))}
+                {GAMEBOOKS.map((book) => {
+                  const hasSug = BOOKS_WITH_SUGGESTIONS.includes(book as any);
+                  return (
+                    <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                      {book}{hasSug ? ' 👾' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>
@@ -226,6 +229,7 @@ function SheetDashboard() {
                 {/* Gamebook */}
                 <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
                   📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                  {BOOKS_WITH_SUGGESTIONS.includes((sheet.gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
                 </p>
 
                 {/* Date */}
@@ -515,6 +519,7 @@ export default function Home() {
                         : 'bg-cyan-950/50 text-cyan-300 border-cyan-700/50'
                     }`}>
                       📚 {gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                      {BOOKS_WITH_SUGGESTIONS.includes((gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
                     </span>
                   </div>
 

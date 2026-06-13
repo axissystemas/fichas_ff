@@ -14,7 +14,7 @@ import {
   CompletionBarChart,
   ActivityHeatmap
 } from '@/components/DashboardCharts';
-import { GAMEBOOKS } from '@/lib/gamebooks';
+import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 
 export default function PainelAdmin() {
   const {
@@ -889,11 +889,14 @@ export default function PainelAdmin() {
                               isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
                             }`}
                           >
-                            {GAMEBOOKS.map((book) => (
-                              <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
-                                {book}
-                              </option>
-                            ))}
+                            {GAMEBOOKS.map((book) => {
+                              const hasSug = BOOKS_WITH_SUGGESTIONS.includes(book as any);
+                              return (
+                                <option key={book} value={book} className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
+                                  {book}{hasSug ? ' 👾' : ''}
+                                </option>
+                              );
+                            })}
                           </select>
                         </div>
                       </div>
