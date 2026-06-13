@@ -296,7 +296,10 @@ export const useSheetStore = create<SheetState>()(
         try {
           const newSheetId = crypto.randomUUID();
           const customAttributes = {
-            ...defaultAttributes,
+            skill: { initial: 0, current: 0 },
+            energy: { initial: 0, current: 0 },
+            luck: { initial: 0, current: 0 },
+            currentSection: '',
             suggestionsEnabled,
           };
           const payload = {

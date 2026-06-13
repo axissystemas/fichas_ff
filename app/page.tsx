@@ -13,6 +13,7 @@ import { SyncStatus } from '@/components/SyncStatus';
 import AuthStatus from '@/components/AuthStatus';
 import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
+import { CharacterCreation } from '@/components/CharacterCreation';
 import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
@@ -314,7 +315,10 @@ export default function Home() {
     musicEnabled,
     toggleSound,
     toggleMusic,
+    attributes,
   } = useSheetStore();
+
+  const isNewSheet = attributes.skill.initial === 0 && attributes.energy.initial === 0 && attributes.luck.initial === 0;
 
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
@@ -788,7 +792,10 @@ export default function Home() {
 
         {/* ── Conteúdo da Ficha Ativa ── */}
         {showSheet && (
-          <div className="animate-fade-in">
+          isNewSheet ? (
+            <CharacterCreation />
+          ) : (
+            <div className="animate-fade-in">
             {/* ── Menu de Abas (Apenas Mobile) ── */}
             <div className={`md:hidden flex overflow-x-auto gap-2 mb-6 pb-2 border-b ${isPapyrus ? 'border-[#5C4033]/30' : 'border-[#4a5568]/50'}`}>
               {['Status', 'Combate', 'Inventário', 'Notas'].map(tab => (
@@ -868,9 +875,9 @@ export default function Home() {
                 <NotesCard />
               </section>
             </div>
-
           </div>
-        )}
+        )
+      )}
       </div>
     </main>
   );
