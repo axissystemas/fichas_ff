@@ -1,0 +1,244 @@
+{
+  "livro": "A Masmorra da Morte",
+  "codigoLivro": "FF06",
+  "monstros": [
+    {
+      "id": "ff06-amaaanataeacaoaraaa-001",
+      "nome": "Ámáaánátáéácáoáráaá",
+      "tipo": "Monstro",
+      "habilidade": 11,
+      "energiaMaxima": 11,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-amaoasacaaa-agaiagaaanataea-002",
+      "nome": "Ámáoásácáaá Ágáiágáaánátáeá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-amaianaoataaauaraoa-003",
+      "nome": "Ámáiánáoátáaáuáráoá",
+      "tipo": "Monstro",
+      "habilidade": 9,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-ahaoabagaoabalaiana-004",
+      "nome": "Áháoábágáoábáláiáná",
+      "tipo": "Monstro",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-aearavaaa-005",
+      "nome": "Áeáráváaá",
+      "tipo": "Monstro",
+      "habilidade": 9,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-aeasacaoarapaiaaaoa-agaiagaaanataea-006",
+      "nome": "Áeásácáoárápáiáãáoá Ágáiágáaánátáeá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-aaanaaaoa-007",
+      "nome": "Áaánáãáoá",
+      "tipo": "Monstro",
+      "habilidade": 8,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-abaeasataaa-asaaanagaraeanataaa-008",
+      "nome": "Ábáeásátáaá Ásáaánágáráeánátáaá",
+      "tipo": "Monstro",
+      "habilidade": 12,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-adaiaaabaoa-adaoa-apaoacaoa-009",
+      "nome": "Ádáiáaábáoá Ádáoá Ápáoáçáoá",
+      "tipo": "Monstro",
+      "habilidade": 12,
+      "energiaMaxima": 15,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-aiamaiataaadaoara-010",
+      "nome": "Áiámáiátáaádáoárá",
+      "tipo": "Monstro",
+      "habilidade": 9,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-avaearamaea-adaaa-araoacahaaa-011",
+      "nome": "Áváeárámáeá Ádáaá Áráoácáháaá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 11,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-ataharaoama-012",
+      "nome": "Átáháráoámá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-anaianajaaa-013",
+      "nome": "Ánáiánájáaá",
+      "tipo": "Monstro",
+      "habilidade": 11,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-adaeamaoanaiaoa-adaoa-aeasapaealahaoa-014",
+      "nome": "Ádáeámáôánáiáoá Ádáoá Áeásápáeáláháoá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-agauaeararaeaiaraoa-aeasaqauaealaeataoa-015",
+      "nome": "Ágáuáeáráráeáiáráoá-Áeásáqáuáeáláeátáoá",
+      "tipo": "Monstro",
+      "habilidade": 8,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-ataraoalala-adaaa-acaaavaearanaaa-016",
+      "nome": "Átáráoálálá Ádáaá Ácáaáváeáránáaá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 11,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff06-ahaoamaeama-adaaa-acaaavaearanaaa-017",
+      "nome": "Áháoámáeámá Ádáaá Ácáaáváeáránáaá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    }
+  ]
+}

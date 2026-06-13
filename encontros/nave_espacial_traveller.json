@@ -1,0 +1,132 @@
+{
+  "livro": "Nave Espacial Traveller",
+  "codigoLivro": "FF04",
+  "monstros": [
+    {
+      "id": "ff04-agauaaaradaaa-aaalaiaeanaiagaeanaaa-001",
+      "nome": "Ágáuáaárádáaá Áaáláiáeánáíágáeánáaá",
+      "tipo": "Monstro",
+      "habilidade": 11,
+      "energiaMaxima": 14,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-acaraiaaatauaraaasa-adaoa-abaaara-002",
+      "nome": "Ácáráiáaátáuáráaásá Ádáoá Ábáaárá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-agauaiaaaradaiaaa-003",
+      "nome": "Ágáuáíáaárádáíáaá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-asaeaua-agauaiaaaradaiaaa-004",
+      "nome": "Ásáeáuá Ágáuáíáaárádáíáaá",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-avaaaoacaea-005",
+      "nome": "Áváãáoácáêá",
+      "tipo": "Monstro",
+      "habilidade": 6,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-araaaoabaoa-aaasasaiaaasasaianaaaoa-006",
+      "nome": "Áráãáoábáôá Áaásásáíáaásásáiánáãáoá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-aaagauaiaiaaa-007",
+      "nome": "Ááágáuáiáíáaá",
+      "tipo": "Monstro",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-agaiaaanazaiagaiataiaaa-008",
+      "nome": "Ágáíáaánázáiágáiátáíáaá",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    },
+    {
+      "id": "ff04-agauaiaaaradaiaaa-adaea-aiaaaramaiaaadauaraiaaa-009",
+      "nome": "Ágáuáíáaárádáíáaá Ádáeá Áíáaárámáíáaádáuáráíáaá",
+      "tipo": "Monstro",
+      "habilidade": 11,
+      "energiaMaxima": 14,
+      "boss": false,
+      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "habilidadesEspeciais": [],
+      "ambientes": [
+        "Masmorra",
+        "Caverna"
+      ]
+    }
+  ]
+}

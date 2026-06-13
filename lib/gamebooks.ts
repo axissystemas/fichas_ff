@@ -31,6 +31,8 @@ export const GAMEBOOKS = [
   'Sombra de Gigantes',
   'A Masmorra na Ilha de Sangue',
   'Ladrão da Meia-Noite',
+  'As Coligações de Kether',
+  'Mares de Sangue',
   // Série Magia! (Sorcery!):
   'As Montanhas Shamutanti',
   'Kharé: Porto dos Ardis',

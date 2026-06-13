@@ -2,13 +2,31 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useSheetStore, Monster } from '@/store/useSheetStore';
-import { User } from 'lucide-react';
+import { User, Sparkles } from 'lucide-react';
 
 // Importando arquivos de encontros dos livros
 import feiticeiroMontanhaJSON from '@/encontros/feiticeiro_montanha_de_fogo.json';
+import cidadelaCaosJSON from '@/encontros/cidadela_do_caos.json';
+import florestaDestruicaoJSON from '@/encontros/floresta_da_destruicao.json';
+import cidadeLadroesJSON from '@/encontros/cidade_dos_ladroes.json';
+import masmorraMorteJSON from '@/encontros/masmorra_da_morte.json';
+import naveTravellerJSON from '@/encontros/nave_espacial_traveller.json';
+import temploTerrorJSON from '@/encontros/templo_do_terror.json';
+import coligacoesKetherJSON from '@/encontros/coligacoes_de_kether.json';
+import maresSangueJSON from '@/encontros/mares_de_sangue.json';
+import encontroMedoJSON from '@/encontros/encontro_marcado_medo.json';
 
 const BOOK_MONSTERS_MAP: Record<string, any> = {
   'O Feiticeiro da Montanha de Fogo': feiticeiroMontanhaJSON,
+  'A Cidadela do Caos': cidadelaCaosJSON,
+  'A Floresta da Destruição': florestaDestruicaoJSON,
+  'A Cidade dos Ladrões': cidadeLadroesJSON,
+  'A Masmorra da Morte': masmorraMorteJSON,
+  'Nave Espacial Traveller': naveTravellerJSON,
+  'O Templo do Terror': temploTerrorJSON,
+  'As Coligações de Kether': coligacoesKetherJSON,
+  'Mares de Sangue': maresSangueJSON,
+  'Encontro Marcado com o M.E.D.O.': encontroMedoJSON,
 };
 
 export const MonsterManager = () => {
@@ -111,40 +129,57 @@ export const MonsterManager = () => {
               </span>
             )}
           </div>
-          <input 
-            type="text" 
-            value={name} 
-            onChange={e => {
-              setName(e.target.value);
-              setShowSuggestions(true);
-            }} 
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => {
-              // Pequeno timeout para permitir que o clique na sugestão registre antes de ocultar
-              setTimeout(() => setShowSuggestions(false), 200);
-            }}
-            placeholder="Nome do monstro" 
-            className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]" 
-          />
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute left-0 right-0 top-full z-20 mt-1 bg-[#FDF6E3] border-2 border-[#5C4033] shadow-lg max-h-48 overflow-y-auto rounded-sm">
-              {suggestions.map((m: any) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => {
-                    setName(m.nome);
-                    setSkill(m.habilidade);
-                    setEnergy(m.energiaMaxima);
-                    setShowSuggestions(false);
-                  }}
-                  className="w-full text-left px-3 py-2.5 hover:bg-[#EAD8B8] text-[#2C1E14] text-xs font-bold border-b border-[#5C4033]/20 last:border-0 cursor-pointer transition-colors"
-                >
-                  ✨ {m.nome}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="relative w-full">
+            <input 
+              type="text" 
+              value={name} 
+              onChange={e => {
+                setName(e.target.value);
+                setShowSuggestions(true);
+              }} 
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => {
+                // Pequeno timeout para permitir que o clique na sugestão registre antes de ocultar
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              placeholder="Nome do monstro" 
+              className="p-3 pr-10 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059] w-full" 
+            />
+            {bookMonsters && bookMonsters.length > 0 && attributes.suggestionsEnabled !== false && (
+              <span 
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-help"
+                title={suggestions.length > 0 ? "Sugestões de monstros encontradas!" : "Sugestões do livro ativas (digite 3 letras...)"}
+              >
+                <Sparkles 
+                  size={16} 
+                  className={`transition-all duration-300 ${
+                    suggestions.length > 0 
+                      ? 'text-yellow-600 scale-110 drop-shadow-[0_0_6px_rgba(202,138,4,0.3)]' 
+                      : 'text-[#5C4033]/30'
+                  }`}
+                />
+              </span>
+            )}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-20 mt-1 bg-[#FDF6E3] border-2 border-[#5C4033] shadow-lg max-h-48 overflow-y-auto rounded-sm">
+                {suggestions.map((m: any) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setName(m.nome);
+                      setSkill(m.habilidade);
+                      setEnergy(m.energiaMaxima);
+                      setShowSuggestions(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-[#EAD8B8] text-[#2C1E14] text-xs font-bold border-b border-[#5C4033]/20 last:border-0 cursor-pointer transition-colors"
+                  >
+                    ✨ {m.nome}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </label>
         <label className="flex flex-col gap-1">Habilidade
           <input type="number" value={skill} onChange={e => setSkill(parseInt(e.target.value) || 0)} placeholder="Hab" className="p-3 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]" />
