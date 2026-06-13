@@ -11,7 +11,6 @@ import { GoldAndProvisions } from '@/components/GoldAndProvisions';
 import { MonsterManager } from '@/components/MonsterManager';
 import { SyncStatus } from '@/components/SyncStatus';
 import AuthStatus from '@/components/AuthStatus';
-import { CurrentSectionFloatingBar } from '@/components/CurrentSectionFloatingBar';
 import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
@@ -799,8 +798,7 @@ export default function Home() {
                 <NotesCard />
               </section>
             </div>
-            {/* Parágrafo atual flutuante */}
-            <CurrentSectionFloatingBar />
+
           </div>
         )}
       </div>
