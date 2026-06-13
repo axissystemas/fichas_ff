@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Dices, Shield, Heart, Clover } from 'lucide-react';
 
 export const CharacterCreation = () => {
-  const { theme, gamebook, setAttribute, addCombatLog, saveToSupabase } = useSheetStore();
+  const { theme, gamebook, setAttribute, addCombatLog, saveToSupabase, logTelemetry } = useSheetStore();
   
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
@@ -107,6 +107,13 @@ export const CharacterCreation = () => {
     addCombatLog({
       type: 'Aventura',
       value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}`,
+    });
+
+    // Log telemetry
+    await logTelemetry('character_creation', {
+      skill: rolledSkill,
+      energy: rolledEnergy,
+      luck: rolledLuck,
     });
 
     // Save state to Supabase

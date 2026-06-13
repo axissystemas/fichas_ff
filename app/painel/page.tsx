@@ -330,26 +330,32 @@ export default function PainelAdmin() {
   // ─── Métricas Agregadas e Dados para os Gráficos ─────────────────────────────
   const totalSheets = statsSheets.length;
 
+  // Filtra as fichas iniciadas (que já tiveram os atributos rolados) para não distorcer as médias
+  const initializedSheets = statsSheets.filter(
+    s => !((s.attributes?.skill?.initial ?? 0) === 0 && (s.attributes?.energy?.initial ?? 0) === 0 && (s.attributes?.luck?.initial ?? 0) === 0)
+  );
+  const totalInitializedSheets = initializedSheets.length;
+
   // Médias Atuais
-  const avgSkill = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.skill?.current ?? 0), 0) / totalSheets) * 10) / 10
+  const avgSkill = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.skill?.current ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
-  const avgEnergy = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.energy?.current ?? 0), 0) / totalSheets) * 10) / 10
+  const avgEnergy = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.energy?.current ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
-  const avgLuck = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.luck?.current ?? 0), 0) / totalSheets) * 10) / 10
+  const avgLuck = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.luck?.current ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
 
   // Médias Iniciais
-  const avgSkillInitial = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.skill?.initial ?? 0), 0) / totalSheets) * 10) / 10
+  const avgSkillInitial = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.skill?.initial ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
-  const avgEnergyInitial = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.energy?.initial ?? 0), 0) / totalSheets) * 10) / 10
+  const avgEnergyInitial = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.energy?.initial ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
-  const avgLuckInitial = totalSheets > 0 
-    ? Math.round((statsSheets.reduce((acc, s) => acc + (s.attributes?.luck?.initial ?? 0), 0) / totalSheets) * 10) / 10
+  const avgLuckInitial = totalInitializedSheets > 0 
+    ? Math.round((initializedSheets.reduce((acc, s) => acc + (s.attributes?.luck?.initial ?? 0), 0) / totalInitializedSheets) * 10) / 10
     : 0;
 
   // Taxa de Sucesso (Win Rate)
