@@ -17,8 +17,10 @@ import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
+  Volume2, VolumeX, Music,
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
+import { audio, music } from '@/lib/audio';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
@@ -308,6 +310,10 @@ export default function Home() {
     resetKey,
     checkAdminStatus,
     gamebook,
+    soundEnabled,
+    musicEnabled,
+    toggleSound,
+    toggleMusic,
   } = useSheetStore();
 
   // Load user session on initial render (AuthStatus also handles it)
@@ -344,6 +350,50 @@ export default function Home() {
       }
     });
   }, []);
+
+  // Synchronize audio engine preferences
+  useEffect(() => {
+    audio.setEnabled(soundEnabled);
+    music.setEnabled(musicEnabled);
+  }, [soundEnabled, musicEnabled]);
+
+  // Manage BGM depending on active screen/sheet
+  useEffect(() => {
+    const getTrackForGamebook = (bookName: string | undefined): string => {
+      if (!bookName) return '/audios/16 bits/POL-the-foyer-short.wav';
+      switch (bookName) {
+        case 'O Feiticeiro da Montanha de Fogo':
+        case 'A Masmorra da Morte':
+          return '/audios/16 bits/POL-misty-dungeon-short.wav';
+        case 'A Cidadela do Caos':
+        case 'O Templo do Terror':
+          return '/audios/16 bits/POL-chamber-of-secrets-short.wav';
+        case 'A Floresta da Destruição':
+          return '/audios/16 bits/POL-foggy-forest-short.wav';
+        default:
+          return '/audios/16 bits/POL-jungle-hideout-short.wav';
+      }
+    };
+
+    if (!activeSheetId) {
+      music.play('/audios/16 bits/POL-the-foyer-short.wav');
+    } else {
+      const track = getTrackForGamebook(gamebook);
+      music.play(track);
+    }
+  }, [activeSheetId, gamebook]);
+
+  // Play Victory/Defeat SFX when status changes
+  const sheetStatus = useSheetStore(state => state.status);
+  useEffect(() => {
+    if (activeSheetId) {
+      if (sheetStatus === 'victory') {
+        audio.playVictory();
+      } else if (sheetStatus === 'defeat') {
+        audio.playDefeat();
+      }
+    }
+  }, [sheetStatus, activeSheetId]);
 
   // Track total game play time (increments every minute if a sheet is open)
   useEffect(() => {
@@ -562,6 +612,26 @@ export default function Home() {
                 </button>
               </>
             )}
+
+            {/* Música de Fundo */}
+            <button
+              onClick={toggleMusic}
+              className="p-1.5 sm:p-2 border border-current hover:bg-[#3D2B1F]/10 rounded cursor-pointer transition flex items-center justify-center"
+              aria-label={musicEnabled ? "Desativar música" : "Ativar música"}
+              title={musicEnabled ? "Mudo (Música)" : "Ativar Música"}
+            >
+              <Music size={18} className={musicEnabled ? "opacity-100" : "opacity-35"} />
+            </button>
+
+            {/* Efeitos Sonoros */}
+            <button
+              onClick={toggleSound}
+              className="p-1.5 sm:p-2 border border-current hover:bg-[#3D2B1F]/10 rounded cursor-pointer transition flex items-center justify-center"
+              aria-label={soundEnabled ? "Desativar efeitos" : "Ativar efeitos"}
+              title={soundEnabled ? "Mudo (Efeitos)" : "Ativar Efeitos"}
+            >
+              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </button>
 
             {/* Tema */}
             <button

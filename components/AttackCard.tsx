@@ -2,6 +2,7 @@
 import { useSheetStore } from '@/store/useSheetStore';
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { audio } from '@/lib/audio';
 
 interface AttackResult {
   id: string;
@@ -18,6 +19,7 @@ export const AttackCard = () => {
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
   const rollAttack = () => {
+    audio.playDiceRoll();
     const store = useSheetStore.getState();
     const skill = store.attributes.skill.current;
     
@@ -43,6 +45,17 @@ export const AttackCard = () => {
         type: 'Combate', 
         value: `Aventureiro (${advTotal}) vs ${aliveMonster.name} (${monsterTotal})` 
       });
+
+      // Play appropriate sound effect with delay to follow dice roll sound
+      setTimeout(() => {
+        if (advTotal > monsterTotal) {
+          audio.playHit();
+        } else if (monsterTotal > advTotal) {
+          audio.playHurt();
+        } else {
+          audio.playBlip();
+        }
+      }, 280);
     } else {
       setResult({
         id: crypto.randomUUID(),

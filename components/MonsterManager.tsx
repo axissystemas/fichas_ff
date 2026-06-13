@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { useSheetStore, Monster } from '@/store/useSheetStore';
 import { User, Sparkles } from 'lucide-react';
+import { audio } from '@/lib/audio';
 
 // Importando arquivos de encontros dos livros
 import feiticeiroMontanhaJSON from '@/encontros/feiticeiro_montanha_de_fogo.json';
@@ -62,6 +63,7 @@ export const MonsterManager = () => {
 
   const handleAddMonster = () => {
     if (!name.trim()) return;
+    audio.playBlip();
     const newMonster: Monster = {
       id: crypto.randomUUID(),
       name,
@@ -75,6 +77,27 @@ export const MonsterManager = () => {
     setSkill(6);
     setEnergy(6);
     setShowSuggestions(false);
+  };
+
+  const handleRemoveMonster = (id: string) => {
+    audio.playBlip();
+    removeMonster(id);
+  };
+
+  const handleUpdateMonsterEnergy = (id: string, delta: number) => {
+    const monster = monsters.find(m => m.id === id);
+    if (!monster) return;
+    const nextEnergy = Math.max(0, monster.energyCurrent + delta);
+    if (delta < 0) {
+      if (nextEnergy === 0 && monster.energyCurrent > 0) {
+        audio.playSuccess(); // defeated!
+      } else {
+        audio.playHit();
+      }
+    } else {
+      audio.playBlip();
+    }
+    updateMonsterEnergy(id, delta);
   };
 
   // Helper to normalize strings (remove accents) for better searching
@@ -139,7 +162,7 @@ export const MonsterManager = () => {
             >
               <div className="font-bold border-b border-[#5C4033] mb-1 pb-1 flex justify-between">
                 {monster.name}
-                <button onClick={() => removeMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase">Remover</button>
+                <button onClick={() => handleRemoveMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase">Remover</button>
               </div>
               <div className="flex justify-between items-center flex-grow mt-1">
                 <div className="text-sm font-semibold text-[#2C1E14] leading-tight">
@@ -148,8 +171,8 @@ export const MonsterManager = () => {
                   <p>Ener At: {monster.energyCurrent}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => updateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">-1</button>
-                  <button onClick={() => updateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">+1</button>
+                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">-1</button>
+                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">+1</button>
                 </div>
               </div>
               <div className={`mt-2 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>

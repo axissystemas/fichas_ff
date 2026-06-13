@@ -2,6 +2,7 @@
 import { useSheetStore } from '@/store/useSheetStore';
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { audio } from '@/lib/audio';
 
 export const LuckCard = () => {
   const [result, setResult] = useState<number | null>(null);
@@ -15,6 +16,7 @@ export const LuckCard = () => {
     const luck = useSheetStore.getState().attributes.luck.current;
     if (luck <= 0) return;
 
+    audio.playDiceRoll();
     const dice = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
     const success = dice <= luck;
     
@@ -23,6 +25,15 @@ export const LuckCard = () => {
     setResult(dice);
     setOutcome(success ? 'Sucesso' : 'Falha');
     useSheetStore.getState().addCombatLog({ type: 'Sorte', value: `${dice} (${success ? 'S' : 'F'})` });
+
+    // Play outcome sound with delay
+    setTimeout(() => {
+      if (success) {
+        audio.playSuccess();
+      } else {
+        audio.playFailure();
+      }
+    }, 280);
   };
 
   return (

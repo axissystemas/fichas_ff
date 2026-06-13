@@ -1,5 +1,6 @@
 import { useSheetStore } from '@/store/useSheetStore';
 import { RefreshCw } from 'lucide-react';
+import { audio } from '@/lib/audio';
 
 interface Props {
   label: string;
@@ -14,6 +15,7 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
   const rollInitial = () => {
+    audio.playDiceRoll();
     // Regra específica para Energia (1d6 + 12), caso contrário 1d6 + 6
     const modifier = attrKey === 'energy' ? 12 : 6;
     const roll = Math.floor(Math.random() * 6) + 1 + modifier;
@@ -21,17 +23,27 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
     setAttribute(attrKey, roll, false);
   };
 
+  const handleDecrement = () => {
+    audio.playBlip();
+    setAttribute(attrKey, attr.current - 1, false);
+  };
+
+  const handleIncrement = () => {
+    audio.playBlip();
+    setAttribute(attrKey, attr.current + 1, false);
+  };
+
   return (
     <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] transition-colors`}>
       <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 ${theme === 'papyrus' ? 'border-[#2C1E14] text-[#2C1E14]' : 'border-[#cbd5e0] text-[#cbd5e0]'}`}>{label}</h3>
       <div className="flex items-center justify-between gap-4 mt-2 mb-2">
         <button 
-          onClick={() => setAttribute(attrKey, attr.current - 1, false)}
+          onClick={handleDecrement}
           className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
         >-</button>
         <div className="text-4xl font-bold">{attr.current}</div>
         <button 
-          onClick={() => setAttribute(attrKey, attr.current + 1, false)}
+          onClick={handleIncrement}
           className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
         >+</button>
       </div>

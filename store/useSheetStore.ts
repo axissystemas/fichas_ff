@@ -75,6 +75,8 @@ interface SheetState {
   resetKey: number;
   status: 'playing' | 'victory' | 'defeat';
   gamebook: string;
+  soundEnabled: boolean;
+  musicEnabled: boolean;
 
   // Supabase sync, list, and user state
   user: AuthUser | null;
@@ -118,6 +120,8 @@ interface SheetState {
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, delta: number) => void;
   setTheme: (theme: 'papyrus' | 'night') => void;
+  toggleSound: () => void;
+  toggleMusic: () => void;
   addCombatLog: (log: { type: string; value: string; timestamp?: string }) => void;
   setNotes: (notes: string) => void;
   setCurrentSection: (section: string) => void;
@@ -186,6 +190,8 @@ export const useSheetStore = create<SheetState>()(
       resetKey: 0,
       status: 'playing',
       gamebook: 'O Feiticeiro da Montanha de Fogo',
+      soundEnabled: true,
+      musicEnabled: true,
       user: null,
       activeSheetId: null,
       sheetsList: [],
@@ -596,6 +602,14 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
       },
 
+      toggleSound: () => {
+        set((state) => ({ soundEnabled: !state.soundEnabled }));
+      },
+
+      toggleMusic: () => {
+        set((state) => ({ musicEnabled: !state.musicEnabled }));
+      },
+
       // ── Combat Log ────────────────────────────────────────────────────────
       addCombatLog: (log) => {
         const timestamp = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -765,9 +779,11 @@ export const useSheetStore = create<SheetState>()(
     }),
     {
       name: 'adventure-sheet-storage',
-      // Only persist theme locally
+      // Only persist theme and sound preferences locally
       partialize: (state) => ({
         theme: state.theme,
+        soundEnabled: state.soundEnabled,
+        musicEnabled: state.musicEnabled,
       }),
     }
   )

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useSheetStore } from '@/store/useSheetStore';
+import { audio } from '@/lib/audio';
 
 export const DiceRoller = () => {
   const [result, setResult] = useState<number | null>(null);
@@ -9,6 +10,7 @@ export const DiceRoller = () => {
   const { theme } = useSheetStore();
 
   const rollAttack = () => {
+    audio.playDiceRoll();
     const skill = useSheetStore.getState().attributes.skill.current;
     const dice = Math.floor(Math.random() * 6) + 1;
     setResult(dice + skill);
@@ -19,6 +21,7 @@ export const DiceRoller = () => {
     const luck = useSheetStore.getState().attributes.luck.current;
     if (luck <= 0) return;
 
+    audio.playDiceRoll();
     const dice = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
     const success = dice <= luck;
     
@@ -26,6 +29,15 @@ export const DiceRoller = () => {
     
     setResult(dice);
     setOutcome(success ? 'Sucesso' : 'Falha');
+    
+    // Play success/failure SFX slightly delayed to let the roll sound play
+    setTimeout(() => {
+      if (success) {
+        audio.playSuccess();
+      } else {
+        audio.playFailure();
+      }
+    }, 280);
   };
 
   return (

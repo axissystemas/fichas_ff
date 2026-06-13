@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { Trash2, Plus, Minus } from 'lucide-react';
+import { audio } from '@/lib/audio';
 
 export const InventoryManager = () => {
   const { inventory, addItem, removeItem, updateItemQuantity, theme } = useSheetStore();
@@ -13,6 +14,7 @@ export const InventoryManager = () => {
 
   const handleAddItem = () => {
     if (!name.trim()) return;
+    audio.playBlip();
     addItem({
       id: crypto.randomUUID(),
       name,
@@ -21,6 +23,16 @@ export const InventoryManager = () => {
     });
     setName('');
     setQuantity(1);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    audio.playBlip();
+    removeItem(id);
+  };
+
+  const handleUpdateItemQuantity = (id: string, delta: number) => {
+    audio.playBlip();
+    updateItemQuantity(id, delta);
   };
 
   return (
@@ -32,10 +44,10 @@ export const InventoryManager = () => {
           <div key={item.id} className="flex justify-between items-center text-sm border-b pb-1 border-opacity-20">
             <span>{item.name}</span>
             <div className="flex items-center gap-2">
-              <button onClick={() => updateItemQuantity(item.id, -1)} className="hover:text-[#5C4033]"><Minus size={16} /></button>
+              <button onClick={() => handleUpdateItemQuantity(item.id, -1)} className="hover:text-[#5C4033]"><Minus size={16} /></button>
               <span className="font-bold">{item.quantity}</span>
-              <button onClick={() => updateItemQuantity(item.id, 1)} className="hover:text-[#5C4033]"><Plus size={16} /></button>
-              <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 ml-2"><Trash2 size={16} /></button>
+              <button onClick={() => handleUpdateItemQuantity(item.id, 1)} className="hover:text-[#5C4033]"><Plus size={16} /></button>
+              <button onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 ml-2"><Trash2 size={16} /></button>
             </div>
           </div>
         ))}

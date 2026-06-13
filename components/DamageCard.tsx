@@ -1,5 +1,6 @@
 'use client';
 import { useSheetStore } from '@/store/useSheetStore';
+import { audio } from '@/lib/audio';
 
 export const DamageCard = () => {
   const { theme, attributes, setAttribute } = useSheetStore();
@@ -12,6 +13,7 @@ export const DamageCard = () => {
       <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Combate</h3>
       <button 
         onClick={() => {
+          audio.playHurt();
           setAttribute('energy', Math.max(0, attributes.energy.current - 2), false);
           useSheetStore.getState().addCombatLog({ type: 'Dano', value: '-2 Ener' });
         }}
