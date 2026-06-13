@@ -549,7 +549,7 @@ export default function PainelAdmin() {
       energy = 0;
     }
 
-    const label = l.event_type === 'section_visit' ? `Item ${l.event_data?.section}` : l.event_type === 'combat' ? 'Combate' : l.event_type;
+    const label = l.event_type === 'section_visit' ? `Parágrafo ${l.event_data?.section}` : l.event_type === 'combat' ? 'Combate' : l.event_type;
     return { name: label, skill, energy, luck };
   });
 
@@ -1397,7 +1397,7 @@ export default function PainelAdmin() {
                   {/* Seções/Itens mais visitados */}
                   <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
                     <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
-                      <Compass size={16} /> Parágrafos/Itens mais visitados do Livro-Jogo
+                      <Compass size={16} /> Parágrafos mais visitados do Livro-Jogo
                     </h3>
 
                     {topSections.length === 0 ? (
@@ -1407,7 +1407,7 @@ export default function PainelAdmin() {
                         {topSections.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
                             <div className="flex flex-col">
-                              <span className="font-bold">Item {item.section}</span>
+                              <span className="font-bold">Parágrafo {item.section}</span>
                               <span className="text-[10px] opacity-50">{item.gamebook}</span>
                             </div>
                             <span className="opacity-75">{item.count} visitas</span>
@@ -1417,10 +1417,10 @@ export default function PainelAdmin() {
                     )}
                   </div>
 
-                  {/* Parágrafos/Itens Mais Mortais */}
+                  {/* Parágrafos Mais Mortais */}
                   <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
                     <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
-                      <Skull className="text-red-500" size={16} /> Parágrafos/Itens Mais Mortais
+                      <Skull className="text-red-500" size={16} /> Parágrafos Mais Mortais
                     </h3>
 
                     {topDeadlySections.length === 0 ? (
@@ -1430,7 +1430,7 @@ export default function PainelAdmin() {
                         {topDeadlySections.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center py-1.5 border-b border-current/5">
                             <div className="flex flex-col">
-                              <span className="font-bold">Item {item.section}</span>
+                              <span className="font-bold">Parágrafo {item.section}</span>
                               <span className="text-[10px] opacity-50">{item.gamebook}</span>
                             </div>
                             <span className="text-red-500 font-bold">{item.count} mortes</span>

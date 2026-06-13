@@ -21,7 +21,7 @@ export const CurrentSectionFloatingBar = () => {
     <div className={`fixed bottom-6 right-6 max-sm:bottom-4 max-sm:right-4 z-50 flex items-center gap-2.5 px-4 py-2.5 border-2 rounded-lg transition-all duration-300 hover:scale-102 ${barClasses}`}>
       <Bookmark size={16} className={theme === 'papyrus' ? 'text-[#C5A059]' : 'text-cyan-400'} />
       <span className="text-xs uppercase font-bold tracking-wider select-none">
-        Parou no Item:
+        Parou no Parágrafo:
       </span>
       <input
         type="text"

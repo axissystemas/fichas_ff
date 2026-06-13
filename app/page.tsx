@@ -12,6 +12,7 @@ import { MonsterManager } from '@/components/MonsterManager';
 import { SyncStatus } from '@/components/SyncStatus';
 import AuthStatus from '@/components/AuthStatus';
 import { CurrentSectionFloatingBar } from '@/components/CurrentSectionFloatingBar';
+import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
@@ -237,10 +238,10 @@ function SheetDashboard() {
                   Atualizado em {dateStr} às {timeStr}
                 </p>
 
-                {/* Parou no Item */}
+                {/* Parou no Parágrafo */}
                 <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
                   <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
-                  <span>Parou no Item: {sheet.attributes?.currentSection || 'Não informado'}</span>
+                  <span>Parou no Parágrafo: {sheet.attributes?.currentSection || 'Não informado'}</span>
                 </p>
 
                 {/* Actions */}
@@ -369,12 +370,12 @@ export default function Home() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [activeSheetId]);
 
-  // Função para voltar ao painel solicitando confirmação do item
+  // Função para voltar ao painel solicitando confirmação do parágrafo
   const handleBackToDashboard = async () => {
     if (activeSheetId) {
       const currentSection = useSheetStore.getState().attributes.currentSection || '';
       const sectionInput = window.prompt(
-        'Antes de voltar, em qual item (número) você parou a aventura?',
+        'Antes de voltar, em qual parágrafo (número) você parou a aventura?',
         currentSection
       );
       if (sectionInput === null) {
@@ -744,6 +745,7 @@ export default function Home() {
                   <AttributeCard label="Habilidade" attrKey="skill" />
                   <AttributeCard label="Energia" attrKey="energy" />
                   <AttributeCard label="Sorte" attrKey="luck" />
+                  <CurrentSectionCard />
                   
                   {/* Ouro e Provisões vão para cá no Mobile também */}
                   <div className="md:hidden">
@@ -797,7 +799,7 @@ export default function Home() {
                 <NotesCard />
               </section>
             </div>
-            {/* Item atual flutuante */}
+            {/* Parágrafo atual flutuante */}
             <CurrentSectionFloatingBar />
           </div>
         )}

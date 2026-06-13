@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSheetStore, Monster } from '@/store/useSheetStore';
 import { User, Sparkles } from 'lucide-react';
 
@@ -43,6 +43,22 @@ export const MonsterManager = () => {
   const [skill, setSkill] = useState(6);
   const [energy, setEnergy] = useState(6);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Fecha as sugestões ao clicar/tocar fora do container do input
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      const container = document.getElementById('monster-name-container');
+      if (container && !container.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, []);
 
   const handleAddMonster = () => {
     if (!name.trim()) return;
@@ -129,7 +145,7 @@ export const MonsterManager = () => {
               </span>
             )}
           </div>
-          <div className="relative w-full">
+          <div id="monster-name-container" className="relative w-full">
             <input 
               type="text" 
               value={name} 
@@ -138,10 +154,6 @@ export const MonsterManager = () => {
                 setShowSuggestions(true);
               }} 
               onFocus={() => setShowSuggestions(true)}
-              onBlur={() => {
-                // Pequeno timeout para permitir que o clique na sugestão registre antes de ocultar
-                setTimeout(() => setShowSuggestions(false), 200);
-              }}
               placeholder="Nome do monstro" 
               className="p-3 pr-10 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059] w-full" 
             />
