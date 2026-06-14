@@ -31,6 +31,12 @@ export default function PainelAdmin() {
     syncStatus,
     isAdmin,
     checkAdminStatus,
+    newsList,
+    newsTableExists,
+    addNewsItem,
+    updateNewsItem,
+    deleteNewsItem,
+    loadNewsList,
   } = useSheetStore();
 
   // Estados locais
@@ -42,6 +48,16 @@ export default function PainelAdmin() {
   const [copied, setCopied] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
 
+  // Estados locais para Gerenciamento de Novidades
+  const [showNewsForm, setShowNewsForm] = useState(false);
+  const [newsCategory, setNewsCategory] = useState('Novo Livro-Jogo');
+  const [newsTitleField, setNewsTitleField] = useState('');
+  const [newsDescriptionField, setNewsDescriptionField] = useState('');
+  const [newsDateField, setNewsDateField] = useState(new Date().toISOString().split('T')[0]);
+  const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
+  const [newsSaving, setNewsSaving] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
+
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -52,7 +68,7 @@ export default function PainelAdmin() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Aba ativa do Painel Admin
-  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras'>('geral');
+  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras' | 'novidades'>('geral');
 
   // Filtro por livro-jogo global para as estatísticas
   const [selectedGamebookFilter, setSelectedGamebookFilter] = useState<string>('all');
@@ -115,6 +131,7 @@ export default function PainelAdmin() {
         if (hasAccess) {
           await loadSheetsList(true);
           await loadStatsData();
+          await loadNewsList();
         }
       } else {
         clearLocalState();
@@ -137,6 +154,7 @@ export default function PainelAdmin() {
         if (hasAccess) {
           await loadSheetsList(true);
           await loadStatsData();
+          await loadNewsList();
         }
       } else {
         clearLocalState();
@@ -244,6 +262,86 @@ export default function PainelAdmin() {
       navigator.clipboard.writeText(user.id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const sqlCommand = `CREATE TABLE public.guild_news (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  category TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.guild_news ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir leitura pública" ON public.guild_news
+  FOR SELECT TO public USING (true);
+
+CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_news
+  FOR ALL TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM public.admin_users
+      WHERE admin_users.id = auth.uid() AND admin_users.is_admin = true
+    )
+  );`;
+
+  const copySqlToClipboard = () => {
+    navigator.clipboard.writeText(sqlCommand);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2000);
+  };
+
+  const handleSaveNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsTitleField.trim() || !newsDescriptionField.trim() || !newsDateField) return;
+
+    setNewsSaving(true);
+    const itemData = {
+      category: newsCategory,
+      title: newsTitleField.trim(),
+      description: newsDescriptionField.trim(),
+      date: newsDateField
+    };
+
+    let success = false;
+    if (editingNewsId) {
+      success = await updateNewsItem(editingNewsId, itemData);
+    } else {
+      success = await addNewsItem(itemData);
+    }
+
+    setNewsSaving(false);
+    if (success) {
+      setShowNewsForm(false);
+      setNewsTitleField('');
+      setNewsDescriptionField('');
+      setNewsDateField(new Date().toISOString().split('T')[0]);
+      setNewsCategory('Novo Livro-Jogo');
+      setEditingNewsId(null);
+    } else {
+      alert('Erro ao salvar notícia. Verifique se a tabela guild_news foi criada e tem as permissões corretas.');
+    }
+  };
+
+  const handleEditNews = (item: any) => {
+    setEditingNewsId(item.id);
+    setNewsCategory(item.category);
+    setNewsTitleField(item.title);
+    setNewsDescriptionField(item.description);
+    // Tratar datas completas com timestamp do postgres
+    const formattedDate = item.date ? item.date.split('T')[0] : '';
+    setNewsDateField(formattedDate);
+    setShowNewsForm(true);
+  };
+
+  const handleDeleteNews = async (id: string) => {
+    if (window.confirm('Deseja realmente excluir esta notícia?')) {
+      const success = await deleteNewsItem(id);
+      if (!success) {
+        alert('Erro ao excluir notícia.');
+      }
     }
   };
 
@@ -842,7 +940,7 @@ export default function PainelAdmin() {
           <div className="space-y-8 animate-fade-in font-sans">
             {/* ── Navegação por Abas (Visual Premium) ── */}
             <div className={`flex flex-wrap gap-2 border-b pb-1 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
-              {(['geral', 'jogadores', 'combate', 'aventuras'] as const).map(tab => (
+              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -863,6 +961,7 @@ export default function PainelAdmin() {
                   {tab === 'jogadores' && 'Jogadores / Streaks'}
                   {tab === 'combate' && 'Combates / Monstros'}
                   {tab === 'aventuras' && 'Aventuras / Social'}
+                  {tab === 'novidades' && 'Novidades / Notícias'}
                 </button>
               ))}
             </div>
@@ -1496,6 +1595,263 @@ export default function PainelAdmin() {
                         ))}
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── ABA 5: GERENCIAR NOVIDADES ── */}
+            {activeAdminTab === 'novidades' && (
+              <div className="space-y-6 animate-fade-in font-sans">
+                {/* Banner de Fallback / Script SQL se a tabela não existir */}
+                {!newsTableExists && (
+                  <div className={`p-6 border-2 text-left space-y-4 rounded-xl ${
+                    isPapyrus ? 'border-red-950/40 bg-red-900/5 text-red-900' : 'border-red-500/40 bg-red-950/10 text-red-400'
+                  }`}>
+                    <div className="flex items-center gap-2.5">
+                      <ShieldAlert size={22} className="text-red-500" />
+                      <h3 className="text-sm font-bold uppercase tracking-wider">Tabela de Novidades Não Configurada</h3>
+                    </div>
+                    <p className="text-xs leading-relaxed opacity-95 max-w-2xl">
+                      Para adicionar notícias em tempo de execução sem alterar o código do aplicativo, você deve criar a tabela <code className="font-mono px-1 py-0.5 bg-black/10 rounded">guild_news</code> no console SQL do seu projeto no Supabase.
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL para criar a tabela:</span>
+                        <button
+                          type="button"
+                          onClick={copySqlToClipboard}
+                          className={`flex items-center gap-1.5 px-3 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
+                            isPapyrus 
+                              ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16]' 
+                              : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                          }`}
+                        >
+                          {copiedSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                          {copiedSql ? 'Copiado!' : 'Copiar Script SQL'}
+                        </button>
+                      </div>
+                      <pre className={`p-4 border font-mono text-[10px] overflow-x-auto max-h-[160px] rounded ${
+                        isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                      }`}>
+                        {sqlCommand}
+                      </pre>
+                    </div>
+                    <p className="text-[10px] italic opacity-85 font-serif">
+                      * Enquanto a tabela não for criada, a tela de entrada continuará exibindo a lista de notícias padrão (fallback local ativo).
+                    </p>
+                  </div>
+                )}
+
+                {/* Cabeçalho de Ações da Aba */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider">Notícias Publicadas</h3>
+                    <p className={`text-[10px] font-sans opacity-60 mt-0.5 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                      {newsTableExists ? 'As notícias abaixo são puxadas diretamente do Supabase em tempo real.' : 'Modo Fallback local ativo. Crie a tabela para habilitar edições.'}
+                    </p>
+                  </div>
+                  {newsTableExists && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingNewsId(null);
+                        setNewsTitleField('');
+                        setNewsDescriptionField('');
+                        setNewsDateField(new Date().toISOString().split('T')[0]);
+                        setNewsCategory('Novo Livro-Jogo');
+                        setShowNewsForm(true);
+                      }}
+                      className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer border ${
+                        isPapyrus ? 'border-[#5C4033] text-[#2D1D16] hover:bg-[#5C4033]/15 bg-transparent' : 'border-cyan-500/50 text-cyan-300 rounded bg-transparent'
+                      }`}
+                    >
+                      <PlusCircle size={12} /> Nova Notícia
+                    </button>
+                  )}
+                </div>
+
+                {/* Formulário de Notícia */}
+                {showNewsForm && (
+                  <form onSubmit={handleSaveNews} className={`p-5 border-2 space-y-4 shadow-[-6px_6px_0px_rgba(0,0,0,0.12)] ${
+                    isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-900/50 text-slate-300 rounded-xl'
+                  }`}>
+                    <h4 className="text-xs font-bold uppercase tracking-wider border-b border-current/10 pb-2">
+                      {editingNewsId ? 'Editar Notícia' : 'Criar Nova Notícia'}
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Categoria</label>
+                        <select
+                          value={newsCategory}
+                          onChange={(e) => setNewsCategory(e.target.value)}
+                          className={`w-full px-3 py-1.5 text-xs border focus:outline-none ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 text-[#cbd5e0] rounded'
+                          }`}
+                        >
+                          <option value="Novo Livro-Jogo">Novo Livro-Jogo</option>
+                          <option value="Melhoria">Melhoria</option>
+                          <option value="Infraestrutura">Infraestrutura</option>
+                          <option value="Ajuste de Equilíbrio">Ajuste de Equilíbrio</option>
+                          <option value="Novidade da Guilda">Novidade da Guilda</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Título da Notícia</label>
+                        <input
+                          type="text"
+                          required
+                          value={newsTitleField}
+                          onChange={(e) => setNewsTitleField(e.target.value)}
+                          placeholder="Ex: Lançamento do Livro 08"
+                          className={`w-full px-3 py-1.5 text-xs border focus:outline-none ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 text-[#cbd5e0] rounded'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Data de Implementação</label>
+                        <input
+                          type="date"
+                          required
+                          value={newsDateField}
+                          onChange={(e) => setNewsDateField(e.target.value)}
+                          className={`w-full px-3 py-1.5 text-xs border focus:outline-none ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 text-[#cbd5e0] rounded'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Descrição / Detalhes</label>
+                        <textarea
+                          required
+                          rows={2}
+                          value={newsDescriptionField}
+                          onChange={(e) => setNewsDescriptionField(e.target.value)}
+                          placeholder="Descreva a melhoria ou novidade implementada..."
+                          className={`w-full px-3 py-2 text-xs border focus:outline-none font-sans ${
+                            isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 text-[#cbd5e0] rounded'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 border-t pt-3 border-current/10">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowNewsForm(false);
+                          setEditingNewsId(null);
+                        }}
+                        className={`px-3 py-1.5 text-xs border cursor-pointer rounded ${
+                          isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-transparent' : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-950'
+                        }`}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={newsSaving}
+                        className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] text-[#EAD8B8] bg-[#5C4033] hover:bg-[#3D2B1F]' 
+                            : 'border-cyan-500 text-cyan-300 bg-cyan-950/20 hover:bg-cyan-500/10'
+                        }`}
+                      >
+                        {newsSaving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                        {editingNewsId ? 'Salvar Edição' : 'Publicar Notícia'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Tabela de Notícias */}
+                <div className={`border overflow-hidden rounded-lg ${
+                  isPapyrus ? 'border-[#5C4033]' : 'border-slate-800'
+                }`}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className={isPapyrus ? 'bg-[#5C4033]/15 text-[#2D1D16] border-b border-[#5C4033]/30 font-bold' : 'bg-slate-900/80 text-slate-300 border-b border-slate-800 font-bold'}>
+                          <th className="p-3">Data</th>
+                          <th className="p-3">Categoria</th>
+                          <th className="p-3">Título</th>
+                          <th className="p-3">Descrição</th>
+                          {newsTableExists && <th className="p-3 text-center">Ações</th>}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {newsList.length === 0 ? (
+                          <tr>
+                            <td colSpan={newsTableExists ? 5 : 4} className="p-6 text-center opacity-50 italic">
+                              Nenhuma notícia registrada.
+                            </td>
+                          </tr>
+                        ) : (
+                          newsList.map((item, idx) => (
+                            <tr 
+                              key={item.id || idx} 
+                              className={`border-b ${
+                                isPapyrus 
+                                  ? 'border-[#5C4033]/10 hover:bg-[#EAD8B8]/10 text-[#2D1D16]' 
+                                  : 'border-slate-800/60 hover:bg-slate-900/20 text-slate-300'
+                              }`}
+                            >
+                              <td className="p-3 whitespace-nowrap opacity-80">
+                                {item.date ? item.date.split('T')[0] : 'Sem data'}
+                              </td>
+                              <td className="p-3 whitespace-nowrap">
+                                <span className={`px-2 py-0.5 text-[9px] font-sans font-bold uppercase rounded ${
+                                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                }`}>
+                                  {item.category}
+                                </span>
+                              </td>
+                              <td className="p-3 font-bold">{item.title}</td>
+                              <td className="p-3 opacity-85 min-w-[280px] max-w-[400px] break-words line-clamp-2 pr-4 font-sans leading-normal">
+                                {item.description}
+                              </td>
+                              {newsTableExists && (
+                                <td className="p-3">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEditNews(item)}
+                                      className={`p-1.5 border transition cursor-pointer bg-transparent ${
+                                        isPapyrus 
+                                          ? 'border-[#5C4033]/30 text-[#5C4033]/70 hover:border-[#5C4033] hover:text-[#2D1D16]' 
+                                          : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white rounded'
+                                      }`}
+                                      title="Editar notícia"
+                                    >
+                                      <Pencil size={11} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteNews(item.id)}
+                                      className={`p-1.5 border transition cursor-pointer bg-transparent ${
+                                        isPapyrus 
+                                          ? 'border-red-700/30 text-red-700/70 hover:border-red-700 hover:text-red-700' 
+                                          : 'border-red-500/30 text-red-400 hover:border-red-500 hover:text-red-300 rounded'
+                                      }`}
+                                      title="Excluir notícia"
+                                    >
+                                      <Trash2 size={11} />
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

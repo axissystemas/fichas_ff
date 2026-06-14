@@ -163,195 +163,162 @@ function SheetDashboard() {
         </div>
       )}
 
-      {/* Main Grid Layout: Fichas + News */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Coluna Principal: Fichas */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Loading */}
-          {isLoading && (
-            <div className="flex items-center justify-center py-20 gap-3 opacity-60">
-              <Loader2 size={32} className="animate-spin" />
-              <span className="text-sm uppercase tracking-widest font-sans">Carregando fichas...</span>
-            </div>
-          )}
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-20 gap-3 opacity-60">
+          <Loader2 size={32} className="animate-spin" />
+          <span className="text-sm uppercase tracking-widest font-sans">Carregando fichas...</span>
+        </div>
+      )}
 
-          {/* Empty State */}
-          {!isLoading && sheetsList.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-60">
-              <BookOpen size={48} strokeWidth={1} />
-              <p className="text-sm uppercase tracking-widest font-sans text-center">
-                Nenhuma ficha encontrada.<br />Crie sua primeira aventura!
-              </p>
-            </div>
-          )}
+      {/* Empty State */}
+      {!isLoading && sheetsList.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-60">
+          <BookOpen size={48} strokeWidth={1} />
+          <p className="text-sm uppercase tracking-widest font-sans text-center">
+            Nenhuma ficha encontrada.<br />Crie sua primeira aventura!
+          </p>
+        </div>
+      )}
 
-          {/* Sheets Grid */}
-          {!isLoading && sheetsList.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {sheetsList.map((sheet) => {
-                const isEditing = editingId === sheet.id;
-                const isConfirmingDelete = confirmDeleteId === sheet.id;
-                const updated = new Date(sheet.updated_at);
-                const dateStr = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                const timeStr = updated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      {/* Sheets Grid */}
+      {!isLoading && sheetsList.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sheetsList.map((sheet) => {
+            const isEditing = editingId === sheet.id;
+            const isConfirmingDelete = confirmDeleteId === sheet.id;
+            const updated = new Date(sheet.updated_at);
+            const dateStr = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = updated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                return (
-                  <div
-                    key={sheet.id}
-                    className={`${cardBase} p-5 flex flex-col gap-4 group`}
-                  >
-                    {/* Title / Rename */}
-                    {isEditing ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          className={`flex-1 ${inputBase} py-1`}
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleRename(sheet.id);
-                            if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
-                          }}
-                          autoFocus
-                        />
-                        <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
-                          <Check size={14} />
-                        </button>
-                        <button onClick={() => { setEditingId(null); setEditTitle(''); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className={`font-bold text-base leading-snug line-clamp-2 ${isPapyrus ? 'text-[#2D1D16]' : 'text-[#e2e8f0]'}`}>
-                          {sheet.title}
-                        </h3>
-                        <button
-                          onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }}
-                          className={`shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity ${isPapyrus ? 'text-[#5C4033]/60 hover:text-[#5C4033] cursor-pointer' : 'text-slate-500 hover:text-slate-300 cursor-pointer'}`}
-                        >
-                          <Pencil size={12} />
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Gamebook */}
-                    <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
-                      📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
-                      {BOOKS_WITH_SUGGESTIONS.includes((sheet.gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
-                    </p>
-
-                    {/* Date */}
-                    <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
-                      Atualizado em {dateStr} às {timeStr}
-                    </p>
-
-                    {/* Parou no Parágrafo */}
-                    <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
-                      <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
-                      <span>Parou no Parágrafo: {sheet.attributes?.currentSection || 'Não informado'}</span>
-                    </p>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 mt-auto pt-2">
-                      {/* Open */}
-                      <button
-                        onClick={() => loadSheet(sheet.id)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition-all' : 'border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition-all rounded'}`}
-                      >
-                        <BookOpen size={13} /> Abrir
-                      </button>
-
-                      {/* Delete */}
-                      {isConfirmingDelete ? (
-                        <div className="flex items-center gap-1">
-                          <span className={`text-xs font-sans ${isPapyrus ? 'text-red-700' : 'text-red-400'}`}>Confirmar?</span>
-                          <button
-                            onClick={() => handleDelete(sheet.id)}
-                            className={`p-1.5 ${isPapyrus ? 'text-red-700 hover:bg-red-700/10 cursor-pointer border border-red-700' : 'text-red-400 hover:bg-red-400/10 cursor-pointer border border-red-500/50 rounded'} transition text-xs font-bold`}
-                          >
-                            <Check size={13} />
-                          </button>
-                          <button
-                            onClick={() => setConfirmDeleteId(null)}
-                            className={`p-1.5 ${isPapyrus ? 'text-[#5C4033]/60 hover:bg-[#5C4033]/10 cursor-pointer border border-[#5C4033]/40' : 'text-slate-500 hover:bg-slate-700/60 cursor-pointer border border-[#4a5568] rounded'} transition`}
-                          >
-                            <X size={13} />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmDeleteId(sheet.id)}
-                          className={`p-2 ${isPapyrus ? 'border border-[#5C4033]/40 text-[#5C4033]/60 hover:border-red-700 hover:text-red-700 cursor-pointer' : 'border border-[#4a5568]/60 text-slate-500 hover:border-red-500/70 hover:text-red-400 cursor-pointer rounded'} transition`}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
+            return (
+              <div
+                key={sheet.id}
+                className={`${cardBase} p-5 flex flex-col gap-4 group`}
+              >
+                {/* Title / Rename */}
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      className={`flex-1 ${inputBase} py-1`}
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleRename(sheet.id);
+                        if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
+                      }}
+                      autoFocus
+                    />
+                    <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
+                      <Check size={14} />
+                    </button>
+                    <button onClick={() => { setEditingId(null); setEditTitle(''); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
+                      <X size={14} />
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ) : (
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className={`font-bold text-base leading-snug line-clamp-2 ${isPapyrus ? 'text-[#2D1D16]' : 'text-[#e2e8f0]'}`}>
+                      {sheet.title}
+                    </h3>
+                    <button
+                      onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }}
+                      className={`shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity ${isPapyrus ? 'text-[#5C4033]/60 hover:text-[#5C4033] cursor-pointer' : 'text-slate-500 hover:text-slate-300 cursor-pointer'}`}
+                    >
+                      <Pencil size={12} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Gamebook */}
+                <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
+                  📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                  {BOOKS_WITH_SUGGESTIONS.includes((sheet.gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
+                </p>
+
+                {/* Date */}
+                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
+                  Atualizado em {dateStr} às {timeStr}
+                </p>
+
+                {/* Parou no Parágrafo */}
+                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
+                  <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
+                  <span>Parou no Parágrafo: {sheet.attributes?.currentSection || 'Não informado'}</span>
+                </p>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 mt-auto pt-2">
+                  {/* Open */}
+                  <button
+                    onClick={() => loadSheet(sheet.id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition-all' : 'border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition-all rounded'}`}
+                  >
+                    <BookOpen size={13} /> Abrir
+                  </button>
+
+                  {/* Delete */}
+                  {isConfirmingDelete ? (
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs font-sans ${isPapyrus ? 'text-red-700' : 'text-red-400'}`}>Confirmar?</span>
+                      <button
+                        onClick={() => handleDelete(sheet.id)}
+                        className={`p-1.5 ${isPapyrus ? 'text-red-700 hover:bg-red-700/10 cursor-pointer border border-red-700' : 'text-red-400 hover:bg-red-400/10 cursor-pointer border border-red-500/50 rounded'} transition text-xs font-bold`}
+                      >
+                        <Check size={13} />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className={`p-1.5 ${isPapyrus ? 'text-[#5C4033]/60 hover:bg-[#5C4033]/10 cursor-pointer border border-[#5C4033]/40' : 'text-slate-500 hover:bg-slate-700/60 cursor-pointer border border-[#4a5568] rounded'} transition`}
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(sheet.id)}
+                      className={`p-2 ${isPapyrus ? 'border border-[#5C4033]/40 text-[#5C4033]/60 hover:border-red-700 hover:text-red-700 cursor-pointer' : 'border border-[#4a5568]/60 text-slate-500 hover:border-red-500/70 hover:text-red-400 cursor-pointer rounded'} transition`}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Coluna Lateral: News Area */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className={`${cardBase} p-5 space-y-4`}>
-            <h3 className={`text-sm font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
-              📢 Novidades da Guilda
-            </h3>
-            <div className="space-y-4">
-              {/* Notícia 1 */}
-              <div className="space-y-1">
-                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
-                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-green-500/10 text-green-400 border border-green-500/20'
-                }`}>
-                  Novo Livro-Jogo
-                </span>
-                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                  Encontro Marcado com o M.E.D.O.
-                </h4>
-                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                  Agora disponível! Ficha customizada de super-heróis em Titan City. Escolha poderes (Superforça, Psi, HTA, Rajada), acumule Pontos de Herói e use o Cinto de Utilidades ou Relógio do Crime.
-                </p>
-              </div>
-
-              {/* Notícia 2 */}
-              <div className="space-y-1 border-t border-current/5 pt-3">
-                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
-                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                }`}>
-                  Melhoria
-                </span>
-                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                  Áudio & Trilha Retrô
-                </h4>
-                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                  Trilha sonora 16-bits imersiva adicionada. As músicas mudam dinamicamente dependendo da sua campanha atual!
-                </p>
-              </div>
-
-              {/* Notícia 3 */}
-              <div className="space-y-1 border-t border-current/5 pt-3">
-                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
-                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-slate-500/10 text-slate-400 border border-slate-700'
-                }`}>
-                  Infraestrutura
-                </span>
-                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                  Sincronização na Nuvem
-                </h4>
-                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                  Salvamento automático de progresso através da integração Supabase. Suas aventuras salvas em qualquer dispositivo.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
+
+// ─── Helpers for News ────────────────────────────────────────────────────────
+
+const formatDate = (dateString: string) => {
+  try {
+    const [year, month, day] = dateString.split('-');
+    if (!year || !month || !day) return dateString;
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return `${parseInt(day, 10)} de ${months[parseInt(month, 10) - 1]} de ${year}`;
+  } catch {
+    return dateString;
+  }
+};
+
+const getCategoryBadgeStyle = (category: string, isPapyrus: boolean) => {
+  if (isPapyrus) return 'bg-[#5C4033]/15 text-[#5C4033]';
+  const cat = category.toLowerCase();
+  if (cat.includes('livro') || cat.includes('jogo')) {
+    return 'bg-green-500/10 text-green-400 border border-green-500/20';
+  }
+  if (cat.includes('melhoria') || cat.includes('ajuste') || cat.includes('som') || cat.includes('trilha') || cat.includes('áudio')) {
+    return 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+  }
+  return 'bg-slate-500/10 text-slate-400 border border-slate-700';
+};
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -378,12 +345,15 @@ export default function Home() {
     toggleSound,
     toggleMusic,
     attributes,
+    newsList,
+    loadNewsList,
   } = useSheetStore();
 
   const isNewSheet = attributes.skill.initial === 0 && attributes.energy.initial === 0 && attributes.luck.initial === 0;
 
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
+    loadNewsList();
     if (typeof window !== 'undefined') {
       const redirect = sessionStorage.getItem('login_redirect');
       if (redirect) {
@@ -726,126 +696,165 @@ export default function Home() {
 
         {/* ── Tela de Login ── */}
         {showLogin && (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
-            {user && user.provider !== 'google' ? (
-              isPapyrus ? (
-                <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-inner rounded-sm text-[#2D1D16]">
-                  <h2 className="text-3xl font-extrabold uppercase tracking-widest text-red-800">Sessão Administrativa</h2>
+          <div className="flex flex-col md:flex-row items-center md:items-stretch justify-center gap-8 py-16 px-4 animate-fade-in">
+            {/* Bloco de Login */}
+            <div className="flex flex-col items-center justify-center text-center max-w-[480px] w-full">
+              {user && user.provider !== 'google' ? (
+                isPapyrus ? (
+                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-inner rounded-sm text-[#2D1D16]">
+                    <h2 className="text-3xl font-extrabold uppercase tracking-widest text-red-800">Sessão Administrativa</h2>
+                    <div className="w-24 h-0.5 bg-[#C5A059]"></div>
+                    <p className="text-sm font-serif leading-relaxed opacity-90 max-w-[340px]">
+                      Você está conectado com e-mail/senha. O jogo de fichas é exclusivo para acesso via Google.
+                    </p>
+                    <a
+                      href="/painel"
+                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer text-center"
+                    >
+                      Ir para o Painel
+                    </a>
+                    <button
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        clearLocalState();
+                      }}
+                      className="text-xs font-sans tracking-wide text-[#5C4033] hover:underline opacity-80 cursor-pointer"
+                    >
+                      Fazer Logout (Desconectar)
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-red-500/40 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(239,68,68,0.1)] rounded-xl text-slate-300">
+                    <div className="w-16 h-16 border border-red-500/40 rounded-full flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)] mb-2 animate-pulse">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div className="text-center">
+                      <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+                        Painel Conectado
+                      </h2>
+                      <p className="text-xs uppercase tracking-wider text-red-400/80 mt-1 font-mono font-bold">
+                        Acesso de Administrador
+                      </p>
+                    </div>
+                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                    <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
+                      Você está logado com credenciais administrativas. Para jogar, utilize o painel de gerenciamento ou desconecte para entrar com o Google.
+                    </p>
+                    <a
+                      href="/painel"
+                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-red-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-red-500/10 hover:border-red-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] cursor-pointer rounded-lg text-center"
+                    >
+                      Ir para o Painel
+                    </a>
+                    <button
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        clearLocalState();
+                      }}
+                      className="text-xs font-mono tracking-wide text-slate-500 hover:text-slate-300 hover:underline cursor-pointer"
+                    >
+                      Desconectar Sessão
+                    </button>
+                  </div>
+                )
+              ) : isPapyrus ? (
+                <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
+                  <div className="flex items-center justify-center mb-2 drop-shadow-lg">
+                    <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
+                  </div>
+                  <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Fichas de Aventuras</h2>
                   <div className="w-24 h-0.5 bg-[#C5A059]"></div>
-                  <p className="text-sm font-serif leading-relaxed opacity-90 max-w-[340px]">
-                    Você está conectado com e-mail/senha. O jogo de fichas é exclusivo para acesso via Google.
+                  <p className="text-sm font-serif leading-relaxed text-[#5C4033] opacity-90 max-w-[340px]">
+                    &ldquo;Apenas os corajosos que registrarem seus nomes no livro dos escribas poderão desbravar os perigos do Labirinto.&rdquo;
                   </p>
-                  <a
-                    href="/painel"
-                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer text-center"
-                  >
-                    Ir para o Painel
-                  </a>
+                  <p className="text-xs font-sans tracking-wide text-[#2D1D16] opacity-75">
+                    Conecte sua conta Google para criar, salvar e carregar suas fichas na nuvem.
+                  </p>
                   <button
-                    onClick={async () => {
-                      await supabase.auth.signOut();
-                      clearLocalState();
-                    }}
-                    className="text-xs font-sans tracking-wide text-[#5C4033] hover:underline opacity-80 cursor-pointer"
+                    onClick={handleGoogleLogin}
+                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer"
                   >
-                    Fazer Logout (Desconectar)
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Conectar via Google
                   </button>
                 </div>
               ) : (
-                <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-red-500/40 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(239,68,68,0.1)] rounded-xl text-slate-300">
-                  <div className="w-16 h-16 border border-red-500/40 rounded-full flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)] mb-2 animate-pulse">
+                <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl">
+                  <div className="w-16 h-16 border border-cyan-500/40 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] mb-2 animate-pulse">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                     </svg>
                   </div>
                   <div className="text-center">
-                    <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-                      Painel Conectado
+                    <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                      Adventure System
                     </h2>
-                    <p className="text-xs uppercase tracking-wider text-red-400/80 mt-1 font-mono font-bold">
-                      Acesso de Administrador
+                    <p className="text-xs uppercase tracking-wider text-cyan-400/80 mt-1 font-mono font-bold">
+                      Secure Database Connection
                     </p>
                   </div>
-                  <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                  <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
                   <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
-                    Você está logado com credenciais administrativas. Para jogar, utilize o painel de gerenciamento ou desconecte para entrar com o Google.
+                    Para acessar o banco de dados e sincronizar o progresso do seu agente cibernético na nuvem, conecte-se com sua credencial do Google.
                   </p>
-                  <a
-                    href="/painel"
-                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-red-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-red-500/10 hover:border-red-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] cursor-pointer rounded-lg text-center"
-                  >
-                    Ir para o Painel
-                  </a>
                   <button
-                    onClick={async () => {
-                      await supabase.auth.signOut();
-                      clearLocalState();
-                    }}
-                    className="text-xs font-mono tracking-wide text-slate-500 hover:text-slate-300 hover:underline cursor-pointer"
+                    onClick={handleGoogleLogin}
+                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-cyan-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-cyan-500/10 hover:border-cyan-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] cursor-pointer rounded-lg"
                   >
-                    Desconectar Sessão
+                    <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Autenticar Google
                   </button>
                 </div>
-              )
-            ) : isPapyrus ? (
-              <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
-                <div className="flex items-center justify-center mb-2 drop-shadow-lg">
-                  <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
+              )}
+            </div>
+
+            {/* Bloco de Novidades da Guilda */}
+            <div className="max-w-[480px] w-full text-left">
+              <div className={`${
+                isPapyrus
+                  ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
+                  : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
+              } h-full flex flex-col gap-6`}>
+                <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
+                  📢 Novidades da Guilda
+                </h3>
+                <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                  {newsList.map((item, index) => (
+                    <div
+                      key={item.id || index}
+                      className={`space-y-1 ${index > 0 ? 'border-t border-current/5 pt-3' : ''}`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${getCategoryBadgeStyle(item.category, isPapyrus)}`}>
+                          {item.category}
+                        </span>
+                        <span className={`text-[9px] font-sans opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                          📅 {formatDate(item.date)}
+                        </span>
+                      </div>
+                      <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                        {item.title}
+                      </h4>
+                      <p className={`text-[10px] leading-relaxed opacity-85 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                        {item.description}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Fichas de Aventuras</h2>
-                <div className="w-24 h-0.5 bg-[#C5A059]"></div>
-                <p className="text-sm font-serif leading-relaxed text-[#5C4033] opacity-90 max-w-[340px]">
-                  &ldquo;Apenas os corajosos que registrarem seus nomes no livro dos escribas poderão desbravar os perigos do Labirinto.&rdquo;
-                </p>
-                <p className="text-xs font-sans tracking-wide text-[#2D1D16] opacity-75">
-                  Conecte sua conta Google para criar, salvar e carregar suas fichas na nuvem.
-                </p>
-                <button
-                  onClick={handleGoogleLogin}
-                  className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
-                  Conectar via Google
-                </button>
               </div>
-            ) : (
-              <div className="max-w-[480px] w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl">
-                <div className="w-16 h-16 border border-cyan-500/40 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] mb-2 animate-pulse">
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                </div>
-                <div className="text-center">
-                  <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    Adventure System
-                  </h2>
-                  <p className="text-xs uppercase tracking-wider text-cyan-400/80 mt-1 font-mono font-bold">
-                    Secure Database Connection
-                  </p>
-                </div>
-                <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-                <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
-                  Para acessar o banco de dados e sincronizar o progresso do seu agente cibernético na nuvem, conecte-se com sua credencial do Google.
-                </p>
-                <button
-                  onClick={handleGoogleLogin}
-                  className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-cyan-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-cyan-500/10 hover:border-cyan-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] cursor-pointer rounded-lg"
-                >
-                  <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
-                  Autenticar Google
-                </button>
-              </div>
-            )}
+            </div>
           </div>
         )}
 

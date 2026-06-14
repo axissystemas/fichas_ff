@@ -4,6 +4,39 @@ import { supabase } from '@/lib/supabase';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+export interface NewsItem {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  date: string; // YYYY-MM-DD
+  created_at?: string;
+}
+
+export const DEFAULT_NEWS: NewsItem[] = [
+  {
+    id: 'default-1',
+    category: 'Novo Livro-Jogo',
+    title: 'Encontro Marcado com o M.E.D.O.',
+    description: 'Agora disponível! Ficha customizada de super-heróis em Titan City. Escolha poderes (Superforça, Psi, HTA, Rajada), acumule Pontos de Herói e use o Cinto de Utilidades ou Relógio do Crime.',
+    date: '2026-06-14'
+  },
+  {
+    id: 'default-2',
+    category: 'Melhoria',
+    title: 'Áudio & Trilha Retrô',
+    description: 'Trilha sonora 16-bits imersiva adicionada. As músicas mudam dinamicamente dependendo da sua campanha atual!',
+    date: '2026-06-12'
+  },
+  {
+    id: 'default-3',
+    category: 'Infraestrutura',
+    title: 'Sincronização na Nuvem',
+    description: 'Salvamento automático de progresso através da integração Supabase. Suas aventuras salvas em qualquer dispositivo.',
+    date: '2026-06-10'
+  }
+];
+
 interface Attribute {
   initial: number;
   current: number;
@@ -136,6 +169,8 @@ interface SheetState {
   syncStatus: SyncStatus;
   lastSynced: string | null;
   isAdmin: boolean | null;
+  newsList: NewsItem[];
+  newsTableExists: boolean;
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -178,6 +213,10 @@ interface SheetState {
   deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
+  loadNewsList: () => Promise<void>;
+  addNewsItem: (item: Omit<NewsItem, 'id'>) => Promise<boolean>;
+  updateNewsItem: (id: string, item: Partial<NewsItem>) => Promise<boolean>;
+  deleteNewsItem: (id: string) => Promise<boolean>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -235,6 +274,8 @@ export const useSheetStore = create<SheetState>()(
       syncStatus: 'idle',
       lastSynced: null,
       isAdmin: null,
+      newsList: [],
+      newsTableExists: false,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
@@ -892,6 +933,68 @@ export const useSheetStore = create<SheetState>()(
         } catch (err) {
           console.error('[Supabase] checkAdminStatus error:', err);
           set({ isAdmin: false });
+          return false;
+        }
+      },
+      loadNewsList: async () => {
+        try {
+          const { data, error } = await supabase
+            .from('guild_news')
+            .select('*')
+            .order('date', { ascending: false });
+
+          if (error) throw error;
+
+          set({ newsList: data || [], newsTableExists: true });
+        } catch (err: any) {
+          console.warn('[NewsStore] Failed to fetch guild_news table, falling back to static news:', err?.message || err);
+          set({ newsList: DEFAULT_NEWS, newsTableExists: false });
+        }
+      },
+      addNewsItem: async (item) => {
+        try {
+          const { error } = await supabase
+            .from('guild_news')
+            .insert([item]);
+
+          if (error) throw error;
+
+          await get().loadNewsList();
+          return true;
+        } catch (err) {
+          console.error('[NewsStore] addNewsItem error:', err);
+          return false;
+        }
+      },
+      updateNewsItem: async (id, item) => {
+        try {
+          const { error } = await supabase
+            .from('guild_news')
+            .update(item)
+            .eq('id', id);
+
+          if (error) throw error;
+
+          await get().loadNewsList();
+          return true;
+        } catch (err) {
+          console.error('[NewsStore] updateNewsItem error:', err);
+          return false;
+        }
+      },
+      deleteNewsItem: async (id) => {
+        try {
+          const { error } = await supabase
+            .from('guild_news')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+
+          await get().loadNewsList();
+          return true;
+        } catch (err) {
+          console.error('[NewsStore] deleteNewsItem error:', err);
           return false;
         }
       },
