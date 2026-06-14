@@ -15,6 +15,7 @@ import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
 import { CharacterCreation } from '@/components/CharacterCreation';
 import { supabase } from '@/lib/supabase';
+import { MedoTracker } from '@/components/MedoTracker';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -162,131 +163,192 @@ function SheetDashboard() {
         </div>
       )}
 
-      {/* Loading */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-20 gap-3 opacity-60">
-          <Loader2 size={32} className="animate-spin" />
-          <span className="text-sm uppercase tracking-widest font-sans">Carregando fichas...</span>
-        </div>
-      )}
+      {/* Main Grid Layout: Fichas + News */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        {/* Coluna Principal: Fichas */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Loading */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-20 gap-3 opacity-60">
+              <Loader2 size={32} className="animate-spin" />
+              <span className="text-sm uppercase tracking-widest font-sans">Carregando fichas...</span>
+            </div>
+          )}
 
-      {/* Empty State */}
-      {!isLoading && sheetsList.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-60">
-          <BookOpen size={48} strokeWidth={1} />
-          <p className="text-sm uppercase tracking-widest font-sans text-center">
-            Nenhuma ficha encontrada.<br />Crie sua primeira aventura!
-          </p>
-        </div>
-      )}
+          {/* Empty State */}
+          {!isLoading && sheetsList.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-60">
+              <BookOpen size={48} strokeWidth={1} />
+              <p className="text-sm uppercase tracking-widest font-sans text-center">
+                Nenhuma ficha encontrada.<br />Crie sua primeira aventura!
+              </p>
+            </div>
+          )}
 
-      {/* Sheets Grid */}
-      {!isLoading && sheetsList.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sheetsList.map((sheet) => {
-            const isEditing = editingId === sheet.id;
-            const isConfirmingDelete = confirmDeleteId === sheet.id;
-            const updated = new Date(sheet.updated_at);
-            const dateStr = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-            const timeStr = updated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          {/* Sheets Grid */}
+          {!isLoading && sheetsList.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {sheetsList.map((sheet) => {
+                const isEditing = editingId === sheet.id;
+                const isConfirmingDelete = confirmDeleteId === sheet.id;
+                const updated = new Date(sheet.updated_at);
+                const dateStr = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const timeStr = updated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-            return (
-              <div
-                key={sheet.id}
-                className={`${cardBase} p-5 flex flex-col gap-4 group`}
-              >
-                {/* Title / Rename */}
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      className={`flex-1 ${inputBase} py-1`}
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleRename(sheet.id);
-                        if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
-                      }}
-                      autoFocus
-                    />
-                    <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
-                      <Check size={14} />
-                    </button>
-                    <button onClick={() => { setEditingId(null); setEditTitle(''); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className={`font-bold text-base leading-snug line-clamp-2 ${isPapyrus ? 'text-[#2D1D16]' : 'text-[#e2e8f0]'}`}>
-                      {sheet.title}
-                    </h3>
-                    <button
-                      onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }}
-                      className={`shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity ${isPapyrus ? 'text-[#5C4033]/60 hover:text-[#5C4033] cursor-pointer' : 'text-slate-500 hover:text-slate-300 cursor-pointer'}`}
-                    >
-                      <Pencil size={12} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Gamebook */}
-                <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
-                  📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
-                  {BOOKS_WITH_SUGGESTIONS.includes((sheet.gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
-                </p>
-
-                {/* Date */}
-                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
-                  Atualizado em {dateStr} às {timeStr}
-                </p>
-
-                {/* Parou no Parágrafo */}
-                <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
-                  <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
-                  <span>Parou no Parágrafo: {sheet.attributes?.currentSection || 'Não informado'}</span>
-                </p>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 mt-auto pt-2">
-                  {/* Open */}
-                  <button
-                    onClick={() => loadSheet(sheet.id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition-all' : 'border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition-all rounded'}`}
+                return (
+                  <div
+                    key={sheet.id}
+                    className={`${cardBase} p-5 flex flex-col gap-4 group`}
                   >
-                    <BookOpen size={13} /> Abrir
-                  </button>
+                    {/* Title / Rename */}
+                    {isEditing ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          className={`flex-1 ${inputBase} py-1`}
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRename(sheet.id);
+                            if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
+                          }}
+                          autoFocus
+                        />
+                        <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
+                          <Check size={14} />
+                        </button>
+                        <button onClick={() => { setEditingId(null); setEditTitle(''); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className={`font-bold text-base leading-snug line-clamp-2 ${isPapyrus ? 'text-[#2D1D16]' : 'text-[#e2e8f0]'}`}>
+                          {sheet.title}
+                        </h3>
+                        <button
+                          onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }}
+                          className={`shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity ${isPapyrus ? 'text-[#5C4033]/60 hover:text-[#5C4033] cursor-pointer' : 'text-slate-500 hover:text-slate-300 cursor-pointer'}`}
+                        >
+                          <Pencil size={12} />
+                        </button>
+                      </div>
+                    )}
 
-                  {/* Delete */}
-                  {isConfirmingDelete ? (
-                    <div className="flex items-center gap-1">
-                      <span className={`text-xs font-sans ${isPapyrus ? 'text-red-700' : 'text-red-400'}`}>Confirmar?</span>
+                    {/* Gamebook */}
+                    <p className={`text-xs font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} line-clamp-1`}>
+                      📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                      {BOOKS_WITH_SUGGESTIONS.includes((sheet.gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
+                    </p>
+
+                    {/* Date */}
+                    <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
+                      Atualizado em {dateStr} às {timeStr}
+                    </p>
+
+                    {/* Parou no Parágrafo */}
+                    <p className={`text-xs font-sans ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} flex items-center gap-1.5 mt-0.5`}>
+                      <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
+                      <span>Parou no Parágrafo: {sheet.attributes?.currentSection || 'Não informado'}</span>
+                    </p>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 mt-auto pt-2">
+                      {/* Open */}
                       <button
-                        onClick={() => handleDelete(sheet.id)}
-                        className={`p-1.5 ${isPapyrus ? 'text-red-700 hover:bg-red-700/10 cursor-pointer border border-red-700' : 'text-red-400 hover:bg-red-400/10 cursor-pointer border border-red-500/50 rounded'} transition text-xs font-bold`}
+                        onClick={() => loadSheet(sheet.id)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition-all' : 'border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition-all rounded'}`}
                       >
-                        <Check size={13} />
+                        <BookOpen size={13} /> Abrir
                       </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(null)}
-                        className={`p-1.5 ${isPapyrus ? 'text-[#5C4033]/60 hover:bg-[#5C4033]/10 cursor-pointer border border-[#5C4033]/40' : 'text-slate-500 hover:bg-slate-700/60 cursor-pointer border border-[#4a5568] rounded'} transition`}
-                      >
-                        <X size={13} />
-                      </button>
+
+                      {/* Delete */}
+                      {isConfirmingDelete ? (
+                        <div className="flex items-center gap-1">
+                          <span className={`text-xs font-sans ${isPapyrus ? 'text-red-700' : 'text-red-400'}`}>Confirmar?</span>
+                          <button
+                            onClick={() => handleDelete(sheet.id)}
+                            className={`p-1.5 ${isPapyrus ? 'text-red-700 hover:bg-red-700/10 cursor-pointer border border-red-700' : 'text-red-400 hover:bg-red-400/10 cursor-pointer border border-red-500/50 rounded'} transition text-xs font-bold`}
+                          >
+                            <Check size={13} />
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className={`p-1.5 ${isPapyrus ? 'text-[#5C4033]/60 hover:bg-[#5C4033]/10 cursor-pointer border border-[#5C4033]/40' : 'text-slate-500 hover:bg-slate-700/60 cursor-pointer border border-[#4a5568] rounded'} transition`}
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDeleteId(sheet.id)}
+                          className={`p-2 ${isPapyrus ? 'border border-[#5C4033]/40 text-[#5C4033]/60 hover:border-red-700 hover:text-red-700 cursor-pointer' : 'border border-[#4a5568]/60 text-slate-500 hover:border-red-500/70 hover:text-red-400 cursor-pointer rounded'} transition`}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDeleteId(sheet.id)}
-                      className={`p-2 ${isPapyrus ? 'border border-[#5C4033]/40 text-[#5C4033]/60 hover:border-red-700 hover:text-red-700 cursor-pointer' : 'border border-[#4a5568]/60 text-slate-500 hover:border-red-500/70 hover:text-red-400 cursor-pointer rounded'} transition`}
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Coluna Lateral: News Area */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className={`${cardBase} p-5 space-y-4`}>
+            <h3 className={`text-sm font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
+              📢 Novidades da Guilda
+            </h3>
+            <div className="space-y-4">
+              {/* Notícia 1 */}
+              <div className="space-y-1">
+                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
+                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-green-500/10 text-green-400 border border-green-500/20'
+                }`}>
+                  Novo Livro-Jogo
+                </span>
+                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                  Encontro Marcado com o M.E.D.O.
+                </h4>
+                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                  Agora disponível! Ficha customizada de super-heróis em Titan City. Escolha poderes (Superforça, Psi, HTA, Rajada), acumule Pontos de Herói e use o Cinto de Utilidades ou Relógio do Crime.
+                </p>
+              </div>
+
+              {/* Notícia 2 */}
+              <div className="space-y-1 border-t border-current/5 pt-3">
+                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
+                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                }`}>
+                  Melhoria
+                </span>
+                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                  Áudio & Trilha Retrô
+                </h4>
+                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                  Trilha sonora 16-bits imersiva adicionada. As músicas mudam dinamicamente dependendo da sua campanha atual!
+                </p>
+              </div>
+
+              {/* Notícia 3 */}
+              <div className="space-y-1 border-t border-current/5 pt-3">
+                <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${
+                  isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-slate-500/10 text-slate-400 border border-slate-700'
+                }`}>
+                  Infraestrutura
+                </span>
+                <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                  Sincronização na Nuvem
+                </h4>
+                <p className={`text-[10px] leading-relaxed opacity-80 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                  Salvamento automático de progresso através da integração Supabase. Suas aventuras salvas em qualquer dispositivo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -814,6 +876,11 @@ export default function Home() {
             </div>
 
             <div className="space-y-8">
+              {/* Painel do Super-Herói (exclusivo para o livro do M.E.D.O.) */}
+              {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                <MedoTracker />
+              )}
+
               {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
@@ -837,6 +904,11 @@ export default function Home() {
                     }`}
                   >
                     <MonsterManager />
+                    {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                      <p className={`text-[10px] mt-4 uppercase font-bold tracking-wider text-center ${isPapyrus ? 'text-red-800' : 'text-cyan-400 font-mono animate-pulse'}`}>
+                        ⚠️ Nota: Derrotar permanentemente (matar) um criminoso custa 1 Ponto de Herói. Prefira apenas capturá-los!
+                      </p>
+                    )}
                   </section>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

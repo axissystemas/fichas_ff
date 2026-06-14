@@ -38,6 +38,17 @@ export interface DbSheet {
     luck: Attribute;
     currentSection?: string;
     suggestionsEnabled?: boolean;
+    heroPoints?: number;
+    superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
+    timeDay?: 1 | 2 | 3;
+    timePeriod?: 'manha' | 'tarde' | 'noite';
+    clues?: {
+      local: string;
+      dia: string;
+      horario: string;
+      lider: string;
+      outras: string;
+    };
   };
   gold?: number;
   provisions?: number;
@@ -63,6 +74,17 @@ interface SheetState {
     luck: Attribute;
     currentSection?: string;
     suggestionsEnabled?: boolean;
+    heroPoints?: number;
+    superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
+    timeDay?: 1 | 2 | 3;
+    timePeriod?: 'manha' | 'tarde' | 'noite';
+    clues?: {
+      local: string;
+      dia: string;
+      horario: string;
+      lider: string;
+      outras: string;
+    };
   };
   gold: number;
   provisions: number;
@@ -94,6 +116,17 @@ interface SheetState {
       luck: Attribute;
       currentSection?: string;
       suggestionsEnabled?: boolean;
+      heroPoints?: number;
+      superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
+      timeDay?: 1 | 2 | 3;
+      timePeriod?: 'manha' | 'tarde' | 'noite';
+      clues?: {
+        local: string;
+        dia: string;
+        horario: string;
+        lider: string;
+        outras: string;
+      };
     };
     gold?: number;
     provisions?: number;
@@ -131,6 +164,10 @@ interface SheetState {
   logTelemetry: (eventType: string, eventData: any) => Promise<void>;
   updateUserSession: () => Promise<void>;
   incrementPlayTime: () => Promise<void>;
+  updateHeroPoints: (amount: number) => void;
+  setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
+  advanceTime: () => void;
+  updateClues: (clues: { local?: string; dia?: string; horario?: string; lider?: string; outras?: string }) => void;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -295,19 +332,27 @@ export const useSheetStore = create<SheetState>()(
         set({ syncStatus: 'saving' });
         try {
           const newSheetId = crypto.randomUUID();
+          const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
             luck: { initial: 0, current: 0 },
             currentSection: '',
             suggestionsEnabled,
+            ...(isMedo ? {
+              heroPoints: 0,
+              superpower: null,
+              timeDay: 1 as any,
+              timePeriod: 'manha' as any,
+              clues: { local: '', dia: '', horario: '', lider: '', outras: '' },
+            } : {})
           };
           const payload = {
             id: newSheetId,
             user_id: user.id,
             title: title || 'Nova Ficha',
             gamebook: gamebook || 'O Feiticeiro da Montanha de Fogo',
-            attributes: customAttributes,
+            attributes: customAttributes as any,
             gold: 0,
             provisions: 10,
             inventory: getDefaultInventory(),
@@ -516,6 +561,68 @@ export const useSheetStore = create<SheetState>()(
           attributes: {
             ...state.attributes,
             suggestionsEnabled: enabled,
+          },
+        }));
+        scheduleSave(get());
+      },
+      updateHeroPoints: (amount) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            heroPoints: Math.max(0, (state.attributes.heroPoints || 0) + amount),
+          },
+        }));
+        scheduleSave(get());
+      },
+      setSuperpower: (power) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            superpower: power,
+          },
+        }));
+        scheduleSave(get());
+      },
+      advanceTime: () => {
+        set((state) => {
+          const currentDay = state.attributes.timeDay || 1;
+          const currentPeriod = state.attributes.timePeriod || 'manha';
+          
+          let nextPeriod: 'manha' | 'tarde' | 'noite' = 'manha';
+          let nextDay = currentDay;
+          
+          if (currentPeriod === 'manha') {
+            nextPeriod = 'tarde';
+          } else if (currentPeriod === 'tarde') {
+            nextPeriod = 'noite';
+          } else {
+            nextPeriod = 'manha';
+            nextDay = currentDay === 3 ? 1 : (currentDay + 1) as any;
+          }
+          
+          return {
+            attributes: {
+              ...state.attributes,
+              timeDay: nextDay,
+              timePeriod: nextPeriod,
+            },
+          };
+        });
+        scheduleSave(get());
+      },
+      updateClues: (updatedClues) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            clues: {
+              local: '',
+              dia: '',
+              horario: '',
+              lider: '',
+              outras: '',
+              ...(state.attributes.clues || {}),
+              ...updatedClues,
+            },
           },
         }));
         scheduleSave(get());
@@ -734,12 +841,21 @@ export const useSheetStore = create<SheetState>()(
       },
 
       resetSheet: async () => {
+        const isMedo = get().gamebook === 'Encontro Marcado com o M.E.D.O.';
         set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
             luck: { initial: 0, current: 0 },
             currentSection: '',
+            suggestionsEnabled: state.attributes.suggestionsEnabled,
+            ...(isMedo ? {
+              heroPoints: 0,
+              superpower: null,
+              timeDay: 1 as any,
+              timePeriod: 'manha' as any,
+              clues: { local: '', dia: '', horario: '', lider: '', outras: '' },
+            } : {})
           },
           gold: 0,
           provisions: 10,

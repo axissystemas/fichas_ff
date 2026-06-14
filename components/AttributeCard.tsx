@@ -8,17 +8,30 @@ interface Props {
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {
-  const { attributes, setAttribute, theme } = useSheetStore();
+  const { attributes, setAttribute, theme, gamebook } = useSheetStore();
   const attr = attributes[attrKey];
+  const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
+  const superpower = attributes.superpower;
+
   const cardClasses = theme === 'papyrus' 
     ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
   const rollInitial = () => {
+    if (isMedo && attrKey === 'skill' && superpower === 'superforca') {
+      setAttribute('skill', 13, true);
+      setAttribute('skill', 13, false);
+      return;
+    }
+
     audio.playDiceRoll();
-    // Regra específica para Energia (1d6 + 12), caso contrário 1d6 + 6
-    const modifier = attrKey === 'energy' ? 12 : 6;
-    const roll = Math.floor(Math.random() * 6) + 1 + modifier;
+    let roll = 0;
+    if (isMedo && attrKey === 'energy') {
+      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12; // 2d6 + 12 for MEDO
+    } else {
+      const modifier = attrKey === 'energy' ? 12 : 6;
+      roll = Math.floor(Math.random() * 6) + 1 + modifier;
+    }
     setAttribute(attrKey, roll, true);
     setAttribute(attrKey, roll, false);
   };
@@ -49,9 +62,11 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
       </div>
       <div className={`flex items-center justify-center gap-3 mt-4 p-2 ${theme === 'papyrus' ? 'bg-[#EAD8B8] text-[#2C1E14]' : 'bg-[#2d3748] text-[#cbd5e0]'}`}>
         <span className="text-sm uppercase font-bold">Inicial: {attr.initial}</span>
-        <button onClick={rollInitial} className="hover:text-[#C5A059] transition p-1 border border-transparent hover:border-current rounded">
-          <RefreshCw size={18} />
-        </button>
+        {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && (
+          <button onClick={rollInitial} className="hover:text-[#C5A059] transition p-1 border border-transparent hover:border-current rounded">
+            <RefreshCw size={18} />
+          </button>
+        )}
       </div>
     </div>
   );

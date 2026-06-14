@@ -8,8 +8,23 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Dices, Shield, Heart, Clover } from 'lucide-react';
 
 export const CharacterCreation = () => {
-  const { theme, gamebook, setAttribute, addCombatLog, saveToSupabase, logTelemetry } = useSheetStore();
+  const {
+    theme,
+    gamebook,
+    setAttribute,
+    addCombatLog,
+    saveToSupabase,
+    logTelemetry,
+    setSuperpower,
+    updateHeroPoints,
+    updateClues,
+  } = useSheetStore();
   
+  const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
+  
+  // Selected superpower for MEDO
+  const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
+
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
   const [rolledEnergy, setRolledEnergy] = useState<number | null>(null);
@@ -28,6 +43,19 @@ export const CharacterCreation = () => {
   const isPapyrus = theme === 'papyrus';
   
   const introText = getBookIntro(gamebook);
+
+  // Effect to handle superpower specific Skill value
+  useEffect(() => {
+    if (isMedo) {
+      if (selectedPower === 'superforca') {
+        setRolledSkill(13);
+        setDisplaySkill(13);
+      } else if (rolledSkill === 13) {
+        setRolledSkill(null);
+        setDisplaySkill(0);
+      }
+    }
+  }, [selectedPower, isMedo, rolledSkill]);
 
   // Sound and rolling animation for Skill
   const rollSkill = () => {
@@ -56,12 +84,17 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      setDisplayEnergy(Math.floor(Math.random() * 6) + 1 + 12);
+      const displayVal = isMedo
+        ? (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12
+        : Math.floor(Math.random() * 6) + 1 + 12;
+      setDisplayEnergy(displayVal);
     }, 60);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = Math.floor(Math.random() * 6) + 1 + 12; // 1d6 + 12
+      const finalVal = isMedo
+        ? (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12
+        : Math.floor(Math.random() * 6) + 1 + 12; // 1d6 + 12 or 2d6 + 12 for MEDO
       setRolledEnergy(finalVal);
       setDisplayEnergy(finalVal);
       setRollingEnergy(false);
@@ -90,6 +123,10 @@ export const CharacterCreation = () => {
   };
 
   const handleStartAdventure = async () => {
+    if (isMedo && !selectedPower) {
+      alert('Por favor, escolha um superpoder primeiro!');
+      return;
+    }
     if (rolledSkill === null || rolledEnergy === null || rolledLuck === null) return;
 
     // Play retro victory fanfare
@@ -103,10 +140,17 @@ export const CharacterCreation = () => {
     setAttribute('luck', rolledLuck, true);
     setAttribute('luck', rolledLuck, false);
 
+    if (isMedo && selectedPower) {
+      setSuperpower(selectedPower);
+      updateHeroPoints(0);
+      updateClues({ local: '', dia: '', horario: '', lider: '', outras: '' });
+    }
+
     // Add log
+    const powerStr = isMedo ? ` | Poder: ${selectedPower === 'superforca' ? 'Superforça' : selectedPower === 'psi' ? 'Psi' : selectedPower === 'hta' ? 'HTA' : 'Rajada'}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}`,
     });
 
     // Log telemetry
@@ -114,13 +158,14 @@ export const CharacterCreation = () => {
       skill: rolledSkill,
       energy: rolledEnergy,
       luck: rolledLuck,
+      superpower: isMedo ? selectedPower : undefined,
     });
 
     // Save state to Supabase
     await saveToSupabase();
   };
 
-  const allRolled = rolledSkill !== null && rolledEnergy !== null && rolledLuck !== null;
+  const allRolled = rolledSkill !== null && rolledEnergy !== null && rolledLuck !== null && (!isMedo || selectedPower !== null);
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -171,6 +216,73 @@ export const CharacterCreation = () => {
 
       <div className="w-full h-[1px] bg-current opacity-10 mb-8"></div>
 
+      {/* Superpower Selection for M.E.D.O. */}
+      {isMedo && (
+        <div className="mb-8">
+          <div className="text-center mb-6">
+            <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+              Escolha seu Superpoder
+            </h3>
+            <p className={`text-xs mt-1 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400 font-sans'}`}>
+              Cada poder oferece uma mecânica única e um caminho diferente na história.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              {
+                id: 'superforca',
+                name: 'Superforça & Voo',
+                desc: 'Habilidade de lutar ampliada (Habilidade inicial trava em 13) e capacidade de voar para perseguições terrestres ou aéreas.',
+              },
+              {
+                id: 'psi',
+                name: 'Poderes Psi',
+                desc: 'Capacidade de ler mentes e mover objetos mentalmente. Cada uso consome 2 de Energia.',
+              },
+              {
+                id: 'hta',
+                name: 'Habilidade Tecnológica Avançada (HTA)',
+                desc: 'Diversos dispositivos de alta tecnologia em seu Cinto de Utilidades.',
+              },
+              {
+                id: 'rajada',
+                name: 'Rajada de Energia',
+                desc: 'Canalize energia eletrostática pelas mãos para tontear adversários humanos. Cada uso consome 2 de Energia.',
+              },
+            ].map((p) => {
+              const isSelected = selectedPower === p.id;
+              const cardClass = isSelected
+                ? isPapyrus
+                  ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/40 shadow-md scale-[1.02]'
+                  : 'border-2 border-cyan-400 bg-cyan-950/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-xl scale-[1.02]'
+                : isPapyrus
+                  ? 'border border-[#5C4033]/30 bg-transparent hover:border-[#5C4033]/70 hover:bg-[#EAD8B8]/10'
+                  : 'border border-slate-800 bg-transparent hover:border-slate-600 rounded-xl hover:bg-slate-900/30';
+              
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => setSelectedPower(p.id as any)}
+                  className={`p-4 cursor-pointer transition-all duration-200 flex flex-col justify-between ${cardClass}`}
+                >
+                  <div>
+                    <h4 className="font-bold text-sm uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      {isSelected && '⚡'} {p.name}
+                    </h4>
+                    <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'} leading-normal`}>
+                      {p.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="w-full h-[1px] bg-current opacity-10 mt-8 mb-4"></div>
+        </div>
+      )}
+
       {/* Attribute Rolling Setup */}
       <div className="text-center mb-8">
         <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
@@ -184,7 +296,13 @@ export const CharacterCreation = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         {/* SKILL (Habilidade) Card */}
         <div 
-          onClick={rolledSkill === null ? rollSkill : undefined}
+          onClick={
+            rolledSkill === null &&
+            !(isMedo && !selectedPower) &&
+            !(isMedo && selectedPower === 'superforca')
+              ? rollSkill
+              : undefined
+          }
           className={attributeCardStyle(rolledSkill !== null, rollingSkill)}
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
@@ -208,13 +326,15 @@ export const CharacterCreation = () => {
             )}
           </div>
 
-          {rolledSkill !== null ? (
+          {isMedo && selectedPower === 'superforca' ? (
+            <div className="text-[10px] uppercase font-bold tracking-wider text-green-600 dark:text-cyan-400">Superforça ativa</div>
+          ) : rolledSkill !== null ? (
             <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
           ) : (
             <button 
               onClick={(e) => { e.stopPropagation(); rollSkill(); }}
               className={buttonStyle}
-              disabled={rollingSkill}
+              disabled={rollingSkill || (isMedo && !selectedPower)}
             >
               Role 1d6+6
             </button>
@@ -223,7 +343,7 @@ export const CharacterCreation = () => {
 
         {/* ENERGY (Energia) Card */}
         <div 
-          onClick={rolledEnergy === null ? rollEnergy : undefined}
+          onClick={rolledEnergy === null && !(isMedo && !selectedPower) ? rollEnergy : undefined}
           className={attributeCardStyle(rolledEnergy !== null, rollingEnergy)}
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
@@ -248,21 +368,23 @@ export const CharacterCreation = () => {
           </div>
 
           {rolledEnergy !== null ? (
-            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 12</div>
+            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+              {isMedo ? '2 Dados + 12' : 'Dado + 12'}
+            </div>
           ) : (
             <button 
               onClick={(e) => { e.stopPropagation(); rollEnergy(); }}
               className={buttonStyle}
-              disabled={rollingEnergy}
+              disabled={rollingEnergy || (isMedo && !selectedPower)}
             >
-              Role 1d6+12
+              {isMedo ? 'Role 2d6+12' : 'Role 1d6+12'}
             </button>
           )}
         </div>
 
         {/* LUCK (Sorte) Card */}
         <div 
-          onClick={rolledLuck === null ? rollLuck : undefined}
+          onClick={rolledLuck === null && !(isMedo && !selectedPower) ? rollLuck : undefined}
           className={attributeCardStyle(rolledLuck !== null, rollingLuck)}
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
@@ -292,7 +414,7 @@ export const CharacterCreation = () => {
             <button 
               onClick={(e) => { e.stopPropagation(); rollLuck(); }}
               className={buttonStyle}
-              disabled={rollingLuck}
+              disabled={rollingLuck || (isMedo && !selectedPower)}
             >
               Role 1d6+6
             </button>
