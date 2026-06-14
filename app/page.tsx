@@ -891,11 +891,6 @@ export default function Home() {
                 <MedoTracker />
               )}
 
-              {/* Painel do Grimório (exclusivo para o livro da Cidadela do Caos) */}
-              {gamebook === 'A Cidadela do Caos' && (
-                <CidadelaTracker />
-              )}
-
               {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
@@ -916,24 +911,49 @@ export default function Home() {
 
                 {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
                 <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
-                  <section
-                    className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                      isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                    }`}
-                  >
-                    <MonsterManager />
-                    {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
-                      <p className={`text-[10px] mt-4 uppercase font-bold tracking-wider text-center ${isPapyrus ? 'text-red-800' : 'text-cyan-400 font-mono animate-pulse'}`}>
-                        ⚠️ Nota: Derrotar permanentemente (matar) um criminoso custa 1 Ponto de Herói. Prefira apenas capturá-los!
-                      </p>
-                    )}
-                  </section>
+                  {gamebook === 'A Cidadela do Caos' ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                      <div className="lg:col-span-2 flex flex-col gap-6">
+                        <section
+                          className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                            isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                          }`}
+                        >
+                          <MonsterManager />
+                        </section>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <DamageCard />
-                    <AttackCard key={`attack-${resetKey}`} />
-                    <LuckCard key={`luck-${resetKey}`} />
-                  </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                          <DamageCard />
+                          <AttackCard key={`attack-${resetKey}`} />
+                          <LuckCard key={`luck-${resetKey}`} />
+                        </div>
+                      </div>
+                      <div className="lg:col-span-1">
+                        <CidadelaTracker />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <section
+                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                          isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                        }`}
+                      >
+                        <MonsterManager />
+                        {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                          <p className={`text-[10px] mt-4 uppercase font-bold tracking-wider text-center ${isPapyrus ? 'text-red-800' : 'text-cyan-400 font-mono animate-pulse'}`}>
+                            ⚠️ Nota: Derrotar permanentemente (matar) um criminoso custa 1 Ponto de Herói. Prefira apenas capturá-los!
+                          </p>
+                        )}
+                      </section>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <DamageCard />
+                        <AttackCard key={`attack-${resetKey}`} />
+                        <LuckCard key={`luck-${resetKey}`} />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
