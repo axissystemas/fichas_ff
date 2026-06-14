@@ -548,6 +548,53 @@ export default function Home() {
     ? sheetsList.find(s => s.id === activeSheetId)?.title
     : null;
 
+  // Rastreamento de Presença em Tempo Real (Supabase Presence)
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase.channel('online-players', {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel.subscribe(async (statusSubscription) => {
+      if (statusSubscription === 'SUBSCRIBED') {
+        const name = user.user_metadata?.full_name || user.email || 'Jogador Anônimo';
+        
+        let displayGamebook = 'Menu Principal';
+        let displaySection = '-';
+        let displayStatus = '-';
+
+        if (showSheet) {
+          if (isNewSheet) {
+            displayGamebook = `Criando Personagem: ${gamebook}`;
+          } else {
+            displayGamebook = gamebook || 'O Feiticeiro da Montanha de Fogo';
+            displaySection = attributes.currentSection || 'Início';
+            displayStatus = sheetStatus || 'playing';
+          }
+        }
+
+        await channel.track({
+          id: user.id,
+          name,
+          email: user.email,
+          gamebook: displayGamebook,
+          section: displaySection,
+          status: displayStatus,
+          online_at: new Date().toISOString(),
+        });
+      }
+    });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [user, gamebook, attributes.currentSection, showSheet, sheetStatus, isNewSheet]);
+
   return (
     <main
       className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 font-serif ${

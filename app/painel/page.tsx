@@ -68,7 +68,10 @@ export default function PainelAdmin() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Aba ativa do Painel Admin
-  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras' | 'novidades'>('geral');
+  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras' | 'novidades' | 'online'>('geral');
+
+  // Usuários online em tempo real
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
 
   // Filtro por livro-jogo global para as estatísticas
   const [selectedGamebookFilter, setSelectedGamebookFilter] = useState<string>('all');
@@ -166,6 +169,35 @@ export default function PainelAdmin() {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Rastreamento de Presença em Tempo Real (Supabase Presence) para o painel admin
+  useEffect(() => {
+    if (!user || !isAdmin) return;
+
+    const channel = supabase.channel('online-players');
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const usersList: any[] = [];
+        
+        Object.values(state).forEach((presenceArray: any) => {
+          if (presenceArray && presenceArray.length > 0) {
+            const sortedSessions = [...presenceArray].sort(
+              (a: any, b: any) => new Date(b.online_at).getTime() - new Date(a.online_at).getTime()
+            );
+            usersList.push(sortedSessions[0]);
+          }
+        });
+        
+        setOnlineUsers(usersList);
+      })
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [user, isAdmin]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -940,7 +972,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
           <div className="space-y-8 animate-fade-in font-sans">
             {/* ── Navegação por Abas (Visual Premium) ── */}
             <div className={`flex flex-wrap gap-2 border-b pb-1 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
-              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades'] as const).map(tab => (
+              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -962,6 +994,20 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                   {tab === 'combate' && 'Combates / Monstros'}
                   {tab === 'aventuras' && 'Aventuras / Social'}
                   {tab === 'novidades' && 'Novidades / Notícias'}
+                  {tab === 'online' && (
+                    <span className="flex items-center gap-1.5">
+                      Tempo Real
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      {onlineUsers.length > 0 && (
+                        <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
+                          {onlineUsers.length}
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -1853,6 +1899,108 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── ABA 6: TEMPO REAL (PRESENCE) ── */}
+            {activeAdminTab === 'online' && (
+              <div className="space-y-6 animate-fade-in">
+                <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
+                  <div className="flex items-center justify-between border-b pb-3 mb-4 border-current/10">
+                    <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                      <span className="relative flex h-3.5 w-3.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                      </span>
+                      Usuários Ativos em Tempo Real ({onlineUsers.length})
+                    </h3>
+                    <p className="text-xs opacity-60">
+                      Rastreando conexões e progresso através do Supabase Presence
+                    </p>
+                  </div>
+
+                  {onlineUsers.length === 0 ? (
+                    <div className="text-center py-12 text-slate-500 italic text-sm">
+                      Nenhum jogador online no momento. As conexões serão exibidas aqui em tempo real.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className={`border-b text-[10px] uppercase tracking-wider opacity-60 ${isPapyrus ? 'border-[#5C4033]/25' : 'border-slate-800'}`}>
+                            <th className="p-3">Jogador</th>
+                            <th className="p-3">Localização no App</th>
+                            <th className="p-3">Seção Atual</th>
+                            <th className="p-3">Status</th>
+                            <th className="p-3">Conexão</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {onlineUsers.map((item, index) => {
+                            const connectedTime = new Date(item.online_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                            return (
+                              <tr
+                                key={item.id || index}
+                                className={`border-b hover:bg-current/5 transition-colors ${
+                                  isPapyrus 
+                                    ? 'border-[#5C4033]/10 text-[#2D1D16]' 
+                                    : 'border-slate-800/60 text-slate-300'
+                                }`}
+                              >
+                                <td className="p-3 font-bold">
+                                  <div className="flex flex-col">
+                                    <span>{item.name}</span>
+                                    <span className="text-[9px] opacity-50 font-mono select-all">{item.email || item.id}</span>
+                                  </div>
+                                </td>
+                                <td className="p-3">
+                                  <span className={`px-2 py-0.5 font-bold uppercase rounded text-[9px] ${
+                                    item.gamebook === 'Menu Principal'
+                                      ? 'bg-slate-500/10 text-slate-400 border border-slate-700/20'
+                                      : item.gamebook.startsWith('Criando')
+                                      ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse'
+                                      : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                  }`}>
+                                    {item.gamebook}
+                                  </span>
+                                </td>
+                                <td className="p-3 font-mono font-bold text-center sm:text-left">
+                                  {item.section === '-' ? (
+                                    <span className="opacity-45">-</span>
+                                  ) : (
+                                    <span className={`px-2 py-0.5 bg-current/5 border border-current/10 rounded font-semibold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                                      Parágrafo {item.section}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="p-3">
+                                  {item.status === '-' ? (
+                                    <span className="opacity-45">-</span>
+                                  ) : (
+                                    <span className={`px-1.5 py-0.5 rounded font-bold uppercase text-[9px] ${
+                                      item.status === 'victory'
+                                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                                        : item.status === 'defeat'
+                                        ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                    }`}>
+                                      {item.status === 'victory' && '🏆 Vitória'}
+                                      {item.status === 'defeat' && '💀 Morte'}
+                                      {item.status === 'playing' && '⚔️ Jogando'}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="p-3 opacity-80 font-mono">
+                                  {connectedTime}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
