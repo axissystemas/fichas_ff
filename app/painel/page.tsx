@@ -50,7 +50,7 @@ export default function PainelAdmin() {
 
   // Estados locais para Gerenciamento de Novidades
   const [showNewsForm, setShowNewsForm] = useState(false);
-  const [newsCategory, setNewsCategory] = useState('Novo Livro-Jogo');
+  const [newsCategory, setNewsCategory] = useState('Livros Jogos');
   const [newsTitleField, setNewsTitleField] = useState('');
   const [newsDescriptionField, setNewsDescriptionField] = useState('');
   const [newsDateField, setNewsDateField] = useState(new Date().toISOString().split('T')[0]);
@@ -318,7 +318,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
       setNewsTitleField('');
       setNewsDescriptionField('');
       setNewsDateField(new Date().toISOString().split('T')[0]);
-      setNewsCategory('Novo Livro-Jogo');
+      setNewsCategory('Livros Jogos');
       setEditingNewsId(null);
     } else {
       alert('Erro ao salvar notícia. Verifique se a tabela guild_news foi criada e tem as permissões corretas.');
@@ -1659,7 +1659,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                         setNewsTitleField('');
                         setNewsDescriptionField('');
                         setNewsDateField(new Date().toISOString().split('T')[0]);
-                        setNewsCategory('Novo Livro-Jogo');
+                        setNewsCategory('Livros Jogos');
                         setShowNewsForm(true);
                       }}
                       className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer border ${
@@ -1690,7 +1690,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                             isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 text-[#cbd5e0] rounded'
                           }`}
                         >
-                          <option value="Novo Livro-Jogo">Novo Livro-Jogo</option>
+                          <option value="Livros Jogos">Livros Jogos</option>
                           <option value="Melhoria">Melhoria</option>
                           <option value="Infraestrutura">Infraestrutura</option>
                           <option value="Ajuste de Equilíbrio">Ajuste de Equilíbrio</option>

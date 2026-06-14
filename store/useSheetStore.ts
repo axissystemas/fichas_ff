@@ -16,7 +16,7 @@ export interface NewsItem {
 export const DEFAULT_NEWS: NewsItem[] = [
   {
     id: 'default-1',
-    category: 'Novo Livro-Jogo',
+    category: 'Livros Jogos',
     title: 'Encontro Marcado com o M.E.D.O.',
     description: 'Agora disponível! Ficha customizada de super-heróis em Titan City. Escolha poderes (Superforça, Psi, HTA, Rajada), acumule Pontos de Herói e use o Cinto de Utilidades ou Relógio do Crime.',
     date: '2026-06-14'
