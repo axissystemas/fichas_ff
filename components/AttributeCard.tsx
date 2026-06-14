@@ -4,12 +4,12 @@ import { audio } from '@/lib/audio';
 
 interface Props {
   label: string;
-  attrKey: 'skill' | 'energy' | 'luck';
+  attrKey: 'skill' | 'energy' | 'luck' | 'magic';
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {
   const { attributes, setAttribute, theme, gamebook } = useSheetStore();
-  const attr = attributes[attrKey];
+  const attr = attributes[attrKey] || { initial: 0, current: 0 };
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
   const superpower = attributes.superpower;
 
@@ -28,6 +28,8 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
     let roll = 0;
     if (isMedo && attrKey === 'energy') {
       roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12; // 2d6 + 12 for MEDO
+    } else if (gamebook === 'A Cidadela do Caos' && attrKey === 'magic') {
+      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 6; // 2d6 + 6 for Cidadela Magic
     } else {
       const modifier = attrKey === 'energy' ? 12 : 6;
       roll = Math.floor(Math.random() * 6) + 1 + modifier;

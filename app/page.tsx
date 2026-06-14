@@ -16,6 +16,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { CharacterCreation } from '@/components/CharacterCreation';
 import { supabase } from '@/lib/supabase';
 import { MedoTracker } from '@/components/MedoTracker';
+import { CidadelaTracker } from '@/components/CidadelaTracker';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -890,6 +891,11 @@ export default function Home() {
                 <MedoTracker />
               )}
 
+              {/* Painel do Grimório (exclusivo para o livro da Cidadela do Caos) */}
+              {gamebook === 'A Cidadela do Caos' && (
+                <CidadelaTracker />
+              )}
+
               {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
@@ -897,6 +903,9 @@ export default function Home() {
                   <AttributeCard label="Habilidade" attrKey="skill" />
                   <AttributeCard label="Energia" attrKey="energy" />
                   <AttributeCard label="Sorte" attrKey="luck" />
+                  {gamebook === 'A Cidadela do Caos' && (
+                    <AttributeCard label="Mágica" attrKey="magic" />
+                  )}
                   <CurrentSectionCard />
                   
                   {/* Ouro e Provisões vão para cá no Mobile também */}

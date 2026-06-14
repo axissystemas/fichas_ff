@@ -82,6 +82,8 @@ export interface DbSheet {
       lider: string;
       outras: string;
     };
+    magic?: Attribute;
+    spells?: Record<string, number>;
   };
   gold?: number;
   provisions?: number;
@@ -118,6 +120,8 @@ interface SheetState {
       lider: string;
       outras: string;
     };
+    magic?: Attribute;
+    spells?: Record<string, number>;
   };
   gold: number;
   provisions: number;
@@ -160,6 +164,8 @@ interface SheetState {
         lider: string;
         outras: string;
       };
+      magic?: Attribute;
+      spells?: Record<string, number>;
     };
     gold?: number;
     provisions?: number;
@@ -177,7 +183,9 @@ interface SheetState {
   clearLocalState: () => void;
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setAttribute: (key: 'skill' | 'energy' | 'luck', value: number, isInitial: boolean) => void;
+  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic', value: number, isInitial: boolean) => void;
+  setSpells: (spells: Record<string, number>) => void;
+  castSpell: (spellKey: string) => void;
   updateGold: (amount: number) => void;
   updateProvisions: (amount: number) => void;
   addMonster: (monster: Monster) => void;
@@ -374,6 +382,7 @@ export const useSheetStore = create<SheetState>()(
         try {
           const newSheetId = crypto.randomUUID();
           const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
+          const isCidadela = gamebook === 'A Cidadela do Caos';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -386,6 +395,10 @@ export const useSheetStore = create<SheetState>()(
               timeDay: 1 as any,
               timePeriod: 'manha' as any,
               clues: { local: '', dia: '', horario: '', lider: '', outras: '' },
+            } : {}),
+            ...(isCidadela ? {
+              magic: { initial: 0, current: 0 },
+              spells: {},
             } : {})
           };
           const payload = {
@@ -554,7 +567,7 @@ export const useSheetStore = create<SheetState>()(
       setAttribute: (key, value, isInitial) => {
         let playerDied = false;
         set((state) => {
-          const attr = state.attributes[key];
+          const attr = state.attributes[key] || { initial: 0, current: 0 };
           // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual
           const finalValue = !isInitial ? Math.min(value, attr.initial) : value;
           
@@ -584,6 +597,78 @@ export const useSheetStore = create<SheetState>()(
           });
           get().setStatus('defeat');
         }
+      },
+      setSpells: (spells) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            spells,
+          },
+        }));
+        scheduleSave(get());
+      },
+      castSpell: (spellKey) => {
+        const CIDADELA_SPELLS = [
+          { key: 'copia_de_criatura', name: 'Cópia de Criatura' },
+          { key: 'pes', name: 'P.E.S.' },
+          { key: 'fogo', name: 'Fogo' },
+          { key: 'ouro_dos_tolos', name: 'Ouro dos Tolos' },
+          { key: 'ilusao', name: 'Ilusão' },
+          { key: 'levitacao', name: 'Levitação' },
+          { key: 'sorte', name: 'Sorte' },
+          { key: 'escudo', name: 'Escudo' },
+          { key: 'habilidade', name: 'Habilidade' },
+          { key: 'energia', name: 'Energia' },
+          { key: 'forca', name: 'Força' },
+          { key: 'fraqueza', name: 'Fraqueza' }
+        ];
+
+        let textLog = '';
+        set((state) => {
+          const spells = { ...state.attributes.spells };
+          if (!spells[spellKey] || spells[spellKey] <= 0) return {};
+
+          spells[spellKey] -= 1;
+
+          const attributes = {
+            ...state.attributes,
+            spells,
+          };
+
+          if (spellKey === 'energia') {
+            const energy = { ...state.attributes.energy };
+            const healAmount = Math.ceil(energy.initial / 2);
+            const newCurrent = Math.min(energy.current + healAmount, energy.initial);
+            attributes.energy = { ...energy, current: newCurrent };
+            textLog = `Conjurou Energia: Recuperou +${newCurrent - energy.current} de Energia.`;
+          } else if (spellKey === 'habilidade') {
+            const skill = { ...state.attributes.skill };
+            attributes.skill = { ...skill, current: skill.initial };
+            textLog = `Conjurou Habilidade: Restaurou Habilidade para o valor inicial (${skill.initial}).`;
+          } else if (spellKey === 'sorte') {
+            const luck = { ...state.attributes.luck };
+            const newInitial = luck.initial + 1;
+            attributes.luck = { initial: newInitial, current: newInitial };
+            textLog = `Conjurou Sorte: Aumentou a Sorte Inicial para ${newInitial} e restaurou Sorte Atual.`;
+          } else {
+            const spellName = CIDADELA_SPELLS.find(s => s.key === spellKey)?.name || spellKey;
+            textLog = `Conjurou o feitiço: ${spellName}.`;
+          }
+
+          if (attributes.magic) {
+            attributes.magic = {
+              ...attributes.magic,
+              current: Math.max(0, attributes.magic.current - 1),
+            };
+          }
+
+          return { attributes };
+        });
+
+        if (textLog) {
+          get().addCombatLog({ type: 'spell', value: textLog });
+        }
+        scheduleSave(get());
       },
       setCurrentSection: (section) => {
         set((state) => ({
@@ -883,6 +968,7 @@ export const useSheetStore = create<SheetState>()(
 
       resetSheet: async () => {
         const isMedo = get().gamebook === 'Encontro Marcado com o M.E.D.O.';
+        const isCidadela = get().gamebook === 'A Cidadela do Caos';
         set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
@@ -896,6 +982,10 @@ export const useSheetStore = create<SheetState>()(
               timeDay: 1 as any,
               timePeriod: 'manha' as any,
               clues: { local: '', dia: '', horario: '', lider: '', outras: '' },
+            } : {}),
+            ...(isCidadela ? {
+              magic: { initial: 0, current: 0 },
+              spells: {},
             } : {})
           },
           gold: 0,

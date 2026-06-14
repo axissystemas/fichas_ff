@@ -18,9 +18,11 @@ export const CharacterCreation = () => {
     setSuperpower,
     updateHeroPoints,
     updateClues,
+    setSpells,
   } = useSheetStore();
   
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
+  const isCidadela = gamebook === 'A Cidadela do Caos';
   
   // Selected superpower for MEDO
   const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
@@ -29,16 +31,22 @@ export const CharacterCreation = () => {
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
   const [rolledEnergy, setRolledEnergy] = useState<number | null>(null);
   const [rolledLuck, setRolledLuck] = useState<number | null>(null);
+  const [rolledMagic, setRolledMagic] = useState<number | null>(null);
 
   // Rolling states
   const [rollingSkill, setRollingSkill] = useState(false);
   const [rollingEnergy, setRollingEnergy] = useState(false);
   const [rollingLuck, setRollingLuck] = useState(false);
+  const [rollingMagic, setRollingMagic] = useState(false);
 
   // Display values during rolling animation
   const [displaySkill, setDisplaySkill] = useState(0);
   const [displayEnergy, setDisplayEnergy] = useState(0);
   const [displayLuck, setDisplayLuck] = useState(0);
+  const [displayMagic, setDisplayMagic] = useState(0);
+
+  // Selected spells for Cidadela
+  const [selectedSpells, setSelectedSpells] = useState<Record<string, number>>({});
 
   const isPapyrus = theme === 'papyrus';
   
@@ -122,12 +130,68 @@ export const CharacterCreation = () => {
     }, 600);
   };
 
+  // Sound and rolling animation for Magic
+  const rollMagic = () => {
+    if (rollingMagic || rolledMagic !== null) return;
+    setRollingMagic(true);
+    audio.playDiceRoll();
+
+    const interval = setInterval(() => {
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      setDisplayMagic(d1 + d2 + 6);
+    }, 60);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      const finalVal = d1 + d2 + 6; // 2d6 + 6
+      setRolledMagic(finalVal);
+      setDisplayMagic(finalVal);
+      setRollingMagic(false);
+      audio.playCoin();
+    }, 600);
+  };
+
+  const handleAdjustSpell = (spellKey: string, delta: number) => {
+    const currentCount = selectedSpells[spellKey] || 0;
+    const newCount = currentCount + delta;
+    if (newCount < 0) return;
+
+    const spentPoints = Object.values(selectedSpells).reduce((sum, val) => sum + val, 0);
+    const remaining = (rolledMagic || 0) - spentPoints;
+
+    if (delta > 0 && remaining <= 0) return; // No points left
+
+    setSelectedSpells({
+      ...selectedSpells,
+      [spellKey]: newCount,
+    });
+  };
+
+  const CIDADELA_SPELLS = [
+    { key: 'copia_de_criatura', name: 'Cópia de Criatura', description: 'Cria um clone idêntico do monstro para lutar ao seu lado.' },
+    { key: 'pes', name: 'P.E.S.', description: 'Permite ler a mente de criaturas para descobrir segredos ou intenções.' },
+    { key: 'fogo', name: 'Fogo', description: 'Lança fogo para causar destruição ou ferir oponentes.' },
+    { key: 'ouro_dos_tolos', name: 'Ouro dos Tolos', description: 'Transforma pedras comuns em moedas de ouro temporárias.' },
+    { key: 'ilusao', name: 'Ilusão', description: 'Cria miragens para enganar guardas ou desviar atenção de perigos.' },
+    { key: 'levitacao', name: 'Levitação', description: 'Permite flutuar no ar para passar por armadilhas e abismos.' },
+    { key: 'sorte', name: 'Sorte', description: 'Restaura a Sorte atual e aumenta o limite de Sorte Inicial em +1 ponto.' },
+    { key: 'escudo', name: 'Escudo', description: 'Cria uma barreira invisível que repele ataques e projéteis.' },
+    { key: 'habilidade', name: 'Habilidade', description: 'Restaura a Habilidade atual de volta ao valor máximo inicial.' },
+    { key: 'energia', name: 'Energia', description: 'Restaura metade da Energia inicial (arredondada para cima) sem exceder o máximo.' },
+    { key: 'forca', name: 'Força', description: 'Aumenta drasticamente a força física por breves períodos.' },
+    { key: 'fraqueza', name: 'Fraqueza', description: 'Enfraquece a habilidade ou energia de um inimigo.' }
+  ];
+
   const handleStartAdventure = async () => {
     if (isMedo && !selectedPower) {
       alert('Por favor, escolha um superpoder primeiro!');
       return;
     }
     if (rolledSkill === null || rolledEnergy === null || rolledLuck === null) return;
+    if (isCidadela && rolledMagic === null) return;
 
     // Play retro victory fanfare
     audio.playVictory();
@@ -140,6 +204,12 @@ export const CharacterCreation = () => {
     setAttribute('luck', rolledLuck, true);
     setAttribute('luck', rolledLuck, false);
 
+    if (isCidadela && rolledMagic !== null) {
+      setAttribute('magic', rolledMagic, true);
+      setAttribute('magic', rolledMagic, false);
+      setSpells(selectedSpells);
+    }
+
     if (isMedo && selectedPower) {
       setSuperpower(selectedPower);
       updateHeroPoints(0);
@@ -148,9 +218,10 @@ export const CharacterCreation = () => {
 
     // Add log
     const powerStr = isMedo ? ` | Poder: ${selectedPower === 'superforca' ? 'Superforça' : selectedPower === 'psi' ? 'Psi' : selectedPower === 'hta' ? 'HTA' : 'Rajada'}` : '';
+    const magicStr = isCidadela ? ` | Mágica: ${rolledMagic}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}`,
     });
 
     // Log telemetry
@@ -158,6 +229,8 @@ export const CharacterCreation = () => {
       skill: rolledSkill,
       energy: rolledEnergy,
       luck: rolledLuck,
+      magic: isCidadela ? rolledMagic : undefined,
+      spells: isCidadela ? selectedSpells : undefined,
       superpower: isMedo ? selectedPower : undefined,
     });
 
@@ -165,7 +238,12 @@ export const CharacterCreation = () => {
     await saveToSupabase();
   };
 
-  const allRolled = rolledSkill !== null && rolledEnergy !== null && rolledLuck !== null && (!isMedo || selectedPower !== null);
+  const allRolled =
+    rolledSkill !== null &&
+    rolledEnergy !== null &&
+    rolledLuck !== null &&
+    (!isMedo || selectedPower !== null) &&
+    (!isCidadela || rolledMagic !== null);
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -293,7 +371,7 @@ export const CharacterCreation = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+      <div className={`grid grid-cols-1 ${isCidadela ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6 mb-8`}>
         {/* SKILL (Habilidade) Card */}
         <div 
           onClick={
@@ -327,7 +405,7 @@ export const CharacterCreation = () => {
           </div>
 
           {isMedo && selectedPower === 'superforca' ? (
-            <div className="text-[10px] uppercase font-bold tracking-wider text-green-600 dark:text-cyan-400">Superforça ativa</div>
+            <div className="text-[10px] uppercase font-bold tracking-wider text-green-600 dark:text-cyan-400">Superforça active</div>
           ) : rolledSkill !== null ? (
             <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
           ) : (
@@ -420,33 +498,164 @@ export const CharacterCreation = () => {
             </button>
           )}
         </div>
+
+        {/* MAGIC (Mágica) Card */}
+        {isCidadela && (
+          <div 
+            onClick={rolledMagic === null ? rollMagic : undefined}
+            className={attributeCardStyle(rolledMagic !== null, rollingMagic)}
+          >
+            <div className="flex items-center gap-1.5 justify-center mb-1">
+              <Sparkles size={16} className={isPapyrus ? 'text-[#8B008B]' : 'text-purple-400'} />
+              <span className="text-xs uppercase font-extrabold tracking-wider">Mágica</span>
+            </div>
+
+            <div className="my-4 h-16 flex items-center justify-center">
+              {rollingMagic ? (
+                <span className="text-4xl font-extrabold animate-bounce">{displayMagic}</span>
+              ) : rolledMagic !== null ? (
+                <motion.span 
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-5xl font-extrabold"
+                >
+                  {rolledMagic}
+                </motion.span>
+              ) : (
+                <Dices size={36} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
+              )}
+            </div>
+
+            {rolledMagic !== null ? (
+              <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">2 Dados + 6</div>
+            ) : (
+              <button 
+                onClick={(e) => { e.stopPropagation(); rollMagic(); }}
+                className={buttonStyle}
+                disabled={rollingMagic}
+              >
+                Role 2d6+6
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Grimório (Spell Selection) for Cidadela */}
+      {isCidadela && allRolled && (
+        (() => {
+          const spentPoints = Object.values(selectedSpells).reduce((sum, val) => sum + val, 0);
+          const remainingMagicPoints = (rolledMagic || 0) - spentPoints;
+          return (
+            <div className={`mt-8 p-6 border-2 border-dashed ${isPapyrus ? 'border-[#5C4033]/40 bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-2xl'} animate-fade-in mb-8`}>
+              <div className="text-center mb-6">
+                <h3 className={`text-xl font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'}`}>
+                  Grimório do Mago
+                </h3>
+                <p className={`text-sm mt-1 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-300'}`}>
+                  Você tem <span className="font-bold text-lg">{rolledMagic}</span> pontos de Mágica.
+                  Distribua-os comprando feitiços.
+                </p>
+                <div className={`mt-2 inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider rounded ${
+                  remainingMagicPoints === 0 
+                    ? 'bg-green-500/20 text-green-600 dark:text-green-400' 
+                    : 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'
+                }`}>
+                  {remainingMagicPoints === 0 
+                    ? 'Todos os pontos distribuídos!' 
+                    : `Pontos restantes: ${remainingMagicPoints}`}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2">
+                {CIDADELA_SPELLS.map((spell) => {
+                  const count = selectedSpells[spell.key] || 0;
+                  return (
+                    <div 
+                      key={spell.key} 
+                      className={`p-3 border flex flex-col justify-between ${
+                        isPapyrus 
+                          ? 'border-[#5C4033]/30 bg-[#FDF6E3] hover:border-[#5C4033]/60' 
+                          : 'border-slate-800 bg-slate-950/40 hover:border-slate-700 rounded-xl'
+                      } transition-all duration-200`}
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-bold text-sm uppercase tracking-wide">
+                          {spell.name}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleAdjustSpell(spell.key, -1)}
+                            className={`w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors ${
+                              isPapyrus
+                                ? 'bg-[#EAD8B8] hover:bg-[#5C4033] hover:text-[#EAD8B8] text-[#2C1E14]'
+                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md'
+                            } disabled:opacity-40`}
+                            disabled={count === 0}
+                          >
+                            -
+                          </button>
+                          <span className="font-mono text-sm font-bold w-4 text-center">{count}</span>
+                          <button
+                            onClick={() => handleAdjustSpell(spell.key, 1)}
+                            className={`w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors ${
+                              isPapyrus
+                                ? 'bg-[#EAD8B8] hover:bg-[#5C4033] hover:text-[#EAD8B8] text-[#2C1E14]'
+                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md'
+                            } disabled:opacity-40`}
+                            disabled={remainingMagicPoints <= 0}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'} leading-relaxed font-sans`}>
+                        {spell.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()
+      )}
 
       {/* Start Adventure Action Trigger */}
       <AnimatePresence>
         {allRolled && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center gap-3 mt-6 pt-4 border-t border-current/10"
-          >
-            <button
-              onClick={handleStartAdventure}
-              className={`flex items-center justify-center gap-2.5 px-8 py-4 uppercase font-bold text-sm tracking-widest shadow-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
-                isPapyrus
-                  ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#2C1E14]'
-                  : 'border border-cyan-500 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/30 rounded-xl shadow-[0_0_25px_rgba(6,182,212,0.2)]'
-              }`}
-            >
-              <Sparkles size={16} className="animate-spin-slow" />
-              <span>Iniciar Aventura</span>
-            </button>
-            <p className={`text-[10px] uppercase tracking-wider opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400 font-mono'}`}>
-              Os portões do destino estão abertos
-            </p>
-          </motion.div>
+          (() => {
+            const spentPoints = Object.values(selectedSpells).reduce((sum, val) => sum + val, 0);
+            const remainingMagicPoints = (rolledMagic || 0) - spentPoints;
+            const startDisabled = isCidadela && remainingMagicPoints !== 0;
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center gap-3 mt-6 pt-4 border-t border-current/10"
+              >
+                <button
+                  onClick={handleStartAdventure}
+                  disabled={startDisabled}
+                  className={`flex items-center justify-center gap-2.5 px-8 py-4 uppercase font-bold text-sm tracking-widest shadow-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed ${
+                    isPapyrus
+                      ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#2C1E14]'
+                      : 'border border-cyan-500 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/30 rounded-xl shadow-[0_0_25px_rgba(6,182,212,0.2)]'
+                  }`}
+                >
+                  <Sparkles size={16} className="animate-spin-slow" />
+                  <span>Iniciar Aventura</span>
+                </button>
+                <p className={`text-[10px] uppercase tracking-wider opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400 font-mono'}`}>
+                  {isCidadela && remainingMagicPoints !== 0 
+                    ? `Selecione mais ${remainingMagicPoints} feitiços para começar`
+                    : 'Os portões do destino estão abertos'}
+                </p>
+              </motion.div>
+            );
+          })()
         )}
       </AnimatePresence>
     </div>
