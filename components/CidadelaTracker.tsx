@@ -86,7 +86,7 @@ export const CidadelaTracker = () => {
         <span>Grimório de Feitiços</span>
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-3">
         {activeSpells.map((spell) => {
           const qty = spells[spell.key] || 0;
           const meta = spellMeta[spell.key] || { icon: Wand2, colorClass: '' };
@@ -94,47 +94,47 @@ export const CidadelaTracker = () => {
           const isOut = qty === 0;
 
           const cardClass = isPapyrus
-            ? `border-2 p-3 flex flex-col justify-between transition-all duration-200 ${
+            ? `border-2 p-2.5 flex flex-col justify-between transition-all duration-200 ${
                 isOut 
                   ? 'border-[#5C4033]/20 bg-[#5C4033]/5 opacity-50' 
                   : 'border-[#5C4033] bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/35'
               }`
-            : `border bg-slate-900/40 p-3 flex flex-col justify-between transition-all duration-200 rounded-xl ${
+            : `border bg-slate-900/40 p-2.5 flex flex-col justify-between transition-all duration-200 rounded-xl ${
                 isOut
                   ? 'border-slate-800/40 opacity-40'
                   : 'border-purple-500/25 bg-gradient-to-br ' + meta.colorClass + ' hover:border-purple-500/50'
               }`;
 
           const buttonClass = isPapyrus
-            ? 'w-full py-1.5 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
-            : 'w-full py-1.5 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
+            ? 'w-full py-1 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
+            : 'w-full py-1 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
 
           return (
             <div key={spell.key} className={cardClass}>
               <div>
                 <div className="flex justify-between items-start mb-1.5">
                   <div className="flex items-center gap-1.5">
-                    <Icon size={16} className={isPapyrus ? 'text-[#5C4033]' : ''} />
-                    <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                    <Icon size={14} className={isPapyrus ? 'text-[#5C4033]' : ''} />
+                    <h4 className={`font-bold text-[11px] uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
                       {spell.name}
                     </h4>
                   </div>
-                  <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded ${
+                  <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
                     isPapyrus 
                       ? 'bg-[#5C4033]/15 text-[#5C4033]' 
                       : 'bg-purple-950/40 text-purple-300'
                   }`}>
-                    {qty} {qty === 1 ? 'carga' : 'cargas'}
+                    {qty} {qty === 1 ? 'c' : 'c'}
                   </span>
                 </div>
                 
-                <p className={`text-[11px] leading-relaxed mb-3 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
+                <p className={`text-[10px] leading-relaxed mb-2 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
                   {spell.description}
                 </p>
 
                 {meta.effectBadge && !isOut && (
-                  <div className="mb-3">
-                    <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
+                  <div className="mb-2">
+                    <span className={`text-[8px] uppercase font-bold tracking-wider px-1 py-0.5 rounded ${
                       isPapyrus 
                         ? 'bg-[#8B4513]/10 text-[#8B4513]' 
                         : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
@@ -150,7 +150,7 @@ export const CidadelaTracker = () => {
                 disabled={isOut}
                 className={buttonClass}
               >
-                {isOut ? 'Esgotado' : 'Conjurar Feitiço'}
+                {isOut ? 'Esgotado' : 'Conjurar'}
               </button>
             </div>
           );

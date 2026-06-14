@@ -555,7 +555,11 @@ export default function Home() {
       }`}
     >
       <div
-        className={`max-w-[1024px] w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-colors duration-300 ${
+        className={`w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-all duration-300 ${
+          showSheet 
+            ? 'max-w-[1280px] xl:max-w-[1400px]' 
+            : 'max-w-[1024px]'
+        } ${
           isPapyrus ? 'theme-papyrus-card' : 'theme-night-card'
         }`}
       >
