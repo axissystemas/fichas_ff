@@ -17,6 +17,7 @@ import coligacoesKetherJSON from '@/encontros/coligacoes_de_kether.json';
 import maresSangueJSON from '@/encontros/mares_de_sangue.json';
 import encontroMedoJSON from '@/encontros/encontro_marcado_medo.json';
 import criptaVampiroJSON from '@/encontros/cripta_do_vampiro.json';
+import exercitosMorteJSON from '@/encontros/exercitos_da_morte.json';
 
 const BOOK_MONSTERS_MAP: Record<string, any> = {
   'O Feiticeiro da Montanha de Fogo': feiticeiroMontanhaJSON,
@@ -30,6 +31,7 @@ const BOOK_MONSTERS_MAP: Record<string, any> = {
   'Mares de Sangue': maresSangueJSON,
   'Encontro Marcado com o M.E.D.O.': encontroMedoJSON,
   'A Cripta do Vampiro': criptaVampiroJSON,
+  'Exércitos da Morte': exercitosMorteJSON,
 };
 
 export const MonsterManager = () => {

@@ -53,5 +53,6 @@ export const BOOKS_WITH_SUGGESTIONS = [
   'As Coligações de Kether',
   'Mares de Sangue',
   'Encontro Marcado com o M.E.D.O.',
-  'A Cripta do Vampiro'
+  'A Cripta do Vampiro',
+  'Exércitos da Morte'
 ] as const;

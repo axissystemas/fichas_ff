@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { MedoTracker } from '@/components/MedoTracker';
 import { CidadelaTracker } from '@/components/CidadelaTracker';
 import { VampiroTracker } from '@/components/VampiroTracker';
+import { ExercitosTracker } from '@/components/ExercitosTracker';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -989,7 +990,7 @@ export default function Home() {
 
                 {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
                 <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
-                  {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' ? (
+                  {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                       <div className="lg:col-span-2 flex flex-col gap-6">
                         <section
@@ -1007,7 +1008,9 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="lg:col-span-1">
-                        {gamebook === 'A Cidadela do Caos' ? <CidadelaTracker /> : <VampiroTracker />}
+                        {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
+                        {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
+                        {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
                       </div>
                     </div>
                   ) : (

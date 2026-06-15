@@ -1,0 +1,138 @@
+{
+  "livro": "Exércitos da Morte",
+  "codigoLivro": "FF14",
+  "monstros": [
+    {
+      "id": "ff14-agglax",
+      "nome": "Agglax, o Senhor das Sombras",
+      "tipo": "Morto-vivo",
+      "habilidade": 12,
+      "energyMax": 20,
+      "energiaMaxima": 20,
+      "boss": true,
+      "descricao": "O terrível comandante morto-vivo que lidera os Exércitos da Morte para dominar Allansia.",
+      "habilidadesEspeciais": ["Toque da Morte", "Regeneração"],
+      "ambientes": ["Cripta do Castelo", "Confronto Final"]
+    },
+    {
+      "id": "ff14-guerreiro-esqueleto",
+      "nome": "Guerreiro Esqueleto",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Uma ossada reanimada vestindo armadura enferrujada e empunhando uma cimitarra.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Planícies", "Muralhas"]
+    },
+    {
+      "id": "ff14-cavaleiro-da-morte",
+      "nome": "Cavaleiro da Morte",
+      "tipo": "Morto-vivo",
+      "habilidade": 10,
+      "energyMax": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Um outrora valoroso guerreiro corrompido pela magia negra de Agglax.",
+      "habilidadesEspeciais": ["Golpe Devastador"],
+      "ambientes": ["Campo de Batalha", "Castelo"]
+    },
+    {
+      "id": "ff14-wyvern-negro",
+      "nome": "Wyvern Negro",
+      "tipo": "Dragão",
+      "habilidade": 10,
+      "energyMax": 12,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Uma fera alada reptiliana que ataca rasgando o céu com garras venenosas.",
+      "habilidadesEspeciais": ["Veneno"],
+      "ambientes": ["Montanhas", "Céus"]
+    },
+    {
+      "id": "ff14-golem-de-ferro",
+      "nome": "Golem de Ferro",
+      "tipo": "Construto",
+      "habilidade": 10,
+      "energyMax": 14,
+      "energiaMaxima": 14,
+      "boss": true,
+      "descricao": "Um colosso mecânico indestrutível criado para defender os tesouros de Agglax.",
+      "habilidadesEspeciais": ["Imunidade a Magia", "Armadura Pesada"],
+      "ambientes": ["Câmara do Tesouro"]
+    },
+    {
+      "id": "ff14-orc-guarda",
+      "nome": "Guarda Orc",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um lacaio brutal e de temperamento agressivo a serviço do exército sombrio.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Acampamento", "Muralhas"]
+    },
+    {
+      "id": "ff14-goblin-saqueador",
+      "nome": "Goblin Saqueador",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Uma criatura pequena, sorrateira e oportunista que ataca pelas costas.",
+      "habilidadesEspeciais": ["Ataque Furtivo"],
+      "ambientes": ["Estradas", "Floresta"]
+    },
+    {
+      "id": "ff14-gigante-da-colina",
+      "nome": "Gigante da Colina",
+      "tipo": "Gigante",
+      "habilidade": 9,
+      "energyMax": 12,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Um humanoide colossal extremamente forte que arremessa rochas imensas.",
+      "habilidadesEspeciais": ["Arremessar Rocha"],
+      "ambientes": ["Colinas", "Desfiladeiro"]
+    },
+    {
+      "id": "ff14-zumbi-do-pantano",
+      "nome": "Zumbi do Pântano",
+      "tipo": "Morto-vivo",
+      "habilidade": 5,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um cadáver apodrecido que emerge das águas lamacentas e fétidas.",
+      "habilidadesEspeciais": ["Infecção"],
+      "ambientes": ["Pântano dos Sussurros"]
+    },
+    {
+      "id": "ff14-dragao-de-fogo",
+      "nome": "Dragão de Fogo",
+      "tipo": "Dragão",
+      "habilidade": 12,
+      "energyMax": 18,
+      "energiaMaxima": 18,
+      "boss": true,
+      "descricao": "A fera lendária que cospe labaredas e cuja escama é impenetrável por armas comuns.",
+      "habilidadesEspeciais": ["Sopro de Fogo", "Medo"],
+      "ambientes": ["Pico da Montanha"]
+    },
+    {
+      "id": "ff14-sombra-devoradora",
+      "nome": "Sombra Devoradora",
+      "tipo": "Espírito",
+      "habilidade": 8,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Uma aparição sombria intangível que drena a energia vital daqueles que toca.",
+      "habilidadesEspeciais": ["Drenar Energia", "Intangível"],
+      "ambientes": ["Masmorras", "Salões Escuros"]
+    }
+  ]
+}

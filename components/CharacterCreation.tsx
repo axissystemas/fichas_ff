@@ -19,6 +19,10 @@ export const CharacterCreation = () => {
     updateHeroPoints,
     updateClues,
     setSpells,
+    gold,
+    provisions,
+    updateGold,
+    updateProvisions,
   } = useSheetStore();
   
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
@@ -240,6 +244,12 @@ export const CharacterCreation = () => {
       setSuperpower(selectedPower);
       updateHeroPoints(0);
       updateClues({ local: '', dia: '', horario: '', lider: '', outras: '' });
+    }
+
+    const isExercitos = gamebook === 'Exércitos da Morte';
+    if (isExercitos) {
+      updateGold(20000 - gold);
+      updateProvisions(0 - provisions);
     }
 
     // Add log

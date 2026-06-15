@@ -87,6 +87,13 @@ export interface DbSheet {
     faith?: Attribute;
     diseases?: string[];
     coffinsDestroyed?: number;
+    army?: {
+      warriors: number;
+      dwarfs: number;
+      elves: number;
+      knights: number;
+      others: number;
+    };
   };
   gold?: number;
   provisions?: number;
@@ -128,6 +135,13 @@ interface SheetState {
     faith?: Attribute;
     diseases?: string[];
     coffinsDestroyed?: number;
+    army?: {
+      warriors: number;
+      dwarfs: number;
+      elves: number;
+      knights: number;
+      others: number;
+    };
   };
   gold: number;
   provisions: number;
@@ -176,6 +190,13 @@ interface SheetState {
       faith?: Attribute;
       diseases?: string[];
       coffinsDestroyed?: number;
+      army?: {
+        warriors: number;
+        dwarfs: number;
+        elves: number;
+        knights: number;
+        others: number;
+      };
     };
     gold?: number;
     provisions?: number;
@@ -197,6 +218,7 @@ interface SheetState {
   setSpells: (spells: Record<string, number>) => void;
   toggleDisease: (disease: string) => void;
   updateCoffinsDestroyed: (delta: number) => void;
+  updateTroopCount: (troop: 'warriors' | 'dwarfs' | 'elves' | 'knights' | 'others', delta: number) => void;
   castSpell: (spellKey: string) => void;
   updateGold: (amount: number) => void;
   updateProvisions: (amount: number) => void;
@@ -398,6 +420,7 @@ export const useSheetStore = create<SheetState>()(
           const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
           const isCidadela = gamebook === 'A Cidadela do Caos';
           const isVampiro = gamebook === 'A Cripta do Vampiro';
+          const isExercitos = gamebook === 'Exércitos da Morte';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -414,6 +437,9 @@ export const useSheetStore = create<SheetState>()(
             ...(isCidadela ? {
               magic: { initial: 0, current: 0 },
               spells: {},
+            } : {}),
+            ...(isExercitos ? {
+              army: { warriors: 100, dwarfs: 50, elves: 50, knights: 50, others: 0 },
             } : {})
           };
           const payload = {
@@ -422,8 +448,8 @@ export const useSheetStore = create<SheetState>()(
             title: title || 'Nova Ficha',
             gamebook: gamebook || 'O Feiticeiro da Montanha de Fogo',
             attributes: customAttributes as any,
-            gold: 0,
-            provisions: 10,
+            gold: isExercitos ? 20000 : 0,
+            provisions: isExercitos ? 0 : 10,
             inventory: getDefaultInventory(),
             monsters: [],
             notes: '',
@@ -452,8 +478,8 @@ export const useSheetStore = create<SheetState>()(
             ],
             activeSheetId: newSheetId,
             attributes: customAttributes,
-            gold: 0,
-            provisions: 10,
+            gold: isExercitos ? 20000 : 0,
+            provisions: isExercitos ? 0 : 10,
             inventory: getDefaultInventory(),
             monsters: [],
             notes: '',
@@ -794,6 +820,23 @@ export const useSheetStore = create<SheetState>()(
         }));
         scheduleSave(get());
       },
+      updateTroopCount: (troop, delta) => {
+        set((state) => {
+          if (!state.attributes.army) return {};
+          const currentCount = state.attributes.army[troop] || 0;
+          const newCount = Math.max(0, currentCount + delta);
+          return {
+            attributes: {
+              ...state.attributes,
+              army: {
+                ...state.attributes.army,
+                [troop]: newCount,
+              },
+            },
+          };
+        });
+        scheduleSave(get());
+      },
 
       // ── Gold & Provisions ─────────────────────────────────────────────────
       updateGold: (amount) => {
@@ -1015,6 +1058,7 @@ export const useSheetStore = create<SheetState>()(
         const isMedo = get().gamebook === 'Encontro Marcado com o M.E.D.O.';
         const isCidadela = get().gamebook === 'A Cidadela do Caos';
         const isVampiro = get().gamebook === 'A Cripta do Vampiro';
+        const isExercitos = get().gamebook === 'Exércitos da Morte';
         set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
@@ -1037,10 +1081,13 @@ export const useSheetStore = create<SheetState>()(
               faith: { initial: 0, current: 0 },
               diseases: [],
               coffinsDestroyed: 0,
+            } : {}),
+            ...(isExercitos ? {
+              army: { warriors: 100, dwarfs: 50, elves: 50, knights: 50, others: 0 },
             } : {})
           },
-          gold: 0,
-          provisions: 10,
+          gold: isExercitos ? 20000 : 0,
+          provisions: isExercitos ? 0 : 10,
           inventory: getDefaultInventory(),
           monsters: [],
           notes: '',

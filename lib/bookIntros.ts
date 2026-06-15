@@ -21,6 +21,8 @@ export const BOOK_INTROS: Record<string, string> = {
     'Como investigador estelar da polícia imperial, você foi enviado ao planeta colônia Kether para desmantelar uma rede secreta de tráfico de drogas espaciais que ameaça a estabilidade da Federação Galáctica. Em um mundo de intrigas corporativas e becos cibernéticos, cada decisão conta.',
   'A Cripta do Vampiro':
     'O malévolo Conde Reiner Heydrich despertou em seu castelo ancestral na Mauristânia, espalhando terror e morte pelas aldeias vizinhas. Munido de sua espada, suprimentos e de uma fé inabalável, você decide cruzar os portões do temido Castelo Heydrich para explorar seus corredores sombrios, enfrentar criaturas da noite e purificar a cripta antes que o vampiro reine supremo...',
+  'Exércitos da Morte':
+    'O perverso Senhor das Sombras, Agglax, está erguendo uma temível horda de mortos-vivos para varrer Allansia de toda a vida. Com um exército de 250 leais combatentes sob o seu comando e 20.000 moedas de ouro para financiar a campanha, você marcha rumo ao leste para enfrentar o mal em seu próprio território. O destino do continente repousa sobre a força de suas tropas e o fio de sua espada...',
 };
 
 export const getBookIntro = (bookName: string | undefined): string => {
