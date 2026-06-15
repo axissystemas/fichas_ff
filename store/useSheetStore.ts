@@ -84,6 +84,9 @@ export interface DbSheet {
     };
     magic?: Attribute;
     spells?: Record<string, number>;
+    faith?: Attribute;
+    diseases?: string[];
+    coffinsDestroyed?: number;
   };
   gold?: number;
   provisions?: number;
@@ -122,6 +125,9 @@ interface SheetState {
     };
     magic?: Attribute;
     spells?: Record<string, number>;
+    faith?: Attribute;
+    diseases?: string[];
+    coffinsDestroyed?: number;
   };
   gold: number;
   provisions: number;
@@ -166,6 +172,9 @@ interface SheetState {
       };
       magic?: Attribute;
       spells?: Record<string, number>;
+      faith?: Attribute;
+      diseases?: string[];
+      coffinsDestroyed?: number;
     };
     gold?: number;
     provisions?: number;
@@ -183,8 +192,10 @@ interface SheetState {
   clearLocalState: () => void;
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic', value: number, isInitial: boolean) => void;
+  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith', value: number, isInitial: boolean) => void;
   setSpells: (spells: Record<string, number>) => void;
+  toggleDisease: (disease: string) => void;
+  updateCoffinsDestroyed: (delta: number) => void;
   castSpell: (spellKey: string) => void;
   updateGold: (amount: number) => void;
   updateProvisions: (amount: number) => void;
@@ -383,6 +394,7 @@ export const useSheetStore = create<SheetState>()(
           const newSheetId = crypto.randomUUID();
           const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
           const isCidadela = gamebook === 'A Cidadela do Caos';
+          const isVampiro = gamebook === 'A Cripta do Vampiro';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -568,8 +580,9 @@ export const useSheetStore = create<SheetState>()(
         let playerDied = false;
         set((state) => {
           const attr = state.attributes[key] || { initial: 0, current: 0 };
-          // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual
-          const finalValue = !isInitial ? Math.min(value, attr.initial) : value;
+          // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual (exceto para fé)
+          const isFaith = key === 'faith';
+          const finalValue = (!isInitial && !isFaith) ? Math.min(value, attr.initial) : value;
           
           if (key === 'energy' && !isInitial && attr.current > 0 && finalValue <= 0) {
             playerDied = true;
@@ -749,6 +762,31 @@ export const useSheetStore = create<SheetState>()(
               ...(state.attributes.clues || {}),
               ...updatedClues,
             },
+          },
+        }));
+        scheduleSave(get());
+      },
+      toggleDisease: (disease) => {
+        set((state) => {
+          const currentDiseases = state.attributes.diseases || [];
+          const exists = currentDiseases.includes(disease);
+          const nextDiseases = exists
+            ? currentDiseases.filter((d) => d !== disease)
+            : [...currentDiseases, disease];
+          return {
+            attributes: {
+              ...state.attributes,
+              diseases: nextDiseases,
+            },
+          };
+        });
+        scheduleSave(get());
+      },
+      updateCoffinsDestroyed: (delta) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            coffinsDestroyed: Math.min(4, Math.max(0, (state.attributes.coffinsDestroyed || 0) + delta)),
           },
         }));
         scheduleSave(get());
@@ -969,6 +1007,7 @@ export const useSheetStore = create<SheetState>()(
       resetSheet: async () => {
         const isMedo = get().gamebook === 'Encontro Marcado com o M.E.D.O.';
         const isCidadela = get().gamebook === 'A Cidadela do Caos';
+        const isVampiro = get().gamebook === 'A Cripta do Vampiro';
         set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
@@ -986,6 +1025,11 @@ export const useSheetStore = create<SheetState>()(
             ...(isCidadela ? {
               magic: { initial: 0, current: 0 },
               spells: {},
+            } : {}),
+            ...(isVampiro ? {
+              faith: { initial: 0, current: 0 },
+              diseases: [],
+              coffinsDestroyed: 0,
             } : {})
           },
           gold: 0,

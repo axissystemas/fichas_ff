@@ -4,7 +4,7 @@ import { audio } from '@/lib/audio';
 
 interface Props {
   label: string;
-  attrKey: 'skill' | 'energy' | 'luck' | 'magic';
+  attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith';
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {
@@ -26,13 +26,15 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
 
     audio.playDiceRoll();
     let roll = 0;
-    if (isMedo && attrKey === 'energy') {
-      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12; // 2d6 + 12 for MEDO
+    if (attrKey === 'energy') {
+      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12; // 2d6 + 12 para todos os livros
     } else if (gamebook === 'A Cidadela do Caos' && attrKey === 'magic') {
-      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 6; // 2d6 + 6 for Cidadela Magic
+      roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 6; // 2d6 + 6
+    } else if (gamebook === 'A Cripta do Vampiro' && attrKey === 'faith') {
+      roll = (Math.floor(Math.random() * 6) + 1) + 3; // 1d6 + 3
     } else {
-      const modifier = attrKey === 'energy' ? 12 : 6;
-      roll = Math.floor(Math.random() * 6) + 1 + modifier;
+      const modifier = 6;
+      roll = Math.floor(Math.random() * 6) + 1 + modifier; // Habilidade e Sorte: 1d6 + 6
     }
     setAttribute(attrKey, roll, true);
     setAttribute(attrKey, roll, false);

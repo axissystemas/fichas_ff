@@ -17,6 +17,7 @@ import { CharacterCreation } from '@/components/CharacterCreation';
 import { supabase } from '@/lib/supabase';
 import { MedoTracker } from '@/components/MedoTracker';
 import { CidadelaTracker } from '@/components/CidadelaTracker';
+import { VampiroTracker } from '@/components/VampiroTracker';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -401,6 +402,7 @@ export default function Home() {
       switch (bookName) {
         case 'O Feiticeiro da Montanha de Fogo':
         case 'A Masmorra da Morte':
+        case 'A Cripta do Vampiro':
           return '/audios/16 bits/POL-misty-dungeon-short.wav';
         case 'A Cidadela do Caos':
         case 'O Templo do Terror':
@@ -952,6 +954,9 @@ export default function Home() {
                   {gamebook === 'A Cidadela do Caos' && (
                     <AttributeCard label="Mágica" attrKey="magic" />
                   )}
+                  {gamebook === 'A Cripta do Vampiro' && (
+                    <AttributeCard label="Fé" attrKey="faith" />
+                  )}
                   <CurrentSectionCard />
                   
                   {/* Ouro e Provisões vão para cá no Mobile também */}
@@ -962,7 +967,7 @@ export default function Home() {
 
                 {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
                 <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
-                  {gamebook === 'A Cidadela do Caos' ? (
+                  {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' ? (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                       <div className="lg:col-span-2 flex flex-col gap-6">
                         <section
@@ -980,7 +985,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="lg:col-span-1">
-                        <CidadelaTracker />
+                        {gamebook === 'A Cidadela do Caos' ? <CidadelaTracker /> : <VampiroTracker />}
                       </div>
                     </div>
                   ) : (

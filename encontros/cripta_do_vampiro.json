@@ -1,0 +1,127 @@
+{
+  "livro": "A Cripta do Vampiro",
+  "codigoLivro": "FF38",
+  "monstros": [
+    {
+      "id": "ff38-conde-heydrich",
+      "nome": "Conde Reiner Heydrich",
+      "tipo": "Morto-vivo",
+      "habilidade": 13,
+      "energiaMaxima": 21,
+      "boss": true,
+      "descricao": "O senhor do Castelo Heydrich. Um vampiro imensamente poderoso.",
+      "habilidadesEspeciais": ["Vampirismo", "Hipnose"],
+      "ambientes": ["Cripta Final"]
+    },
+    {
+      "id": "ff38-katarina-heydrich",
+      "nome": "Katarina Heydrich",
+      "tipo": "Morto-vivo",
+      "habilidade": 12,
+      "energiaMaxima": 16,
+      "boss": true,
+      "descricao": "A traiçoeira irmã de Reiner, com seus próprios planos sombrios.",
+      "habilidadesEspeciais": ["Vampirismo"],
+      "ambientes": ["Cripta", "Salão"]
+    },
+    {
+      "id": "ff38-wilhelm-heydrich",
+      "nome": "Wilhelm Heydrich",
+      "tipo": "Morto-vivo",
+      "habilidade": 9,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "O primo enlouquecido do Conde Heydrich.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Corredor"]
+    },
+    {
+      "id": "ff38-carnical",
+      "nome": "Carniçal",
+      "tipo": "Morto-vivo",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Monstro carniceiro que se alimenta de restos mortais.",
+      "habilidadesEspeciais": ["Paralisia"],
+      "ambientes": ["Cripta", "Cemitério"]
+    },
+    {
+      "id": "ff38-geleia-necrotica",
+      "nome": "Geleia Necrótica",
+      "tipo": "Monstro",
+      "habilidade": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Um amálgama repugnante de tecidos em decomposição.",
+      "habilidadesEspeciais": ["Agravar Moléstia"],
+      "ambientes": ["Laboratório"]
+    },
+    {
+      "id": "ff38-baobhan-sith",
+      "nome": "Baobhan Sith",
+      "tipo": "Morto-vivo",
+      "habilidade": 9,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Um espírito vampírico belo mas mortal.",
+      "habilidadesEspeciais": ["Sedução"],
+      "ambientes": ["Floresta", "Jardim"]
+    },
+    {
+      "id": "ff38-thassallos",
+      "nome": "Thassallos",
+      "tipo": "Monstro",
+      "habilidade": 10,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Criatura horrenda com olhos congelantes.",
+      "habilidadesEspeciais": ["Olhar Congelante"],
+      "ambientes": ["Castelo"]
+    },
+    {
+      "id": "ff38-morcego-vampiro",
+      "nome": "Morcego Vampiro Gigante",
+      "tipo": "Animal",
+      "habilidade": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um morcego infectado que transmite a Praga do Morcego.",
+      "habilidadesEspeciais": ["Transmitir Doença"],
+      "ambientes": ["Torre", "Teto"]
+    },
+    {
+      "id": "ff38-zumbi",
+      "nome": "Zumbi",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Corpo reanimado que ataca sob comando.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Cemitério", "Masmorra"]
+    },
+    {
+      "id": "ff38-lobo-da-cripta",
+      "nome": "Lobo da Cripta",
+      "tipo": "Animal",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Um lobo selvagem que habita os arredores do castelo.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Jardim", "Arredores"]
+    },
+    {
+      "id": "ff38-guarda-do-castelo",
+      "nome": "Guarda do Castelo",
+      "tipo": "Humanoide",
+      "habilidade": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Um servo humano jurado de fidelidade ao Conde.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Portaria", "Muralha"]
+    }
+  ]
+}

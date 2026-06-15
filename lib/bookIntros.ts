@@ -19,6 +19,8 @@ export const BOOK_INTROS: Record<string, string> = {
     'Na metrópole futurista de Titan City, supervilões e a organização criminosa M.E.D.O. ameaçam a paz. Sob a identidade secreta de um super-herói com poderes extraordinários, você patrulha as ruas escuras, combatendo o crime e desvendando a conspiração do maligno Dr. Macabre.',
   'As Coligações de Kether':
     'Como investigador estelar da polícia imperial, você foi enviado ao planeta colônia Kether para desmantelar uma rede secreta de tráfico de drogas espaciais que ameaça a estabilidade da Federação Galáctica. Em um mundo de intrigas corporativas e becos cibernéticos, cada decisão conta.',
+  'A Cripta do Vampiro':
+    'O malévolo Conde Reiner Heydrich despertou em seu castelo ancestral na Mauristânia, espalhando terror e morte pelas aldeias vizinhas. Munido de sua espada, suprimentos e de uma fé inabalável, você decide cruzar os portões do temido Castelo Heydrich para explorar seus corredores sombrios, enfrentar criaturas da noite e purificar a cripta antes que o vampiro reine supremo...',
 };
 
 export const getBookIntro = (bookName: string | undefined): string => {
