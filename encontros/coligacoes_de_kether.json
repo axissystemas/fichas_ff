@@ -3,158 +3,364 @@
   "codigoLivro": "FF15",
   "monstros": [
     {
-      "id": "ff15-pistoleiro-001",
+      "id": "ff15-pistoleiro",
       "nome": "Pistoleiro",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 6,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um atirador hostil armado com uma pistola bláster.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Porto Espacial", "Ruas de Kether"]
     },
     {
-      "id": "ff15-guarda-a-de-seguranca-002",
-      "nome": "Guarda  De Segurança",
-      "tipo": "Monstro",
-      "habilidade": 10,
-      "energiaMaxima": 8,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
-    },
-    {
-      "id": "ff15-sentinela-003",
-      "nome": "Sentinela",
-      "tipo": "Monstro",
+      "id": "ff15-lutador-robo-1",
+      "nome": "Lutador Robô 1 (Espaçonave)",
+      "tipo": "Nave",
       "habilidade": 7,
-      "energiaMaxima": 10,
+      "energyMax": 1,
+      "energiaMaxima": 1,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma pequena nave caça não-tripulada que ataca no Fim de Rispin.",
+      "habilidadesEspeciais": ["Combate Espacial"],
+      "ambientes": ["Espaço", "Órbita de Rispin"]
     },
     {
-      "id": "ff15-aniquilador-a-arcturiano-004",
-      "nome": "Aniquilador  Arcturiano",
-      "tipo": "Monstro",
+      "id": "ff15-lutador-robo-2",
+      "nome": "Lutador Robô 2 (Espaçonave)",
+      "tipo": "Nave",
       "habilidade": 7,
-      "energiaMaxima": 10,
+      "energyMax": 1,
+      "energiaMaxima": 1,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Segunda nave caça não-tripulada que ataca no Fim de Rispin.",
+      "habilidadesEspeciais": ["Combate Espacial"],
+      "ambientes": ["Espaço", "Órbita de Rispin"]
     },
     {
-      "id": "ff15-robo-antariano-005",
-      "nome": "Robô Antariano",
-      "tipo": "Monstro",
-      "habilidade": 8,
-      "energiaMaxima": 8,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
-    },
-    {
-      "id": "ff15-sentinela-robo-006",
-      "nome": "Sentinela Robô",
-      "tipo": "Monstro",
-      "habilidade": 8,
-      "energiaMaxima": 4,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
-    },
-    {
-      "id": "ff15-droide-de-defesa-007",
-      "nome": "Dróide De Defesa",
-      "tipo": "Monstro",
+      "id": "ff15-monge-1",
+      "nome": "Monge 1",
+      "tipo": "Humano",
       "habilidade": 9,
-      "energiaMaxima": 4,
+      "energyMax": 5,
+      "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um monge fanático armado com um punhal longo sob sua batina.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Monastério"]
     },
     {
-      "id": "ff15-androforma-008",
-      "nome": "Androforma",
-      "tipo": "Monstro",
-      "habilidade": 8,
-      "energiaMaxima": 9,
+      "id": "ff15-monge-2",
+      "nome": "Monge 2",
+      "tipo": "Humano",
+      "habilidade": 7,
+      "energyMax": 5,
+      "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Segundo monge fanático que ataca sob as ordens do monastério.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Monastério"]
     },
     {
-      "id": "ff15-assassino-009",
-      "nome": "Assassino",
-      "tipo": "Monstro",
-      "habilidade": 8,
+      "id": "ff15-guarda-1-ref67",
+      "nome": "Guarda 1",
+      "tipo": "Humano",
+      "habilidade": 7,
+      "energyMax": 6,
       "energiaMaxima": 6,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um dos quatro guardas brutais que vigiam o armazém.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Armazém"]
     },
     {
-      "id": "ff15-zera-gross-010",
-      "nome": "Zera Gross",
-      "tipo": "Monstro",
-      "habilidade": 8,
-      "energiaMaxima": 11,
+      "id": "ff15-guarda-2-ref67",
+      "nome": "Guarda 2",
+      "tipo": "Humano",
+      "habilidade": 6,
+      "energyMax": 6,
+      "energiaMaxima": 6,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um dos guardas brutais encarregados da segurança das cargas.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Armazém"]
     },
     {
-      "id": "ff15-zera-011",
-      "nome": "Zera",
-      "tipo": "Monstro",
-      "habilidade": 8,
+      "id": "ff15-guarda-3-ref67",
+      "nome": "Guarda 3",
+      "tipo": "Humano",
+      "habilidade": 5,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Guarda de apoio menos habilidoso vigiando o depósito de plásticos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Armazém"]
+    },
+    {
+      "id": "ff15-guarda-4-ref67",
+      "nome": "Guarda 4",
+      "tipo": "Humano",
+      "habilidade": 5,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "O quarto guarda encarregado de deter intrusos no armazém.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Armazém"]
+    },
+    {
+      "id": "ff15-guarda-seguranca",
+      "nome": "Guarda de Segurança",
+      "tipo": "Humano",
+      "habilidade": 10,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um guarda de patrulha extremamente treinado e perigoso em combate corpo-a-corpo.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Instalações do Porto Espacial", "Corredores"]
+    },
+    {
+      "id": "ff15-sentinela",
+      "nome": "Sentinela",
+      "tipo": "Robô",
+      "habilidade": 7,
+      "energyMax": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Uma criatura mecânica ou dispositivo de patrulha elétrica.",
+      "habilidadesEspeciais": ["Fogo Elétrico"],
+      "ambientes": ["Corredores"]
+    },
+    {
+      "id": "ff15-guarda-1-ref82",
+      "nome": "Guarda 1 (Solar)",
+      "tipo": "Humano",
+      "habilidade": 8,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um guarda residencial acionado pelo alarme da janela do solar.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Solar", "Jardim"]
+    },
+    {
+      "id": "ff15-guarda-2-ref82",
+      "nome": "Guarda 2 (Solar)",
+      "tipo": "Humano",
+      "habilidade": 6,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "O parceiro de patrulha residencial no solar de Kether.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Solar", "Jardim"]
+    },
+    {
+      "id": "ff15-capanga-1-ref86",
+      "nome": "Capanga 1 (Escritório)",
+      "tipo": "Humano",
+      "habilidade": 10,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um brutamontes encarregado de destruir provas no escritório particular.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Antecâmara do Escritório"]
+    },
+    {
+      "id": "ff15-capanga-2-ref86",
+      "nome": "Capanga 2 (Escritório)",
+      "tipo": "Humano",
+      "habilidade": 6,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Segundo brutamontes destruindo arquivos no incinerador.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Antecâmara do Escritório"]
+    },
+    {
+      "id": "ff15-aniquilador-arcturiano",
+      "nome": "Aniquilador Arcturiano",
+      "tipo": "Alienígena",
+      "habilidade": 7,
+      "energyMax": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Um alienígena de combate formidável com blásters pesados.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Área de Segurança", "Espaço"]
+    },
+    {
+      "id": "ff15-robo-antariano",
+      "nome": "Robô Antariano",
+      "tipo": "Robô",
+      "habilidade": 8,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Uma potente unidade robótica programada para defesa militar.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Corredores", "Salas de Defesa"]
+    },
+    {
+      "id": "ff15-capanga-1-ref110",
+      "nome": "Capanga 1 (Escadaria)",
+      "tipo": "Humano",
+      "habilidade": 6,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Um dos dois capangas posicionados nas escadarias com blásters.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Escadaria", "Subsolo"]
+    },
+    {
+      "id": "ff15-capanga-2-ref110",
+      "nome": "Capanga 2 (Escadaria)",
+      "tipo": "Humano",
+      "habilidade": 5,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Segundo capanga que embosca o investigador na saída das escadas.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Escadaria", "Subsolo"]
+    },
+    {
+      "id": "ff15-sentinela-robo-ref116",
+      "nome": "Sentinela Robô",
+      "tipo": "Robô",
+      "habilidade": 8,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Uma sentinela mecânica com armas blásters de disparo rápido.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Corredores", "Áreas de Alta Segurança"]
+    },
+    {
+      "id": "ff15-droide-defesa",
+      "nome": "Dróide de Defesa",
+      "tipo": "Robô",
+      "habilidade": 9,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Um pequeno dróide esférico que pula em todas as direções atirando lasers pulsantes.",
+      "habilidadesEspeciais": ["Movimento Foguete", "Esquiva"],
+      "ambientes": ["Câmara de Compressão"]
+    },
+    {
+      "id": "ff15-blaster-babbet",
+      "nome": "\"Bláster\" Babbet",
+      "tipo": "Humano",
+      "habilidade": 10,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": true,
+      "descricao": "O impiedoso líder e mestre de armas da coligação em Kether, famoso pela sua destreza.",
+      "habilidadesEspeciais": ["Combate Corporal Veloz"],
+      "ambientes": ["Escritório Secreto", "Quarto Final"]
+    },
+    {
+      "id": "ff15-androforma",
+      "nome": "Androforma",
+      "tipo": "Robô",
+      "habilidade": 8,
+      "energyMax": 9,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Um cão mecânico feito de fogo que ataca com eletricidade.",
+      "habilidadesEspeciais": ["Ataque Elétrico"],
+      "ambientes": ["Câmara de Testes", "Laboratório"]
+    },
+    {
+      "id": "ff15-assassino",
+      "nome": "Assassino",
+      "tipo": "Humano",
+      "habilidade": 8,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Um franco-atirador profissional posicionado na rua com um rifle potente.",
+      "habilidadesEspeciais": ["Rifle de Alta Potência"],
+      "ambientes": ["Ruas de Kether", "Esconderijos"]
+    },
+    {
+      "id": "ff15-zera-gross",
+      "nome": "Zera Gross",
+      "tipo": "Humano",
+      "habilidade": 8,
+      "energyMax": 11,
+      "energiaMaxima": 11,
+      "boss": true,
+      "descricao": "A influente e implacável líder da rede de importação e exportação de narcóticos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Apartamento", "Escritório Comercial"]
+    },
+    {
+      "id": "ff15-defesas-asteroide",
+      "nome": "Defesas do Asteróide (Espaçonave)",
+      "tipo": "Nave",
+      "habilidade": 9,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": true,
+      "descricao": "Baterias orbitais de laser e fasers protegendo a base de operações no asteroide C230.",
+      "habilidadesEspeciais": ["Fasers de Defesa", "Campo Minado"],
+      "ambientes": ["Espaço", "Órbita de C230"]
+    },
+    {
+      "id": "ff15-zera",
+      "nome": "Zera",
+      "tipo": "Humano",
+      "habilidade": 8,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": true,
+      "descricao": "A vilã Zera confrontando o investigador nos trechos finais do livro.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Esconderijo", "Cinturão de Asteroides"]
+    },
+    {
+      "id": "ff15-interceptador-1",
+      "nome": "Interceptador 1 (Espaçonave)",
+      "tipo": "Nave",
+      "habilidade": 5,
+      "energyMax": 3,
+      "energiaMaxima": 3,
+      "boss": false,
+      "descricao": "Primeira nave patrulha enviada pelo cartel para interceptar sua aproximação no cinturão.",
+      "habilidadesEspeciais": ["Combate Espacial"],
+      "ambientes": ["Espaço", "Cinturão de Asteroides"]
+    },
+    {
+      "id": "ff15-interceptador-2",
+      "nome": "Interceptador 2 (Espaçonave)",
+      "tipo": "Nave",
+      "habilidade": 5,
+      "energyMax": 2,
+      "energiaMaxima": 2,
+      "boss": false,
+      "descricao": "Segunda nave patrulha operando de forma coordenada para emboscar o herói.",
+      "habilidadesEspeciais": ["Combate Espacial"],
+      "ambientes": ["Espaço", "Cinturão de Asteroides"]
+    },
+    {
+      "id": "ff15-grande-guardiao",
+      "nome": "Grande Guardião",
+      "tipo": "Alienígena",
+      "habilidade": 9,
+      "energyMax": 9,
+      "energiaMaxima": 9,
+      "boss": true,
+      "descricao": "Uma poderosa inteligência ou robô alienígena que guarda o templo ou segredos profundos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Templo", "Asteroide"]
     }
   ]
 }

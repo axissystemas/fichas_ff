@@ -3,242 +3,364 @@
   "codigoLivro": "FF06",
   "monstros": [
     {
-      "id": "ff06-mantecora-001",
+      "id": "ff06-mantecora",
       "nome": "Mantécora",
       "tipo": "Monstro",
       "habilidade": 11,
+      "energyMax": 11,
       "energiaMaxima": 11,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma fera temível com corpo de leão, asas de morcego e cauda de escorpião que dispara espinhos venenosos.",
+      "habilidadesEspeciais": ["Espinhos de Cauda"],
+      "ambientes": ["Câmara dos Pilares", "Masmorra"]
     },
     {
-      "id": "ff06-mosca-gigante-002",
+      "id": "ff06-mosca-gigante",
       "nome": "Mosca Gigante",
-      "tipo": "Monstro",
+      "tipo": "Inseto",
       "habilidade": 7,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um inseto voador macabro e enorme que tenta agarrar invasores e soltá-los de grandes alturas.",
+      "habilidadesEspeciais": ["Voo", "Queda Livre"],
+      "ambientes": ["Caverna", "Túneis Altos"]
     },
     {
-      "id": "ff06-minotauro-003",
+      "id": "ff06-minotauro",
       "nome": "Minotauro",
       "tipo": "Monstro",
       "habilidade": 9,
+      "energyMax": 9,
       "energiaMaxima": 9,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "A clássica fera meio homem, meio touro que vigia uma arena circular com sua acha de dois gumes.",
+      "habilidadesEspeciais": ["Investida Furiosa"],
+      "ambientes": ["Arena de Teste", "Masmorra"]
     },
     {
-      "id": "ff06-hobgoblin-004",
-      "nome": "Hobgoblin",
-      "tipo": "Monstro",
+      "id": "ff06-hobgoblin-patrulha",
+      "nome": "Hobgoblin (Patrulha)",
+      "tipo": "Humanoide",
       "habilidade": 6,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um guerreiro goblinóide hostil e de pele escura que patrulha as câmaras do labirinto.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Túneis", "Masmorra"]
     },
     {
-      "id": "ff06-erva-005",
-      "nome": "Erva",
-      "tipo": "Monstro",
+      "id": "ff06-hobgoblin-guarda-1",
+      "nome": "Hobgoblin Guarda 1",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Um dos guardas goblinóides treinados que defendem as antecâmaras com espadas curtas.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Antecâmara do Escritório", "Masmorra"]
+    },
+    {
+      "id": "ff06-hobgoblin-guarda-2",
+      "nome": "Hobgoblin Guarda 2",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Segundo guarda goblinóide na dupla de patrulha das antecâmaras.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Antecâmara do Escritório", "Masmorra"]
+    },
+    {
+      "id": "ff06-erva-assassina",
+      "nome": "Erva Assassina",
+      "tipo": "Planta",
       "habilidade": 9,
+      "energyMax": 9,
       "energiaMaxima": 9,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma planta trepadeira senciente e mortal que usa tentáculos espinhosos e objetos ao redor para esmagar intrusos.",
+      "habilidadesEspeciais": ["Constrição"],
+      "ambientes": ["Câmaras Úmidas", "Masmorra"]
     },
     {
-      "id": "ff06-escorpiao-gigante-006",
+      "id": "ff06-escorpiao-gigante",
       "nome": "Escorpião Gigante",
-      "tipo": "Monstro",
+      "tipo": "Inseto",
       "habilidade": 10,
+      "energyMax": 10,
       "energiaMaxima": 10,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um gigantesco escorpião negro com pinças poderosas (cada uma tratada como um combatente independente).",
+      "habilidadesEspeciais": ["Ataque Duplo com Pinças", "Ferrão Venenoso"],
+      "ambientes": ["Arena de Teste", "Caverna"]
     },
     {
-      "id": "ff06-anao-007",
+      "id": "ff06-anao",
       "nome": "Anão",
-      "tipo": "Monstro",
+      "tipo": "Humanoide",
       "habilidade": 8,
+      "energyMax": 6,
       "energiaMaxima": 6,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "O sádico porém implacável guardião das arenas da Prova dos Campeões, armado com uma acha.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Arena de Teste", "Masmorra"]
     },
     {
-      "id": "ff06-besta-sangrenta-008",
+      "id": "ff06-besta-sangrenta",
       "nome": "Besta Sangrenta",
       "tipo": "Monstro",
       "habilidade": 12,
+      "energyMax": 10,
       "energiaMaxima": 10,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "boss": true,
+      "descricao": "A icônica fera viscosa com dezenas de olhos que habita poças ácidas, atacando com uma língua pegajosa e mandíbulas devastadoras.",
+      "habilidadesEspeciais": ["Língua Constritora", "Poça Ácida"],
+      "ambientes": ["Poça de Sangue", "Esgotos da Masmorra"]
     },
     {
-      "id": "ff06-diabo-do-poco-009",
-      "nome": "Diabo Do Poço",
+      "id": "ff06-diabo-do-poco",
+      "nome": "Diabo do Poço",
       "tipo": "Monstro",
       "habilidade": 12,
+      "energyMax": 15,
       "energiaMaxima": 15,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "boss": true,
+      "descricao": "Uma fera titânica verde-malhada com couro grosso, dentes de navalha e enorme força física.",
+      "habilidadesEspeciais": ["Couro Grosso"],
+      "ambientes": ["Poço Final", "Masmorra"]
     },
     {
-      "id": "ff06-imitador-010",
+      "id": "ff06-imitador",
       "nome": "Imitador",
       "tipo": "Monstro",
       "habilidade": 9,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma criatura amorfa disfarçada de porta ou baú que tenta digerir intrusos que a tocam.",
+      "habilidadesEspeciais": ["Disfarce", "Adesão"],
+      "ambientes": ["Salas de Baú", "Corredores"]
     },
     {
-      "id": "ff06-verme-da-rocha-011",
-      "nome": "Verme Da Rocha",
+      "id": "ff06-verme-da-rocha",
+      "nome": "Verme da Rocha",
       "tipo": "Monstro",
       "habilidade": 7,
+      "energyMax": 11,
       "energiaMaxima": 11,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um gigantesco verme escavador e viscoso que emerge das paredes rochosas da masmorra.",
+      "habilidadesEspeciais": ["Escavação"],
+      "ambientes": ["Túneis de Rocha", "Caverna"]
     },
     {
-      "id": "ff06-throm-012",
-      "nome": "Throm",
-      "tipo": "Monstro",
+      "id": "ff06-throm",
+      "nome": "Throm (Bárbaro)",
+      "tipo": "Humano",
       "habilidade": 10,
+      "energyMax": 12,
       "energiaMaxima": 12,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um herói bárbaro imensamente forte que compete na Prova dos Campeões. Pode agir como aliado temporário ou rival.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Arena", "Túneis de Kether"]
     },
     {
-      "id": "ff06-ninja-013",
+      "id": "ff06-ninja",
       "nome": "Ninja",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 11,
+      "energyMax": 9,
       "energiaMaxima": 9,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um assassino profissional veloz armado com uma longa espada curva e discos cortantes de aço.",
+      "habilidadesEspeciais": ["Discos Cortantes", "Agilidade"],
+      "ambientes": ["Câmara dos Pilares", "Túneis"]
     },
     {
-      "id": "ff06-demonio-do-espelho-014",
-      "nome": "Demônio Do Espelho",
+      "id": "ff06-demonio-do-espelho",
+      "nome": "Demônio do Espelho",
       "tipo": "Monstro",
       "habilidade": 10,
+      "energyMax": 10,
       "energiaMaxima": 10,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um demônio conjurado através de espelhos mágicos que tenta agarrar e prender os oponentes.",
+      "habilidadesEspeciais": ["Constrição de Espelho"],
+      "ambientes": ["Câmara dos Espelhos", "Masmorra"]
     },
     {
-      "id": "ff06-guerreiro-esqueleto-015",
+      "id": "ff06-guerreiro-esqueleto",
       "nome": "Guerreiro-Esqueleto",
-      "tipo": "Monstro",
+      "tipo": "Morto-vivo",
       "habilidade": 8,
+      "energyMax": 6,
       "energiaMaxima": 6,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma armadura de ossos que ganha vida empunhando uma espada para punir quem violar manuscritos antigos.",
+      "habilidadesEspeciais": ["Imunidade a Medo"],
+      "ambientes": ["Sala do Trono", "Masmorra"]
     },
     {
-      "id": "ff06-troll-da-caverna-016",
-      "nome": "Troll Da Caverna",
+      "id": "ff06-troll-da-caverna",
+      "nome": "Troll da Caverna",
       "tipo": "Monstro",
       "habilidade": 10,
+      "energyMax": 11,
       "energiaMaxima": 11,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Uma fera das profundezas imensa e violenta que ataca intrusos com clavas de pedra.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Cavernas Profundas", "Túneis"]
     },
     {
-      "id": "ff06-homem-da-caverna-017",
-      "nome": "Homem Da Caverna",
-      "tipo": "Monstro",
+      "id": "ff06-homem-da-caverna",
+      "nome": "Homem da Caverna",
+      "tipo": "Humanoide",
       "habilidade": 7,
+      "energyMax": 7,
       "energiaMaxima": 7,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um sobrevivente selvagem e primitivo da masmorra, armado com peles de animais e uma clava rústica.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Túnel Primitivo", "Caverna"]
+    },
+    {
+      "id": "ff06-cao-de-guarda-1",
+      "nome": "Cão de Guarda 1",
+      "tipo": "Besta",
+      "habilidade": 7,
+      "energyMax": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Um mastim feroz treinado para caçar e estraçalhar intrusos no pé das escadarias.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Pé da Escada", "Túneis"]
+    },
+    {
+      "id": "ff06-cao-de-guarda-2",
+      "nome": "Cão de Guarda 2",
+      "tipo": "Besta",
+      "habilidade": 7,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Segundo mastim de caça da dupla que protege os túneis de serviço.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Pé da Escada", "Túneis"]
+    },
+    {
+      "id": "ff06-guardiao-voador-1",
+      "nome": "Guardião Voador 1",
+      "tipo": "Monstro",
+      "habilidade": 7,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Um pássaro empalhado mágico que ganha vida e ataca com asas rígidas para vigiar o ídolo de esmeraldas.",
+      "habilidadesEspeciais": ["Voo"],
+      "ambientes": ["Sala do Ídolo", "Masmorra"]
+    },
+    {
+      "id": "ff06-guardiao-voador-2",
+      "nome": "Guardião Voador 2",
+      "tipo": "Monstro",
+      "habilidade": 8,
+      "energyMax": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "O segundo guardião alado que ataca intrusos em espaços confinados da sala do ídolo.",
+      "habilidadesEspeciais": ["Voo"],
+      "ambientes": ["Sala do Ídolo", "Masmorra"]
+    },
+    {
+      "id": "ff06-goblin-1",
+      "nome": "Goblin 1",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Um pequeno goblinóide sorrateiro que afia suas lâminas nas passagens subterrâneas.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Alçapão Secreto", "Masmorra"]
+    },
+    {
+      "id": "ff06-goblin-2",
+      "nome": "Goblin 2",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "O parceiro goblinóide que ajuda a montar emboscadas com espadas curtas.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Alçapão Secreto", "Masmorra"]
+    },
+    {
+      "id": "ff06-orc-1",
+      "nome": "Orc 1 (Orca)",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Um guerreiro Orc brutal de patrulha armado com uma pesada maça de ferro (traduzido como Orca).",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Túneis Estreitos", "Masmorra"]
+    },
+    {
+      "id": "ff06-orc-2",
+      "nome": "Orc 2 (Orca)",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energyMax": 4,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Um Orc batedor mais astuto que patrulha em dupla nos corredores de pedra.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Túneis Estreitos", "Masmorra"]
+    },
+    {
+      "id": "ff06-barao-sukumvit",
+      "nome": "Barão Sukumvit",
+      "tipo": "Humano",
+      "habilidade": 12,
+      "energyMax": 16,
+      "energiaMaxima": 16,
+      "boss": true,
+      "descricao": "O sádico criador da Masmorra da Morte e lorde de Fang. Um mestre de estratégias e combates.",
+      "habilidadesEspeciais": ["Mestre do Calabouço"],
+      "ambientes": ["Câmara do Trono", "Saída"]
+    },
+    {
+      "id": "ff06-cobra-cascavel",
+      "nome": "Cobra Cascavel",
+      "tipo": "Besta",
+      "habilidade": 6,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Uma naja venenosa mantida em cestos de vime para testar os reflexos dos competidores.",
+      "habilidadesEspeciais": ["Veneno"],
+      "ambientes": ["Sala de Testes", "Masmorra"]
+    },
+    {
+      "id": "ff06-aranha-gigante",
+      "nome": "Aranha Gigante",
+      "tipo": "Inseto",
+      "habilidade": 7,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Aranha caranguejeira negra gigantesca que espreita nas sombras recobertas de teias.",
+      "habilidadesEspeciais": ["Veneno", "Teia"],
+      "ambientes": ["Câmara de Teias", "Caverna"]
     }
   ]
 }
