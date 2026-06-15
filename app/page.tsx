@@ -344,8 +344,10 @@ export default function Home() {
     gamebook,
     soundEnabled,
     musicEnabled,
+    musicVolume,
     toggleSound,
     toggleMusic,
+    setMusicVolume,
     attributes,
     newsList,
     loadNewsList,
@@ -393,7 +395,8 @@ export default function Home() {
   useEffect(() => {
     audio.setEnabled(soundEnabled);
     music.setEnabled(musicEnabled);
-  }, [soundEnabled, musicEnabled]);
+    music.setVolume(musicVolume);
+  }, [soundEnabled, musicEnabled, musicVolume]);
 
   // Manage BGM depending on active screen/sheet
   useEffect(() => {
@@ -709,14 +712,28 @@ export default function Home() {
             )}
 
             {/* Música de Fundo */}
-            <button
-              onClick={toggleMusic}
-              className="p-1.5 sm:p-2 border border-current hover:bg-[#3D2B1F]/10 rounded cursor-pointer transition flex items-center justify-center"
-              aria-label={musicEnabled ? "Desativar música" : "Ativar música"}
-              title={musicEnabled ? "Mudo (Música)" : "Ativar Música"}
-            >
-              <Music size={18} className={musicEnabled ? "opacity-100" : "opacity-35"} />
-            </button>
+            <div className="flex items-center gap-2 border border-current px-2 py-1 rounded transition hover:bg-current/5">
+              <button
+                onClick={toggleMusic}
+                className="p-1 cursor-pointer transition flex items-center justify-center"
+                aria-label={musicEnabled ? "Desativar música" : "Ativar música"}
+                title={musicEnabled ? "Mudo (Música)" : "Ativar Música"}
+              >
+                <Music size={18} className={musicEnabled ? "opacity-100" : "opacity-35"} />
+              </button>
+              {musicEnabled && (
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={musicVolume}
+                  onChange={(e) => setMusicVolume(parseFloat(e.target.value))}
+                  className="w-16 h-1 cursor-pointer accent-current opacity-70 hover:opacity-100 transition-opacity bg-current/20 rounded-lg appearance-none"
+                  title={`Volume: ${Math.round(musicVolume * 100)}%`}
+                />
+              )}
+            </div>
 
             {/* Efeitos Sonoros */}
             <button
