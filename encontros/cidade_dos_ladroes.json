@@ -3,354 +3,376 @@
   "codigoLivro": "FF05",
   "monstros": [
     {
-      "id": "ff05-homem-orca-001",
+      "id": "ff05-homem-orca",
       "nome": "Homem-Orca",
       "tipo": "Monstro",
       "habilidade": 8,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Uma fera selvagem humanoide com traços de orca, comum no porto.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Cais", "Ruas"]
     },
     {
-      "id": "ff05-guarda-da-cidade-002",
-      "nome": "Guarda Da Cidade",
-      "tipo": "Monstro",
+      "id": "ff05-guarda-cidade-ref10",
+      "nome": "Guarda da Cidade (Portão)",
+      "tipo": "Humano",
       "habilidade": 8,
+      "energyMax": 7,
       "energiaMaxima": 7,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Guarda corrupto de Port Blacksand patrulhando as muralhas.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Muralha", "Portão da Cidade"]
     },
     {
-      "id": "ff05-ourives-de-prata-003",
-      "nome": "Ourives De Prata",
-      "tipo": "Monstro",
+      "id": "ff05-ourives-prata",
+      "nome": "Ourives de Prata",
+      "tipo": "Humano",
       "habilidade": 4,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um artesão ganancioso que puxa uma clava de madeira para se defender.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Loja de Prata"]
     },
     {
-      "id": "ff05-goblin-004",
-      "nome": "Goblin",
-      "tipo": "Monstro",
-      "habilidade": 5,
-      "energiaMaxima": 4,
+      "id": "ff05-goblin-ref22-1",
+      "nome": "Primeiro Goblin (Mesa)",
+      "tipo": "Humanoide",
+      "habilidade": 4,
+      "energyMax": 5,
+      "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um dos dois goblins hostis discutindo em torno da mesa.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Taverna", "Masmorra"]
     },
     {
-      "id": "ff05-barriga-azeda-005",
-      "nome": "Barriga Azeda",
+      "id": "ff05-goblin-ref22-2",
+      "nome": "Segundo Goblin (Mesa)",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "O parceiro goblin agressivo de Port Blacksand.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Taverna", "Masmorra"]
+    },
+    {
+      "id": "ff05-barriga-azeda",
+      "nome": "Barriga Azeda (Troll)",
       "tipo": "Monstro",
       "habilidade": 10,
+      "energyMax": 11,
       "energiaMaxima": 11,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um dos dois guardas trolls brutais e gordos de Port Blacksand.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Rua do Moinho", "Portão"]
     },
     {
-      "id": "ff05-nariz-gordo-006",
-      "nome": "Nariz Gordo",
+      "id": "ff05-nariz-gordo",
+      "nome": "Nariz Gordo (Troll)",
       "tipo": "Monstro",
       "habilidade": 9,
+      "energyMax": 10,
       "energiaMaxima": 10,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Segundo guarda troll brutal que extorque viajantes.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Rua do Moinho", "Portão"]
     },
     {
-      "id": "ff05-rainha-serpente-007",
+      "id": "ff05-rainha-serpente",
       "nome": "Rainha Serpente",
       "tipo": "Monstro",
       "habilidade": 9,
+      "energyMax": 7,
       "energiaMaxima": 7,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "boss": true,
+      "descricao": "Uma criatura com corpo de mulher e pescoço e cabeça de serpente gigante.",
+      "habilidadesEspeciais": ["Mordida Venenosa"],
+      "ambientes": ["Mansão", "Templo"]
     },
     {
-      "id": "ff05-ogro-008",
+      "id": "ff05-ogro",
       "nome": "Ogro",
       "tipo": "Monstro",
       "habilidade": 8,
+      "energyMax": 9,
       "energiaMaxima": 9,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um ogro faminto e violento que ataca usando um osso gigante como clava.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Cores residenciais", "Masmorra"]
     },
     {
-      "id": "ff05-bruxa-009",
+      "id": "ff05-bruxa",
       "nome": "Bruxa",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 7,
+      "energyMax": 7,
       "energiaMaxima": 7,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma feiticeira sinistra que ataca com um punhal longo e brilhante.",
+      "habilidadesEspeciais": ["Feitiço de Ilusão"],
+      "ambientes": ["Cabana", "Beco Escuro"]
     },
     {
-      "id": "ff05-pirata-010",
-      "nome": "Pirata",
-      "tipo": "Monstro",
+      "id": "ff05-pirata-ref152",
+      "nome": "Pirata (Alfanje)",
+      "tipo": "Humano",
       "habilidade": 7,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um marinheiro sem dentes armado com um alfanje.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Navio Pirata", "Cais"]
     },
     {
-      "id": "ff05-centopeia-gigante-011",
+      "id": "ff05-centopeia-gigante",
       "nome": "Centopéia Gigante",
-      "tipo": "Monstro",
+      "tipo": "Inseto",
       "habilidade": 10,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Uma centopéia enorme com uma carapaça rígida muito difícil de penetrar.",
+      "habilidadesEspeciais": ["Armadura Corporal"],
+      "ambientes": ["Esgotos", "Masmorra"]
     },
     {
-      "id": "ff05-joalheiro-012",
+      "id": "ff05-joalheiro",
       "nome": "Joalheiro",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 9,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um comerciante ganancioso armado com uma acha de guerra defendendo suas joias.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Loja de Joias"]
     },
     {
-      "id": "ff05-feras-vegetais-013",
+      "id": "ff05-feras-vegetais",
       "nome": "Feras Vegetais",
       "tipo": "Monstro",
       "habilidade": 6,
+      "energyMax": 6,
       "energiaMaxima": 6,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Vinhas e gavinhas assassinas que tentam asfixiar o invasor.",
+      "habilidadesEspeciais": ["Asfixia"],
+      "ambientes": ["Estufa", "Jardins"]
     },
     {
-      "id": "ff05-mumia-014",
+      "id": "ff05-mumia",
       "nome": "Múmia",
-      "tipo": "Monstro",
+      "tipo": "Morto-vivo",
       "habilidade": 7,
+      "energyMax": 12,
       "energiaMaxima": 12,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um guardião morto-vivo envolvido em faixas apodrecidas.",
+      "habilidadesEspeciais": ["Medo"],
+      "ambientes": ["Cripta", "Torre de Zanbar Bone"]
     },
     {
-      "id": "ff05-rainhaserpente-015",
-      "nome": "Rainhaserpente",
-      "tipo": "Monstro",
-      "habilidade": 9,
-      "energiaMaxima": 7,
-      "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
-    },
-    {
-      "id": "ff05-cobras-016",
+      "id": "ff05-cobras-ref253",
       "nome": "Cobras",
-      "tipo": "Monstro",
+      "tipo": "Besta",
       "habilidade": 5,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um ninho de víboras venenosas atacando em conjunto.",
+      "habilidadesEspeciais": ["Mordida Venenosa Letal"],
+      "ambientes": ["Masmorra", "Caverna"]
     },
     {
-      "id": "ff05-troll-017",
-      "nome": "Troll",
+      "id": "ff05-troll",
+      "nome": "Troll (Taverna)",
       "tipo": "Monstro",
       "habilidade": 8,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um troll robusto mantido na taverna como leão de chácara.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Taverna Lagosta Negra"]
     },
     {
-      "id": "ff05-lobo-018",
+      "id": "ff05-lobo",
       "nome": "Lobo",
-      "tipo": "Monstro",
+      "tipo": "Besta",
       "habilidade": 5,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um predador veloz que ataca nos arredores das matas da cidade.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Matas", "Ruas Externas"]
     },
     {
-      "id": "ff05-ferreiro-019",
+      "id": "ff05-ferreiro",
       "nome": "Ferreiro",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 9,
+      "energyMax": 9,
       "energiaMaxima": 9,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um artesão musculoso que luta com uma barra de ferro incandescente.",
+      "habilidadesEspeciais": ["Ataque de Fogo"],
+      "ambientes": ["Ferreiro", "Estábulo"]
     },
     {
-      "id": "ff05-louco-020",
+      "id": "ff05-louco",
       "nome": "Louco",
-      "tipo": "Monstro",
+      "tipo": "Humano",
       "habilidade": 5,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um vagabundo demente possuído que ataca com um punhal nas sarjetas.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Beco do Porto"]
     },
     {
-      "id": "ff05-diabo-de-fogo-021",
-      "nome": "Diabo De Fogo",
+      "id": "ff05-diabo-fogo",
+      "nome": "Diabo de Fogo",
       "tipo": "Monstro",
       "habilidade": 9,
+      "energyMax": 4,
       "energiaMaxima": 4,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
-      "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "descricao": "Um diabrete alado vermelho que cospe fogo continuamente sobre a cabeça do herói.",
+      "habilidadesEspeciais": ["Voo", "Sopro de Fogo"],
+      "ambientes": ["Torre", "Masmorra"]
     },
     {
-      "id": "ff05-primeiria-ratazana-022",
-      "nome": "Primeiría Ratazana",
-      "tipo": "Monstro",
+      "id": "ff05-ratazana-gigante-1",
+      "nome": "Primeira Ratazana Gigante",
+      "tipo": "Besta",
       "habilidade": 4,
+      "energyMax": 4,
       "energiaMaxima": 4,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Uma ratazana gorda e peluda dos esgotos de Port Blacksand.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Esgotos", "Canais"]
     },
     {
-      "id": "ff05-segundia-ratazana-023",
-      "nome": "Segundía Ratazana",
-      "tipo": "Monstro",
+      "id": "ff05-ratazana-gigante-2",
+      "nome": "Segunda Ratazana Gigante",
+      "tipo": "Besta",
       "habilidade": 5,
+      "energyMax": 4,
       "energiaMaxima": 4,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Segunda ratazana gigante atacando em grupo nos canais.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Esgotos", "Canais"]
     },
     {
-      "id": "ff05-terceiria-ratazana-024",
-      "nome": "Terceiría Ratazana",
-      "tipo": "Monstro",
+      "id": "ff05-ratazana-gigante-3",
+      "nome": "Terceira Ratazana Gigante",
+      "tipo": "Besta",
       "habilidade": 5,
+      "energyMax": 5,
       "energiaMaxima": 5,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "A maior ratazana do grupo de esgotos.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Esgotos", "Canais"]
     },
     {
-      "id": "ff05-lagartino-025",
+      "id": "ff05-lagartino",
       "nome": "Lagartino",
       "tipo": "Monstro",
       "habilidade": 8,
+      "energyMax": 8,
       "energiaMaxima": 8,
       "boss": false,
-      "descricao": "Monstro selvagem e perigoso encontrado na jornada.",
+      "descricao": "Um homem-lagarto que cospe jatos de fogo pelas ventas.",
+      "habilidadesEspeciais": ["Hálito Flamejante"],
+      "ambientes": ["Torre", "Masmorra"]
+    },
+    {
+      "id": "ff05-ladrador-lobo-1",
+      "nome": "Primeiro Cão-Lobo",
+      "tipo": "Besta",
+      "habilidade": 7,
+      "energyMax": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Um mastim treinado por criminosos com longos caninos salientes.",
       "habilidadesEspeciais": [],
-      "ambientes": [
-        "Masmorra",
-        "Caverna"
-      ]
+      "ambientes": ["Guarida dos Ladrões"]
+    },
+    {
+      "id": "ff05-ladrador-lobo-2",
+      "nome": "Segundo Cão-Lobo",
+      "tipo": "Besta",
+      "habilidade": 7,
+      "energyMax": 5,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Segundo mastim de ataque do cartel de Port Blacksand.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Guarida dos Ladrões"]
+    },
+    {
+      "id": "ff05-esqueleto-1",
+      "nome": "Primeiro Esqueleto (Zanbar)",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energyMax": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Um esqueleto conjurado pelos dentes de Zanbar Bone.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Torre de Zanbar Bone"]
+    },
+    {
+      "id": "ff05-esqueleto-2",
+      "nome": "Segundo Esqueleto (Zanbar)",
+      "tipo": "Morto-vivo",
+      "habilidade": 8,
+      "energyMax": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "O segundo esqueleto de ossos enegrecidos vigiando a câmara final.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Torre de Zanbar Bone"]
+    },
+    {
+      "id": "ff05-esqueleto-3",
+      "nome": "Terceiro Esqueleto (Zanbar)",
+      "tipo": "Morto-vivo",
+      "habilidade": 7,
+      "energyMax": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "O terceiro e último esqueleto defensor da torre.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Torre de Zanbar Bone"]
+    },
+    {
+      "id": "ff05-zanbar-bone",
+      "nome": "Zanbar Bone",
+      "tipo": "Morto-vivo",
+      "habilidade": 12,
+      "energyMax": 18,
+      "energiaMaxima": 18,
+      "boss": true,
+      "descricao": "O Príncipe da Noite e necromante supremo. Um feiticeiro morto-vivo de imenso poder.",
+      "habilidadesEspeciais": ["Toque Debilitante", "Feitiçaria Negra"],
+      "ambientes": ["Câmara Final", "Torre de Zanbar Bone"]
     }
   ]
 }
