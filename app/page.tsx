@@ -401,14 +401,19 @@ export default function Home() {
       if (!bookName) return '/audios/16 bits/POL-the-foyer-short.wav';
       switch (bookName) {
         case 'O Feiticeiro da Montanha de Fogo':
-        case 'A Masmorra da Morte':
-        case 'A Cripta do Vampiro':
           return '/audios/16 bits/POL-misty-dungeon-short.wav';
+        case 'A Masmorra da Morte':
+          return '/audios/16 bits/POL-boring-cavern-short.wav';
+        case 'A Cripta do Vampiro':
+          return '/audios/16 bits/POL-evil-throne-short.wav';
         case 'A Cidadela do Caos':
-        case 'O Templo do Terror':
           return '/audios/16 bits/POL-chamber-of-secrets-short.wav';
+        case 'O Templo do Terror':
+          return '/audios/16 bits/POL-sacred-temple-short.wav';
         case 'A Floresta da Destruição':
-          return '/audios/16 bits/POL-foggy-forest-short.wav';
+          return '/audios/16 bits/POL-holy-forest-short.wav';
+        case 'Exércitos da Morte':
+          return '/audios/16 bits/POL-the-hordes-advance-short.wav';
         default:
           return '/audios/16 bits/POL-jungle-hideout-short.wav';
       }
