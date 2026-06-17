@@ -133,11 +133,11 @@ export const DiceRoller = () => {
           <label className="text-[10px] uppercase font-bold tracking-wider opacity-80">
             Teste de Atributo (2d6)
           </label>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2">
             <select
               value={selectedAttr}
               onChange={(e) => setSelectedAttr(e.target.value as AttributeKey)}
-              className={`flex-1 ${selectClasses}`}
+              className={`w-full ${selectClasses}`}
             >
               {availableAttributes.map((attr) => (
                 <option
@@ -151,7 +151,7 @@ export const DiceRoller = () => {
             </select>
             <button
               onClick={runAttributeTest}
-              className={`px-3 py-1.5 uppercase font-bold text-xs tracking-wider transition ${btnPrimaryClasses}`}
+              className={`w-full py-2 uppercase font-bold text-xs tracking-wider transition ${btnPrimaryClasses}`}
             >
               Testar
             </button>

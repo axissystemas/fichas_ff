@@ -968,7 +968,7 @@ export default function Home() {
               )}
 
               {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
                 <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
                   <AttributeCard label="Habilidade" attrKey="skill" />
@@ -989,10 +989,10 @@ export default function Home() {
                 </div>
 
                 {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
-                <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
+                <div className={`md:col-span-4 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
                   {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                      <div className="lg:col-span-2 flex flex-col gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+                      <div className="lg:col-span-3 flex flex-col gap-6">
                         <section
                           className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
                             isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
