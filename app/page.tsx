@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { AttributeCard } from '@/components/AttributeCard';
 import { NotesCard } from '@/components/NotesCard';
 import { AttackCard } from '@/components/AttackCard';
-import { LuckCard } from '@/components/LuckCard';
+import { DiceRoller } from '@/components/DiceRoller';
 import { DamageCard } from '@/components/DamageCard';
 import { CombatHistory } from '@/components/CombatHistory';
 import { InventoryManager } from '@/components/InventoryManager';
@@ -1004,7 +1004,7 @@ export default function Home() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                           <DamageCard />
                           <AttackCard key={`attack-${resetKey}`} />
-                          <LuckCard key={`luck-${resetKey}`} />
+                          <DiceRoller key={`roller-${resetKey}`} />
                         </div>
                       </div>
                       <div className="lg:col-span-1">
@@ -1031,7 +1031,7 @@ export default function Home() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <DamageCard />
                         <AttackCard key={`attack-${resetKey}`} />
-                        <LuckCard key={`luck-${resetKey}`} />
+                        <DiceRoller key={`roller-${resetKey}`} />
                       </div>
                     </>
                   )}

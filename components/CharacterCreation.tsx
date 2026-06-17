@@ -60,18 +60,7 @@ export const CharacterCreation = () => {
   
   const introText = getBookIntro(gamebook);
 
-  // Effect to handle superpower specific Skill value
-  useEffect(() => {
-    if (isMedo) {
-      if (selectedPower === 'superforca') {
-        setRolledSkill(13);
-        setDisplaySkill(13);
-      } else if (rolledSkill === 13) {
-        setRolledSkill(null);
-        setDisplaySkill(0);
-      }
-    }
-  }, [selectedPower, isMedo, rolledSkill]);
+
 
   // Sound and rolling animation for Skill
   const rollSkill = () => {
@@ -380,7 +369,17 @@ export const CharacterCreation = () => {
               return (
                 <div
                   key={p.id}
-                  onClick={() => setSelectedPower(p.id as any)}
+                  onClick={() => {
+                    const power = p.id as 'superforca' | 'psi' | 'hta' | 'rajada';
+                    setSelectedPower(power);
+                    if (power === 'superforca') {
+                      setRolledSkill(13);
+                      setDisplaySkill(13);
+                    } else if (rolledSkill === 13) {
+                      setRolledSkill(null);
+                      setDisplaySkill(0);
+                    }
+                  }}
                   className={`p-4 cursor-pointer transition-all duration-200 flex flex-col justify-between ${cardClass}`}
                 >
                   <div>
