@@ -16,7 +16,11 @@ function extractYoutubeId(urlOrId: string): string | null {
   return (match && match[2].length === 11) ? match[2] : null;
 }
 
-export function YouTubeLiveStream() {
+interface YouTubeLiveStreamProps {
+  isReadOnly?: boolean;
+}
+
+export function YouTubeLiveStream({ isReadOnly = false }: YouTubeLiveStreamProps) {
   const { theme } = useSheetStore();
   const isPapyrus = theme === 'papyrus';
 
@@ -139,18 +143,20 @@ export function YouTubeLiveStream() {
           </div>
 
           {/* Config Toggle button */}
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`p-1.5 hover:bg-current/10 rounded transition cursor-pointer ${showSettings ? 'rotate-45' : ''}`}
-            title="Configurações do canal"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
+          {!isReadOnly && (
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-1.5 hover:bg-current/10 rounded transition cursor-pointer ${showSettings ? 'rotate-45' : ''}`}
+              title="Configurações do canal"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Settings Form (Embedded inside the panel) */}
-      {showSettings && (
+      {!isReadOnly && showSettings && (
         <div className={`p-4 border border-current/10 ${isPapyrus ? 'bg-[#5C4033]/5' : 'bg-slate-950/40 rounded-lg'} flex flex-col gap-4 animate-fade-in`}>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">

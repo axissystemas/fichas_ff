@@ -292,6 +292,14 @@ function SheetDashboard() {
           })}
         </div>
       )}
+
+      {/* Seção de Transmissão ao Vivo e Configuração */}
+      <div className="border-t pt-8 border-current/10 mt-12 max-w-3xl mx-auto w-full">
+        <h3 className={`text-base font-bold uppercase tracking-widest mb-4 text-center ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+          📺 Transmissão & Configuração do Canal
+        </h3>
+        <YouTubeLiveStream isReadOnly={false} />
+      </div>
     </div>
   );
 }
@@ -939,7 +947,7 @@ export default function Home() {
 
             {/* Coluna da Direita: YouTube Live Stream */}
             <div className="lg:col-span-7 w-full">
-              <YouTubeLiveStream />
+              <YouTubeLiveStream isReadOnly={true} />
             </div>
           </div>
         )}
