@@ -19,6 +19,7 @@ import { MedoTracker } from '@/components/MedoTracker';
 import { CidadelaTracker } from '@/components/CidadelaTracker';
 import { VampiroTracker } from '@/components/VampiroTracker';
 import { ExercitosTracker } from '@/components/ExercitosTracker';
+import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -614,7 +615,7 @@ export default function Home() {
     >
       <div
         className={`w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-all duration-300 ${
-          showSheet 
+          showSheet || showLogin
             ? 'max-w-[1280px] xl:max-w-[1400px]' 
             : 'max-w-[1024px]'
         } ${
@@ -773,164 +774,172 @@ export default function Home() {
 
         {/* ── Tela de Login ── */}
         {showLogin && (
-          <div className="flex flex-col md:flex-row items-center md:items-stretch justify-center gap-8 py-16 px-4 animate-fade-in">
-            {/* Bloco de Login */}
-            <div className="flex flex-col items-center justify-center text-center max-w-[480px] w-full">
-              {user && user.provider !== 'google' ? (
-                isPapyrus ? (
-                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-inner rounded-sm text-[#2D1D16]">
-                    <h2 className="text-3xl font-extrabold uppercase tracking-widest text-red-800">Sessão Administrativa</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 px-4 animate-fade-in items-stretch">
+            {/* Coluna da Esquerda: Login e Novidades */}
+            <div className="lg:col-span-5 flex flex-col gap-6 w-full justify-start">
+              {/* Bloco de Login */}
+              <div className="flex flex-col items-center justify-center text-center w-full">
+                {user && user.provider !== 'google' ? (
+                  isPapyrus ? (
+                    <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#5C4033] bg-[#EAD8B8]/30 shadow-inner rounded-sm text-[#2D1D16]">
+                      <h2 className="text-3xl font-extrabold uppercase tracking-widest text-red-800">Sessão Administrativa</h2>
+                      <div className="w-24 h-0.5 bg-[#C5A059]"></div>
+                      <p className="text-sm font-serif leading-relaxed opacity-90 max-w-[340px]">
+                        Você está conectado com e-mail/senha. O jogo de fichas é exclusivo para acesso via Google.
+                      </p>
+                      <a
+                        href="/painel"
+                        className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer text-center"
+                      >
+                        Ir para o Painel
+                      </a>
+                      <button
+                        onClick={async () => {
+                          await supabase.auth.signOut();
+                          clearLocalState();
+                        }}
+                        className="text-xs font-sans tracking-wide text-[#5C4033] hover:underline opacity-80 cursor-pointer"
+                      >
+                        Fazer Logout (Desconectar)
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-red-500/40 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(239,68,68,0.1)] rounded-xl text-slate-300">
+                      <div className="w-16 h-16 border border-red-500/40 rounded-full flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)] mb-2 animate-pulse">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <div className="text-center">
+                        <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+                          Painel Conectado
+                        </h2>
+                        <p className="text-xs uppercase tracking-wider text-red-400/80 mt-1 font-mono font-bold">
+                          Acesso de Administrador
+                        </p>
+                      </div>
+                      <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                      <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
+                        Você está logado com credenciais administrativas. Para jogar, utilize o painel de gerenciamento ou desconecte para entrar com o Google.
+                      </p>
+                      <a
+                        href="/painel"
+                        className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-red-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-red-500/10 hover:border-red-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] cursor-pointer rounded-lg text-center"
+                      >
+                        Ir para o Painel
+                      </a>
+                      <button
+                        onClick={async () => {
+                          await supabase.auth.signOut();
+                          clearLocalState();
+                        }}
+                        className="text-xs font-mono tracking-wide text-slate-500 hover:text-slate-300 hover:underline cursor-pointer"
+                      >
+                        Desconectar Sessão
+                      </button>
+                    </div>
+                  )
+                ) : isPapyrus ? (
+                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
+                    <div className="flex items-center justify-center mb-2 drop-shadow-lg">
+                      <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
+                    </div>
+                    <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Fichas de Aventuras</h2>
                     <div className="w-24 h-0.5 bg-[#C5A059]"></div>
-                    <p className="text-sm font-serif leading-relaxed opacity-90 max-w-[340px]">
-                      Você está conectado com e-mail/senha. O jogo de fichas é exclusivo para acesso via Google.
+                    <p className="text-sm font-serif leading-relaxed text-[#5C4033] opacity-90 max-w-[340px]">
+                      &ldquo;Apenas os corajosos que registrarem seus nomes no livro dos escribas poderão desbravar os perigos do Labirinto.&rdquo;
                     </p>
-                    <a
-                      href="/painel"
-                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer text-center"
-                    >
-                      Ir para o Painel
-                    </a>
+                    <p className="text-xs font-sans tracking-wide text-[#2D1D16] opacity-75">
+                      Conecte sua conta Google para criar, salvar e carregar suas fichas na nuvem.
+                    </p>
                     <button
-                      onClick={async () => {
-                        await supabase.auth.signOut();
-                        clearLocalState();
-                      }}
-                      className="text-xs font-sans tracking-wide text-[#5C4033] hover:underline opacity-80 cursor-pointer"
+                      onClick={handleGoogleLogin}
+                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer"
                     >
-                      Fazer Logout (Desconectar)
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                      </svg>
+                      Conectar via Google
                     </button>
                   </div>
                 ) : (
-                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-red-500/40 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(239,68,68,0.1)] rounded-xl text-slate-300">
-                    <div className="w-16 h-16 border border-red-500/40 rounded-full flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)] mb-2 animate-pulse">
+                  <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl">
+                    <div className="w-16 h-16 border border-cyan-500/40 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] mb-2 animate-pulse">
                       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                       </svg>
                     </div>
                     <div className="text-center">
-                      <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-                        Painel Conectado
+                      <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                        Adventure System
                       </h2>
-                      <p className="text-xs uppercase tracking-wider text-red-400/80 mt-1 font-mono font-bold">
-                        Acesso de Administrador
+                      <p className="text-xs uppercase tracking-wider text-cyan-400/80 mt-1 font-mono font-bold">
+                        Secure Database Connection
                       </p>
                     </div>
-                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
                     <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
-                      Você está logado com credenciais administrativas. Para jogar, utilize o painel de gerenciamento ou desconecte para entrar com o Google.
+                      Para acessar o banco de dados e sincronizar o progresso do seu agente cibernético na nuvem, conecte-se com sua credencial do Google.
                     </p>
-                    <a
-                      href="/painel"
-                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-red-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-red-500/10 hover:border-red-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] cursor-pointer rounded-lg text-center"
-                    >
-                      Ir para o Painel
-                    </a>
                     <button
-                      onClick={async () => {
-                        await supabase.auth.signOut();
-                        clearLocalState();
-                      }}
-                      className="text-xs font-mono tracking-wide text-slate-500 hover:text-slate-300 hover:underline cursor-pointer"
+                      onClick={handleGoogleLogin}
+                      className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-cyan-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-cyan-500/10 hover:border-cyan-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] cursor-pointer rounded-lg"
                     >
-                      Desconectar Sessão
+                      <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                      </svg>
+                      Autenticar Google
                     </button>
                   </div>
-                )
-              ) : isPapyrus ? (
-                <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm">
-                  <div className="flex items-center justify-center mb-2 drop-shadow-lg">
-                    <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain" />
-                  </div>
-                  <h2 className="text-3xl font-extrabold uppercase tracking-widest text-[#2D1D16]">Fichas de Aventuras</h2>
-                  <div className="w-24 h-0.5 bg-[#C5A059]"></div>
-                  <p className="text-sm font-serif leading-relaxed text-[#5C4033] opacity-90 max-w-[340px]">
-                    &ldquo;Apenas os corajosos que registrarem seus nomes no livro dos escribas poderão desbravar os perigos do Labirinto.&rdquo;
-                  </p>
-                  <p className="text-xs font-sans tracking-wide text-[#2D1D16] opacity-75">
-                    Conecte sua conta Google para criar, salvar e carregar suas fichas na nuvem.
-                  </p>
-                  <button
-                    onClick={handleGoogleLogin}
-                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border-2 border-[#5C4033] text-[#2D1D16] bg-[#EAD8B8] hover:bg-[#2D1D16] hover:text-[#EAD8B8] active:scale-95 transition-all duration-300 uppercase text-xs font-bold tracking-widest shadow-md cursor-pointer"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    Conectar via Google
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col items-center gap-6 p-6 sm:p-10 border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl">
-                  <div className="w-16 h-16 border border-cyan-500/40 rounded-full flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] mb-2 animate-pulse">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                  </div>
-                  <div className="text-center">
-                    <h2 className="text-3xl font-bold uppercase tracking-widest bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                      Adventure System
-                    </h2>
-                    <p className="text-xs uppercase tracking-wider text-cyan-400/80 mt-1 font-mono font-bold">
-                      Secure Database Connection
-                    </p>
-                  </div>
-                  <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-                  <p className="text-sm font-sans leading-relaxed text-[#a0aec0] max-w-[340px]">
-                    Para acessar o banco de dados e sincronizar o progresso do seu agente cibernético na nuvem, conecte-se com sua credencial do Google.
-                  </p>
-                  <button
-                    onClick={handleGoogleLogin}
-                    className="mt-4 flex items-center justify-center gap-3 w-full max-w-[280px] px-6 py-3 border border-cyan-500/50 text-[#cbd5e0] bg-slate-950 hover:bg-cyan-500/10 hover:border-cyan-400 active:scale-95 transition-all duration-300 uppercase text-xs font-mono font-bold tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] cursor-pointer rounded-lg"
-                  >
-                    <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    Autenticar Google
-                  </button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Bloco de Novidades da Guilda */}
-            <div className="max-w-[480px] w-full text-left">
-              <div className={`${
-                isPapyrus
-                  ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
-                  : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
-              } h-full flex flex-col gap-6`}>
-                <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
-                  📢 Novidades da Guilda
-                </h3>
-                <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
-                  {newsList.map((item, index) => (
-                    <div
-                      key={item.id || index}
-                      className={`space-y-1 ${index > 0 ? 'border-t border-current/5 pt-3' : ''}`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${getCategoryBadgeStyle(item.category, isPapyrus)}`}>
-                          {item.category}
-                        </span>
-                        <span className={`text-[9px] font-sans opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                          📅 {formatDate(item.date)}
-                        </span>
+              {/* Bloco de Novidades da Guilda */}
+              <div className="w-full text-left flex-1">
+                <div className={`${
+                  isPapyrus
+                    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
+                    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
+                } h-full flex flex-col gap-6`}>
+                  <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
+                    📢 Novidades da Guilda
+                  </h3>
+                  <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                    {newsList.map((item, index) => (
+                      <div
+                        key={item.id || index}
+                        className={`space-y-1 ${index > 0 ? 'border-t border-current/5 pt-3' : ''}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${getCategoryBadgeStyle(item.category, isPapyrus)}`}>
+                            {item.category}
+                          </span>
+                          <span className={`text-[9px] font-sans opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                            📅 {formatDate(item.date)}
+                          </span>
+                        </div>
+                        <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                          {item.title}
+                        </h4>
+                        <p className={`text-[10px] leading-relaxed opacity-85 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                          {item.description}
+                        </p>
                       </div>
-                      <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                        {item.title}
-                      </h4>
-                      <p className={`text-[10px] leading-relaxed opacity-85 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                        {item.description}
-                      </p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Coluna da Direita: YouTube Live Stream */}
+            <div className="lg:col-span-7 w-full">
+              <YouTubeLiveStream />
             </div>
           </div>
         )}
