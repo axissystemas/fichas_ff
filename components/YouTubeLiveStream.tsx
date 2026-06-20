@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Youtube, Settings, Check, X, RefreshCw, Radio, ExternalLink } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Youtube, Radio, ExternalLink } from 'lucide-react';
 import { useSheetStore } from '@/store/useSheetStore';
 
 // Helper function to extract Video ID from YouTube URLs
@@ -16,93 +16,34 @@ function extractYoutubeId(urlOrId: string): string | null {
   return (match && match[2].length === 11) ? match[2] : null;
 }
 
-interface YouTubeLiveStreamProps {
-  isReadOnly?: boolean;
-}
-
-export function YouTubeLiveStream({ isReadOnly = false }: YouTubeLiveStreamProps) {
-  const { theme } = useSheetStore();
+export function YouTubeLiveStream() {
+  const { theme, youtubeSettings, loadYoutubeSettings } = useSheetStore();
   const isPapyrus = theme === 'papyrus';
+  const { channelId, videoUrl, isLive } = youtubeSettings;
 
-  // Config States (persist in localStorage)
-  const [channelId, setChannelId] = useState('UCQJ2X-kM3wX2HnC4a8e2r7g');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [isLive, setIsLive] = useState(false);
-
-  // UI States
-  const [showSettings, setShowSettings] = useState(false);
-  const [tempChannelId, setTempChannelId] = useState(channelId);
-  const [tempVideoUrl, setTempVideoUrl] = useState(videoUrl);
-  const [tempIsLive, setTempIsLive] = useState(isLive);
-
-  // Load configuration from localStorage on mount
+  // Load configuration from Supabase / localStorage on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedChannelId = localStorage.getItem('yt_channel_id');
-      const storedVideoUrl = localStorage.getItem('yt_video_url');
-      const storedIsLive = localStorage.getItem('yt_is_live');
-
-      if (storedChannelId) {
-        setChannelId(storedChannelId);
-        setTempChannelId(storedChannelId);
-      }
-      if (storedVideoUrl !== null) {
-        setVideoUrl(storedVideoUrl);
-        setTempVideoUrl(storedVideoUrl);
-      }
-      if (storedIsLive !== null) {
-        const liveVal = storedIsLive === 'true';
-        setIsLive(liveVal);
-        setTempIsLive(liveVal);
-      }
-    }
-  }, []);
-
-  const handleSaveSettings = () => {
-    setChannelId(tempChannelId);
-    setVideoUrl(tempVideoUrl);
-    setIsLive(tempIsLive);
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('yt_channel_id', tempChannelId);
-      localStorage.setItem('yt_video_url', tempVideoUrl);
-      localStorage.setItem('yt_is_live', tempIsLive ? 'true' : 'false');
-    }
-    setShowSettings(false);
-  };
-
-  const handleResetDefaults = () => {
-    const defaultChannel = 'UCQJ2X-kM3wX2HnC4a8e2r7g';
-    const defaultVideo = '';
-    const defaultLive = false;
-
-    setTempChannelId(defaultChannel);
-    setTempVideoUrl(defaultVideo);
-    setTempIsLive(defaultLive);
-  };
+    loadYoutubeSettings();
+  }, [loadYoutubeSettings]);
 
   // Determine the correct embed URL
   const videoId = extractYoutubeId(videoUrl);
   let embedUrl = '';
 
   if (isLive) {
-    // If live, prioritize channel live stream embed, otherwise fallback to specific videoId
     if (videoId) {
       embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     } else {
       embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1`;
     }
   } else {
-    // If offline, display custom video, or channel page trailer if none set (using a generic placeholder/intro or empty)
     if (videoId) {
       embedUrl = `https://www.youtube.com/embed/${videoId}`;
     } else {
-      // Default fallback embed (we use a placeholder video ID or let it show the live channel stream redirect)
       embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}`;
     }
   }
 
-  // Base styling classes depending on theme
   const cardBase = isPapyrus
     ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16] flex flex-col gap-6 h-full'
     : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300 flex flex-col gap-6 h-full';
@@ -114,10 +55,6 @@ export function YouTubeLiveStream({ isReadOnly = false }: YouTubeLiveStreamProps
   const primaryBtnBase = isPapyrus
     ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider py-2.5 px-4'
     : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded flex items-center justify-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider py-2.5 px-4';
-
-  const inputBase = isPapyrus
-    ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] placeholder-[#5C4033]/50 focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-serif'
-    : 'border border-[#4a5568] bg-slate-950 text-[#cbd5e0] placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded';
 
   return (
     <div className={cardBase}>
@@ -141,85 +78,8 @@ export function YouTubeLiveStream({ isReadOnly = false }: YouTubeLiveStreamProps
               {isLive ? 'AO VIVO' : 'OFFLINE'}
             </span>
           </div>
-
-          {/* Config Toggle button */}
-          {!isReadOnly && (
-            <button
-              onClick={() => setShowSettings(!showSettings)}
-              className={`p-1.5 hover:bg-current/10 rounded transition cursor-pointer ${showSettings ? 'rotate-45' : ''}`}
-              title="Configurações do canal"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
-
-      {/* Settings Form (Embedded inside the panel) */}
-      {!isReadOnly && showSettings && (
-        <div className={`p-4 border border-current/10 ${isPapyrus ? 'bg-[#5C4033]/5' : 'bg-slate-950/40 rounded-lg'} flex flex-col gap-4 animate-fade-in`}>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">ID do Canal do YouTube (UC...)</label>
-              <input
-                type="text"
-                className={inputBase}
-                placeholder="Ex: UCQJ2X-kM3wX2HnC4a8e2r7g"
-                value={tempChannelId}
-                onChange={(e) => setTempChannelId(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">URL / ID do Vídeo Opcional</label>
-              <input
-                type="text"
-                className={inputBase}
-                placeholder="Ex: https://www.youtube.com/watch?v=..."
-                value={tempVideoUrl}
-                onChange={(e) => setTempVideoUrl(e.target.value)}
-              />
-              <p className="text-[9px] font-sans opacity-60">Coloque a URL de uma live programada ou vídeo específico para exibir no player.</p>
-            </div>
-
-            <div className="flex items-center gap-2 border-t pt-2 border-current/10">
-              <input
-                type="checkbox"
-                id="is-live-toggle"
-                checked={tempIsLive}
-                onChange={(e) => setTempIsLive(e.target.checked)}
-                className={`w-4 h-4 cursor-pointer ${isPapyrus ? 'accent-[#5C4033]' : 'accent-cyan-500'}`}
-              />
-              <label htmlFor="is-live-toggle" className="text-xs uppercase font-bold tracking-wider cursor-pointer select-none">
-                Simular status &ldquo;AO VIVO&rdquo;
-              </label>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between border-t pt-3 border-current/10 gap-2">
-            <button
-              onClick={handleResetDefaults}
-              className={`${btnBase} px-2.5 py-1.5`}
-            >
-              <RefreshCw className="w-3.5 h-3.5" /> Padrão
-            </button>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowSettings(false)}
-                className={`${btnBase} px-2.5 py-1.5`}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSaveSettings}
-                className={`${primaryBtnBase} py-1.5 px-3`}
-              >
-                <Check className="w-3.5 h-3.5" /> Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Video Iframe Container */}
       <div className="relative aspect-video w-full border border-current/20 shadow-md bg-black overflow-hidden group">

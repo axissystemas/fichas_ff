@@ -208,6 +208,8 @@ interface SheetState {
   isAdmin: boolean | null;
   newsList: NewsItem[];
   newsTableExists: boolean;
+  youtubeSettings: { channelId: string; videoUrl: string; isLive: boolean };
+  youtubeTableExists: boolean;
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -260,6 +262,8 @@ interface SheetState {
   addNewsItem: (item: Omit<NewsItem, 'id'>) => Promise<boolean>;
   updateNewsItem: (id: string, item: Partial<NewsItem>) => Promise<boolean>;
   deleteNewsItem: (id: string) => Promise<boolean>;
+  loadYoutubeSettings: () => Promise<void>;
+  saveYoutubeSettings: (channelId: string, videoUrl: string, isLive: boolean) => Promise<boolean>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -320,6 +324,8 @@ export const useSheetStore = create<SheetState>()(
       isAdmin: null,
       newsList: [],
       newsTableExists: false,
+      youtubeSettings: { channelId: 'UCQJ2X-kM3wX2HnC4a8e2r7g', videoUrl: '', isLive: false },
+      youtubeTableExists: false,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
@@ -1183,6 +1189,79 @@ export const useSheetStore = create<SheetState>()(
           return true;
         } catch (err) {
           console.error('[NewsStore] deleteNewsItem error:', err);
+          return false;
+        }
+      },
+      loadYoutubeSettings: async () => {
+        try {
+          const { data, error } = await supabase
+            .from('youtube_settings')
+            .select('*')
+            .eq('id', 1)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          if (data) {
+            set({
+              youtubeSettings: {
+                channelId: data.channel_id,
+                videoUrl: data.video_url || '',
+                isLive: data.is_live,
+              },
+              youtubeTableExists: true,
+            });
+          } else {
+            // Se a tabela existe mas está vazia, insere a linha padrão
+            const defaultSettings = { channel_id: 'UCQJ2X-kM3wX2HnC4a8e2r7g', video_url: '', is_live: false };
+            const { error: insertErr } = await supabase.from('youtube_settings').insert([{ id: 1, ...defaultSettings }]);
+            if (!insertErr) {
+              set({
+                youtubeSettings: { channelId: defaultSettings.channel_id, videoUrl: '', isLive: false },
+                youtubeTableExists: true,
+              });
+            }
+          }
+        } catch (err: any) {
+          console.warn('[YoutubeSettingsStore] Failed to fetch youtube_settings, falling back to local defaults:', err?.message || err);
+          let localChannel = 'UCQJ2X-kM3wX2HnC4a8e2r7g';
+          let localVideo = '';
+          let localLive = false;
+          if (typeof window !== 'undefined') {
+            localChannel = localStorage.getItem('yt_channel_id') || localChannel;
+            localVideo = localStorage.getItem('yt_video_url') || localVideo;
+            localLive = localStorage.getItem('yt_is_live') === 'true';
+          }
+          set({
+            youtubeSettings: { channelId: localChannel, videoUrl: localVideo, isLive: localLive },
+            youtubeTableExists: false,
+          });
+        }
+      },
+      saveYoutubeSettings: async (channelId, videoUrl, isLive) => {
+        try {
+          const tableExists = get().youtubeTableExists;
+          if (tableExists) {
+            const { error } = await supabase
+              .from('youtube_settings')
+              .upsert({ id: 1, channel_id: channelId, video_url: videoUrl, is_live: isLive, updated_at: new Date().toISOString() });
+
+            if (error) throw error;
+          }
+
+          // Sempre salva no localStorage também
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('yt_channel_id', channelId);
+            localStorage.setItem('yt_video_url', videoUrl);
+            localStorage.setItem('yt_is_live', isLive ? 'true' : 'false');
+          }
+
+          set({
+            youtubeSettings: { channelId, videoUrl, isLive }
+          });
+          return true;
+        } catch (err) {
+          console.error('[YoutubeSettingsStore] saveYoutubeSettings error:', err);
           return false;
         }
       },

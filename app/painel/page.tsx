@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, Loader2, LogOut, Search, PlusCircle, Trash2, Pencil, Check, X,
   Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy,
-  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User
+  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube
 } from 'lucide-react';
 import {
   AttributeHistoryLineChart,
@@ -37,6 +37,10 @@ export default function PainelAdmin() {
     updateNewsItem,
     deleteNewsItem,
     loadNewsList,
+    youtubeSettings,
+    youtubeTableExists,
+    loadYoutubeSettings,
+    saveYoutubeSettings,
   } = useSheetStore();
 
   // Estados locais
@@ -57,6 +61,13 @@ export default function PainelAdmin() {
   const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
   const [newsSaving, setNewsSaving] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
+
+  // Estados locais para Gerenciamento do YouTube/Live
+  const [ytChannelId, setYtChannelId] = useState('');
+  const [ytVideoUrl, setYtVideoUrl] = useState('');
+  const [ytIsLive, setYtIsLive] = useState(false);
+  const [ytSaving, setYtSaving] = useState(false);
+  const [copiedYtSql, setCopiedYtSql] = useState(false);
 
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
@@ -135,6 +146,7 @@ export default function PainelAdmin() {
           await loadSheetsList(true);
           await loadStatsData();
           await loadNewsList();
+          await loadYoutubeSettings();
         }
       } else {
         clearLocalState();
@@ -158,6 +170,7 @@ export default function PainelAdmin() {
           await loadSheetsList(true);
           await loadStatsData();
           await loadNewsList();
+          await loadYoutubeSettings();
         }
       } else {
         clearLocalState();
@@ -198,6 +211,60 @@ export default function PainelAdmin() {
       channel.unsubscribe();
     };
   }, [user, isAdmin]);
+
+  // Sincroniza estados locais do YouTube com a store quando carregada
+  useEffect(() => {
+    if (youtubeSettings) {
+      setYtChannelId(youtubeSettings.channelId || '');
+      setYtVideoUrl(youtubeSettings.videoUrl || '');
+      setYtIsLive(youtubeSettings.isLive || false);
+    }
+  }, [youtubeSettings]);
+
+  const youtubeSqlCommand = `CREATE TABLE public.youtube_settings (
+  id INT PRIMARY KEY DEFAULT 1,
+  channel_id TEXT NOT NULL DEFAULT 'UCQJ2X-kM3wX2HnC4a8e2r7g',
+  video_url TEXT DEFAULT '',
+  is_live BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT single_row CHECK (id = 1)
+);
+
+ALTER TABLE public.youtube_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir leitura pública" ON public.youtube_settings
+  FOR SELECT TO public USING (true);
+
+CREATE POLICY "Permitir escrita apenas para administradores" ON public.youtube_settings
+  FOR ALL TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM public.admin_users
+      WHERE admin_users.id = auth.uid() AND admin_users.is_admin = true
+    )
+  );
+
+-- Insere o registro inicial padrão
+INSERT INTO public.youtube_settings (id, channel_id, video_url, is_live)
+VALUES (1, 'UCQJ2X-kM3wX2HnC4a8e2r7g', '', false)
+ON CONFLICT (id) DO NOTHING;`;
+
+  const copyYtSqlToClipboard = () => {
+    navigator.clipboard.writeText(youtubeSqlCommand);
+    setCopiedYtSql(true);
+    setTimeout(() => setCopiedYtSql(false), 2000);
+  };
+
+  const handleSaveYoutubeSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setYtSaving(true);
+    const success = await saveYoutubeSettings(ytChannelId.trim(), ytVideoUrl.trim(), ytIsLive);
+    setYtSaving(false);
+    if (success) {
+      alert('Configurações do YouTube salvas com sucesso!');
+    } else {
+      alert('Erro ao salvar configurações do YouTube. Verifique as permissões da tabela.');
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1385,6 +1452,138 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                     )}
                   </div>
                 )}
+
+                {/* ── Seção: Configuração da Transmissão do YouTube ── */}
+                <div className={`p-6 border-2 rounded-xl text-left space-y-4 ${
+                  isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30'
+                }`}>
+                  <div className="flex items-center justify-between border-b border-current/10 pb-3">
+                    <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                      isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'
+                    }`}>
+                      <Youtube className="w-5 h-5 text-red-600 animate-pulse" />
+                      Configuração da Transmissão ao Vivo (YouTube)
+                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`relative flex h-2 w-2 ${ytIsLive ? '' : 'opacity-60'}`}>
+                        {ytIsLive && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2 w-2 ${ytIsLive ? 'bg-red-600' : 'bg-slate-500'}`}></span>
+                      </span>
+                      <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${ytIsLive ? 'text-red-500 animate-pulse' : 'opacity-60'}`}>
+                        {ytIsLive ? 'AO VIVO' : 'OFFLINE'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Banner de aviso SQL se a tabela não existir */}
+                  {!youtubeTableExists && (
+                    <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                      isPapyrus ? 'border-red-950/30 bg-red-900/5 text-red-900' : 'border-red-500/20 bg-red-950/10 text-red-400 font-sans'
+                    }`}>
+                      <div className="flex items-center gap-1.5">
+                        <ShieldAlert size={16} className="text-red-500" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Tabela youtube_settings Não Encontrada</h4>
+                      </div>
+                      <p className="text-[10px] leading-relaxed opacity-95">
+                        Para sincronizar a transmissão ao vivo globalmente para todos os usuários em tempo real, crie a tabela <code className="font-mono px-1 py-0.5 bg-black/10 rounded">youtube_settings</code> no Supabase. Caso contrário, as alterações funcionarão apenas localmente neste navegador.
+                      </p>
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] uppercase font-bold tracking-wider font-sans">Script SQL:</span>
+                          <button
+                            type="button"
+                            onClick={copyYtSqlToClipboard}
+                            className={`flex items-center gap-1 px-2 py-0.5 border text-[9px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
+                              isPapyrus 
+                                ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16]' 
+                                : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                            }`}
+                          >
+                            {copiedYtSql ? <Check size={10} className="text-green-500" /> : <Copy size={10} />}
+                            {copiedYtSql ? 'Copiado!' : 'Copiar SQL'}
+                          </button>
+                        </div>
+                        <pre className={`p-2 border font-mono text-[9px] overflow-x-auto max-h-[120px] rounded ${
+                          isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                        }`}>
+                          {youtubeSqlCommand}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSaveYoutubeSettings} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">ID do Canal do YouTube (UC...)</label>
+                        <input
+                          type="text"
+                          className={`w-full ${
+                            isPapyrus
+                              ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-sans'
+                              : 'border border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded'
+                          }`}
+                          placeholder="Ex: UCQJ2X-kM3wX2HnC4a8e2r7g"
+                          value={ytChannelId}
+                          onChange={(e) => setYtChannelId(e.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">URL ou ID do Vídeo (Opcional)</label>
+                        <input
+                          type="text"
+                          className={`w-full ${
+                            isPapyrus
+                              ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-sans'
+                              : 'border border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded'
+                          }`}
+                          placeholder="Ex: https://www.youtube.com/watch?v=..."
+                          value={ytVideoUrl}
+                          onChange={(e) => setYtVideoUrl(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t pt-3 border-current/10">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="yt-live-toggle"
+                          checked={ytIsLive}
+                          onChange={(e) => setYtIsLive(e.target.checked)}
+                          className={`w-4 h-4 cursor-pointer ${isPapyrus ? 'accent-[#5C4033]' : 'accent-cyan-500'}`}
+                        />
+                        <label htmlFor="yt-live-toggle" className="text-xs uppercase font-bold tracking-wider cursor-pointer select-none">
+                          Transmitindo "AO VIVO" (Modifica o player e ativa indicador)
+                        </label>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={ytSaving}
+                        className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider cursor-pointer ${
+                          isPapyrus 
+                            ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] transition' 
+                            : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 transition rounded'
+                        }`}
+                      >
+                        {ytSaving ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" /> Salvando...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5" /> Salvar Configurações
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
 
