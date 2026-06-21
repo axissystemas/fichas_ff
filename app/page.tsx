@@ -1362,7 +1362,7 @@ export default function Home() {
                     </section>
 
                     {/* NOTAS TAB (Mobile) / BLOCO INFERIOR (Desktop) */}
-                    <section className={`flex-col min-h-[200px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
+                    <section className={`flex-col min-h-[300px] md:min-h-[350px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
                       <NotesCard />
                     </section>
                   </div>
