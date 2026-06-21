@@ -124,6 +124,7 @@ export interface DbSheet {
     luck: Attribute;
     currentSection?: string;
     suggestionsEnabled?: boolean;
+    playTimeMinutes?: number;
     heroPoints?: number;
     superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
     timeDay?: 1 | 2 | 3;
@@ -172,6 +173,7 @@ interface SheetState {
     luck: Attribute;
     currentSection?: string;
     suggestionsEnabled?: boolean;
+    playTimeMinutes?: number;
     heroPoints?: number;
     superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
     timeDay?: 1 | 2 | 3;
@@ -227,6 +229,7 @@ interface SheetState {
       luck: Attribute;
       currentSection?: string;
       suggestionsEnabled?: boolean;
+      playTimeMinutes?: number;
       heroPoints?: number;
       superpower?: 'superforca' | 'psi' | 'hta' | 'rajada' | null;
       timeDay?: 1 | 2 | 3;
@@ -268,6 +271,7 @@ interface SheetState {
   justUnlocked: { id: string; title: string; icon: string } | null;
   userStats: UserStats;
   statsTableExists: boolean;
+  activeSheetLogs: any[];
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -302,6 +306,8 @@ interface SheetState {
   logTelemetry: (eventType: string, eventData: any) => Promise<void>;
   updateUserSession: () => Promise<void>;
   incrementPlayTime: () => Promise<void>;
+  incrementSheetPlayTime: () => void;
+  loadActiveSheetLogs: () => Promise<void>;
   updateHeroPoints: (amount: number) => void;
   setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
   advanceTime: () => void;
@@ -397,6 +403,7 @@ export const useSheetStore = create<SheetState>()(
       justUnlocked: null,
       userStats: defaultUserStats(),
       statsTableExists: false,
+      activeSheetLogs: [],
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
@@ -431,6 +438,7 @@ export const useSheetStore = create<SheetState>()(
           justUnlocked: null,
           userStats: defaultUserStats(),
           statsTableExists: false,
+          activeSheetLogs: [],
         });
       },
 
@@ -474,6 +482,12 @@ export const useSheetStore = create<SheetState>()(
 
           if (error) throw error;
 
+          const { data: logsData } = await supabase
+            .from('adventure_logs')
+            .select('*')
+            .eq('sheet_id', id)
+            .order('created_at', { ascending: true });
+
           if (data) {
             set({
               activeSheetId: data.id,
@@ -487,6 +501,7 @@ export const useSheetStore = create<SheetState>()(
               combatLog: data.combat_log,
               status: (data.status || 'playing') as 'playing' | 'victory' | 'defeat',
               gamebook: data.gamebook || 'O Feiticeiro da Montanha de Fogo',
+              activeSheetLogs: logsData || [],
               syncStatus: 'saved',
               lastSynced: new Date().toISOString(),
             });
@@ -572,6 +587,7 @@ export const useSheetStore = create<SheetState>()(
             combatLog: [],
             status: 'playing',
             gamebook: payload.gamebook,
+            activeSheetLogs: [],
             syncStatus: 'saved',
             lastSynced: new Date().toISOString(),
           }));
@@ -1207,12 +1223,15 @@ export const useSheetStore = create<SheetState>()(
         const activeSheetId = get().activeSheetId;
         if (!user || !activeSheetId) return;
         try {
-          await supabase.from('adventure_logs').insert({
+          const newLog = {
             sheet_id: activeSheetId,
             user_id: user.id,
             event_type: eventType,
-            event_data: eventData
-          });
+            event_data: eventData,
+            created_at: new Date().toISOString()
+          };
+          set((state) => ({ activeSheetLogs: [...state.activeSheetLogs, newLog] }));
+          await supabase.from('adventure_logs').insert(newLog);
         } catch (err) {
           console.warn('[Telemetry] Log error:', err);
         }
@@ -1293,6 +1312,35 @@ export const useSheetStore = create<SheetState>()(
         }
       },
 
+      incrementSheetPlayTime: () => {
+        set((state) => {
+          const currentPlayTime = state.attributes.playTimeMinutes || 0;
+          return {
+            attributes: {
+              ...state.attributes,
+              playTimeMinutes: currentPlayTime + 1
+            }
+          };
+        });
+        scheduleSave(get());
+      },
+
+      loadActiveSheetLogs: async () => {
+        const activeSheetId = get().activeSheetId;
+        if (!activeSheetId) return;
+        try {
+          const { data, error } = await supabase
+            .from('adventure_logs')
+            .select('*')
+            .eq('sheet_id', activeSheetId)
+            .order('created_at', { ascending: true });
+          if (error) throw error;
+          set({ activeSheetLogs: data || [] });
+        } catch (err) {
+          console.error('[Supabase] loadActiveSheetLogs error:', err);
+        }
+      },
+
       resetSheet: async () => {
         const isMedo = get().gamebook === 'Encontro Marcado com o M.E.D.O.';
         const isCidadela = get().gamebook === 'A Cidadela do Caos';
@@ -1305,6 +1353,7 @@ export const useSheetStore = create<SheetState>()(
             luck: { initial: 0, current: 0 },
             currentSection: '',
             suggestionsEnabled: state.attributes.suggestionsEnabled,
+            playTimeMinutes: 0,
             ...(isMedo ? {
               heroPoints: 0,
               superpower: null,
@@ -1334,6 +1383,7 @@ export const useSheetStore = create<SheetState>()(
           activeTab: 'Ficha',
           resetKey: state.resetKey + 1,
           status: 'playing',
+          activeSheetLogs: [],
         }));
 
         get().incrementStat('totalCharactersCreated');
@@ -1346,6 +1396,17 @@ export const useSheetStore = create<SheetState>()(
           }
         }));
         get().saveUserStats();
+
+        // Deletar os logs da ficha atual no Supabase para iniciar o checklist do zero
+        const activeSheetId = get().activeSheetId;
+        const user = get().user;
+        if (activeSheetId && user) {
+          try {
+            await supabase.from('adventure_logs').delete().eq('sheet_id', activeSheetId);
+          } catch (err) {
+            console.warn('[Supabase] Error deleting logs on reset:', err);
+          }
+        }
 
         // Save the cleared state to Supabase instead of deleting the sheet
         await get().saveToSupabase();

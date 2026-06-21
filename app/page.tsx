@@ -30,6 +30,8 @@ import { audio, music } from '@/lib/audio';
 import confetti from 'canvas-confetti';
 import AchievementsGallery from '@/components/AchievementsGallery';
 import AchievementToast from '@/components/AchievementToast';
+import { victoryParagraphs } from '@/lib/victoryParagraphs';
+import { CompletionChecklist } from '@/components/CompletionChecklist';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
@@ -364,6 +366,7 @@ export default function Home() {
     loadNewsList,
     gold,
     monsters,
+    activeSheetLogs,
   } = useSheetStore();
 
   const [inspectMode, setInspectMode] = useState(false);
@@ -381,6 +384,42 @@ export default function Home() {
   }, [activeSheetId]);
 
   const isNewSheet = attributes.skill.initial === 0 && attributes.energy.initial === 0 && attributes.luck.initial === 0;
+
+  // Cálculos de elegibilidade de conclusão do livro jogo
+  const lastParagraph = String(attributes.currentSection || '').trim();
+  const isVictoryParagraph = !!(gamebook && victoryParagraphs[gamebook]?.includes(lastParagraph));
+  const totalCombats = (activeSheetLogs || []).filter(l => l.event_type === 'combat').length;
+  const hasCombat = totalCombats >= 1;
+
+  const uniqueVisited = new Set(
+    (activeSheetLogs || [])
+      .filter(l => l.event_type === 'section_visit' && l.event_data?.section)
+      .map(l => String(l.event_data.section))
+  );
+  const paragraphsVisited = uniqueVisited.size;
+  const hasMinParagraphs = paragraphsVisited >= 20;
+
+  let playTimeFromLogs = 0;
+  if (activeSheetLogs && activeSheetLogs.length > 1) {
+    const times = activeSheetLogs.map(l => new Date(l.created_at).getTime());
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+    playTimeFromLogs = Math.floor((maxTime - minTime) / 60000);
+  }
+  const playTimeMinutes = Math.max(attributes.playTimeMinutes || 0, playTimeFromLogs);
+  const hasMinPlayTime = playTimeMinutes >= 30;
+
+  const actionsCount = (activeSheetLogs || []).length;
+  const hasMinActions = actionsCount >= 30;
+
+  const evidenceScore = [
+    hasCombat,
+    hasMinParagraphs,
+    hasMinPlayTime,
+    hasMinActions,
+  ].filter(Boolean).length;
+
+  const canCompleteBook = isVictoryParagraph && evidenceScore >= 2;
 
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
@@ -501,7 +540,9 @@ export default function Home() {
     if (!user || !activeSheetId) return;
 
     const interval = setInterval(() => {
-      useSheetStore.getState().incrementPlayTime();
+      const store = useSheetStore.getState();
+      store.incrementPlayTime();
+      store.incrementSheetPlayTime();
     }, 60000); // 1 minute
 
     return () => clearInterval(interval);
@@ -854,9 +895,14 @@ export default function Home() {
                     }, 3500);
                   }
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white transition text-xs uppercase font-bold tracking-wider cursor-pointer"
+                disabled={!canCompleteBook}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 border transition text-xs uppercase font-bold tracking-wider ${
+                  canCompleteBook
+                    ? 'border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white cursor-pointer'
+                    : 'opacity-55 cursor-not-allowed border-gray-500 text-gray-500 bg-transparent'
+                }`}
               >
-                <Trophy size={12} /> Concluir
+                <Trophy size={12} /> Concluir Livro
               </button>
             )}
 
@@ -1281,6 +1327,7 @@ export default function Home() {
                           <AttributeCard label="Fé" attrKey="faith" />
                         )}
                         <CurrentSectionCard />
+                        <CompletionChecklist />
                         
                         {/* Ouro e Provisões vão para cá no Mobile também */}
                         <div className="md:hidden">
