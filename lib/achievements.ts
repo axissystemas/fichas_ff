@@ -1,45 +1,54 @@
 export interface Achievement {
   id: string;
-  code: string; // e.g. "FF 01", "GERAL"
+  code: string; // e.g. "FF 01", "COMBATE", "SORTE"
   title: string;
   description: string;
   icon: string;
   type: 'book' | 'milestone';
   bookName?: string;
   hint: string;
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  category: 'combat' | 'luck' | 'survival' | 'exploration' | 'character' | 'resources' | 'challenges' | 'hall_of_fame' | 'secret';
+  isSecret?: boolean;
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  // Fighting Fantasy (Jambô Editora)
+  // ─── LIVROS JOGOS - EXPLORAÇÃO / HALL DA FAMA ──────────────────────────────
   {
     id: 'ff_01',
     code: 'FF 01',
-    title: 'O Feiticeiro da Montanha de Fogo',
+    title: 'Conquistador da Montanha de Fogo',
     description: 'Concluiu a aventura e derrotou o mago Zagor na Montanha de Fogo.',
-    icon: '🔥',
+    icon: '🏆',
     type: 'book',
     bookName: 'O Feiticeiro da Montanha de Fogo',
-    hint: 'Conclua o livro "O Feiticeiro da Montanha de Fogo".'
+    hint: 'Conclua o livro "O Feiticeiro da Montanha de Fogo".',
+    rarity: 'rare',
+    category: 'hall_of_fame'
   },
   {
     id: 'ff_02',
     code: 'FF 02',
-    title: 'A Cidadela do Caos',
+    title: 'Vencedor da Cidadela do Caos',
     description: 'Balthus Dire foi derrotado em sua própria cidadela.',
-    icon: '🏰',
+    icon: '🏆',
     type: 'book',
     bookName: 'A Cidadela do Caos',
-    hint: 'Conclua o livro "A Cidadela do Caos".'
+    hint: 'Conclua o livro "A Cidadela do Caos".',
+    rarity: 'rare',
+    category: 'hall_of_fame'
   },
   {
     id: 'ff_03',
     code: 'FF 03',
-    title: 'A Masmorra da Morte',
-    description: 'Sobreviveu aos horrores do Desafio dos Campeões do Barão Sukumvit.',
-    icon: '💀',
+    title: 'Herói de Fang',
+    description: 'Sobreviveu aos horrores do Desafio dos Campeões do Barão Sukumvit na Masmorra da Morte.',
+    icon: '🏆',
     type: 'book',
     bookName: 'A Masmorra da Morte',
-    hint: 'Conclua o livro "A Masmorra da Morte".'
+    hint: 'Conclua o livro "A Masmorra da Morte".',
+    rarity: 'rare',
+    category: 'hall_of_fame'
   },
   {
     id: 'ff_04',
@@ -49,7 +58,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🐾',
     type: 'book',
     bookName: 'Criatura Selvagem',
-    hint: 'Conclua o livro "Criatura Selvagem".'
+    hint: 'Conclua o livro "Criatura Selvagem".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_05',
@@ -59,7 +70,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '👥',
     type: 'book',
     bookName: 'A Cidade dos Ladrões',
-    hint: 'Conclua o livro "A Cidade dos Ladrões".'
+    hint: 'Conclua o livro "A Cidade dos Ladrões".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_06',
@@ -69,7 +82,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⚰️',
     type: 'book',
     bookName: 'A Cripta do Feiticeiro',
-    hint: 'Conclua o livro "A Cripta do Feiticeiro".'
+    hint: 'Conclua o livro "A Cripta do Feiticeiro".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_07',
@@ -79,7 +94,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '👺',
     type: 'book',
     bookName: 'A Mansão do Inferno',
-    hint: 'Conclua o livro "A Mansão do Inferno".'
+    hint: 'Conclua o livro "A Mansão do Inferno".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_08',
@@ -89,7 +106,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌳',
     type: 'book',
     bookName: 'A Floresta da Destruição',
-    hint: 'Conclua o livro "A Floresta da Destruição".'
+    hint: 'Conclua o livro "A Floresta da Destruição".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_09',
@@ -99,7 +118,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '❄️',
     type: 'book',
     bookName: 'As Cavernas da Bruxa da Neve',
-    hint: 'Conclua o livro "As Cavernas da Bruxa da Neve".'
+    hint: 'Conclua o livro "As Cavernas da Bruxa da Neve".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_10',
@@ -109,7 +130,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏅',
     type: 'book',
     bookName: 'Desafio dos Campeões',
-    hint: 'Conclua o livro "Desafio dos Campeões".'
+    hint: 'Conclua o livro "Desafio dos Campeões".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_11',
@@ -119,7 +142,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🛡️',
     type: 'book',
     bookName: 'Exércitos da Morte',
-    hint: 'Conclua o livro "Exércitos da Morte".'
+    hint: 'Conclua o livro "Exércitos da Morte".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_12',
@@ -129,7 +154,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌋',
     type: 'book',
     bookName: 'Retorno à Montanha de Fogo',
-    hint: 'Conclua o livro "Retorno à Montanha de Fogo".'
+    hint: 'Conclua o livro "Retorno à Montanha de Fogo".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_13',
@@ -139,7 +166,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🦎',
     type: 'book',
     bookName: 'A Ilha do Rei Lagarto',
-    hint: 'Conclua o livro "A Ilha do Rei Lagarto".'
+    hint: 'Conclua o livro "A Ilha do Rei Lagarto".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_14',
@@ -149,7 +178,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🦸‍♂️',
     type: 'book',
     bookName: 'Encontro Marcado com o M.E.D.O.',
-    hint: 'Conclua o livro "Encontro Marcado com o M.E.D.O.".'
+    hint: 'Conclua o livro "Encontro Marcado com o M.E.D.O.".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_15',
@@ -159,7 +190,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🚀',
     type: 'book',
     bookName: 'Nave Espacial Traveller',
-    hint: 'Conclua o livro "Nave Espacial Traveller".'
+    hint: 'Conclua o livro "Nave Espacial Traveller".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_16',
@@ -169,7 +202,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏮',
     type: 'book',
     bookName: 'A Espada do Samurai',
-    hint: 'Conclua o livro "A Espada do Samurai".'
+    hint: 'Conclua o livro "A Espada do Samurai".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_17',
@@ -179,17 +214,21 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏎️',
     type: 'book',
     bookName: 'Guerreiro das Estradas',
-    hint: 'Conclua o livro "Guerreiro das Estradas".'
+    hint: 'Conclua o livro "Guerreiro das Estradas".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_18',
     code: 'FF 18',
-    title: 'O Templo do Terror',
+    title: 'Mestre do Templo do Terror',
     description: 'Impediu que Malbordus obtivesse os cinco dragões de ouro no deserto de Vatos.',
-    icon: '🦂',
+    icon: '🏆',
     type: 'book',
     bookName: 'O Templo do Terror',
-    hint: 'Conclua o livro "O Templo do Terror".'
+    hint: 'Conclua o livro "O Templo do Terror".',
+    rarity: 'rare',
+    category: 'hall_of_fame'
   },
   {
     id: 'ff_19',
@@ -199,7 +238,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🧟',
     type: 'book',
     bookName: 'Sangue de Zumbis',
-    hint: 'Conclua o livro "Sangue de Zumbis".'
+    hint: 'Conclua o livro "Sangue de Zumbis".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_20',
@@ -209,7 +250,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏴‍☠️',
     type: 'book',
     bookName: 'Ossos Sangrentos',
-    hint: 'Conclua o livro "Ossos Sangrentos".'
+    hint: 'Conclua o livro "Ossos Sangrentos".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_21',
@@ -219,7 +262,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🐺',
     type: 'book',
     bookName: 'Uivo do Lobisomem',
-    hint: 'Conclua o livro "Uivo do Lobisomem".'
+    hint: 'Conclua o livro "Uivo do Lobisomem".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_22',
@@ -229,7 +274,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⚓',
     type: 'book',
     bookName: 'O Porto do Perigo',
-    hint: 'Conclua o livro "O Porto do Perigo".'
+    hint: 'Conclua o livro "O Porto do Perigo".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_23',
@@ -239,7 +286,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🧿',
     type: 'book',
     bookName: 'O Talismã da Morte',
-    hint: 'Conclua o livro "O Talismã da Morte".'
+    hint: 'Conclua o livro "O Talismã da Morte".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_24',
@@ -249,7 +298,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🪄',
     type: 'book',
     bookName: 'A Lenda de Zagor',
-    hint: 'Conclua o livro "A Lenda de Zagor".'
+    hint: 'Conclua o livro "A Lenda de Zagor".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_25',
@@ -259,7 +310,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🦇',
     type: 'book',
     bookName: 'A Cripta do Vampiro',
-    hint: 'Conclua o livro "A Cripta do Vampiro".'
+    hint: 'Conclua o livro "A Cripta do Vampiro".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_26',
@@ -269,7 +322,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⚡',
     type: 'book',
     bookName: 'Algoz da Tempestade',
-    hint: 'Conclua o livro "Algoz da Tempestade".'
+    hint: 'Conclua o livro "Algoz da Tempestade".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_27',
@@ -279,7 +334,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🔮',
     type: 'book',
     bookName: 'Noite do Necromante',
-    hint: 'Conclua o livro "Noite do Necromante".'
+    hint: 'Conclua o livro "Noite do Necromante".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_28',
@@ -289,7 +346,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🎯',
     type: 'book',
     bookName: 'Assassinos de Allansia',
-    hint: 'Conclua o livro "Assassinos de Allansia".'
+    hint: 'Conclua o livro "Assassinos de Allansia".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_29',
@@ -299,7 +358,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '📜',
     type: 'book',
     bookName: 'Segredos de Salamonis',
-    hint: 'Conclua o livro "Segredos de Salamonis".'
+    hint: 'Conclua o livro "Segredos de Salamonis".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_30',
@@ -309,10 +370,10 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⛰️',
     type: 'book',
     bookName: 'Sombra de Gigantes',
-    hint: 'Conclua o livro "Sombra de Gigantes".'
+    hint: 'Conclua o livro "Sombra de Gigantes".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
-
-  // Série Magia! (Sorcery!)
   {
     id: 'ff_31',
     code: 'FF 31',
@@ -321,7 +382,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⛰️',
     type: 'book',
     bookName: 'As Montanhas Shamutanti',
-    hint: 'Conclua o livro "As Montanhas Shamutanti".'
+    hint: 'Conclua o livro "As Montanhas Shamutanti".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_32',
@@ -331,7 +394,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🚪',
     type: 'book',
     bookName: 'Kharé: Porto dos Ardis',
-    hint: 'Conclua o livro "Kharé: Porto dos Ardis".'
+    hint: 'Conclua o livro "Kharé: Porto dos Ardis".',
+    rarity: 'common',
+    category: 'exploration'
   },
   {
     id: 'ff_33',
@@ -341,7 +406,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🐍',
     type: 'book',
     bookName: 'As Sete Serpentes',
-    hint: 'Conclua o livro "As Sete Serpentes".'
+    hint: 'Conclua o livro "As Sete Serpentes".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_34',
@@ -351,10 +418,10 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '👑',
     type: 'book',
     bookName: 'A Coroa dos Reis',
-    hint: 'Conclua o livro "A Coroa dos Reis".'
+    hint: 'Conclua o livro "A Coroa dos Reis".',
+    rarity: 'rare',
+    category: 'exploration'
   },
-
-  // Novos lançamentos
   {
     id: 'ff_35',
     code: 'FF 35',
@@ -363,7 +430,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏝️',
     type: 'book',
     bookName: 'A Masmorra na Ilha de Sangue',
-    hint: 'Conclua o livro "A Masmorra na Ilha de Sangue".'
+    hint: 'Conclua o livro "A Masmorra na Ilha de Sangue".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_36',
@@ -373,7 +442,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🕵️‍♂️',
     type: 'book',
     bookName: 'Ladrão da Meia-Noite',
-    hint: 'Conclua o livro "Ladrão da Meia-Noite".'
+    hint: 'Conclua o livro "Ladrão da Meia-Noite".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_37',
@@ -383,10 +454,10 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🤖',
     type: 'book',
     bookName: 'Robô Comando',
-    hint: 'Conclua o livro "Robô Comando".'
+    hint: 'Conclua o livro "Robô Comando".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
-
-  // Outros livros incluídos no app
   {
     id: 'ff_kether',
     code: 'FF EXTRA',
@@ -395,7 +466,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌌',
     type: 'book',
     bookName: 'As Coligações de Kether',
-    hint: 'Conclua o livro "As Coligações de Kether".'
+    hint: 'Conclua o livro "As Coligações de Kether".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
   {
     id: 'ff_mares',
@@ -405,54 +478,538 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌊',
     type: 'book',
     bookName: 'Mares de Sangue',
-    hint: 'Conclua o livro "Mares de Sangue".'
+    hint: 'Conclua o livro "Mares de Sangue".',
+    rarity: 'uncommon',
+    category: 'exploration'
   },
 
-  // Conquistas Gerais
+  // ─── CATEGORIA: COMBATE ────────────────────────────────────────────────────
   {
     id: 'milestone_first_blood',
-    code: 'GERAL',
-    title: 'Primeiro Sangue',
+    code: 'COMBATE',
+    title: 'Primeiro Sangue 🥉',
     description: 'Derrotou o primeiro monstro em combate.',
     icon: '⚔️',
     type: 'milestone',
-    hint: 'Vença um combate contra qualquer criatura.'
+    hint: 'Vença o primeiro combate.',
+    rarity: 'common',
+    category: 'combat'
   },
   {
-    id: 'milestone_gold_hoarder',
-    code: 'GERAL',
-    title: 'Rico de Marré',
-    description: 'Acumulou 30 ou mais moedas de ouro na sua ficha ativa.',
-    icon: '🪙',
+    id: 'combat_veteran',
+    code: 'COMBATE',
+    title: 'Veterano',
+    description: 'Venceu 10 combates na sua história acumulada.',
+    icon: '⚔️',
     type: 'milestone',
-    hint: 'Acumule pelo menos 30 moedas de ouro em sua ficha.'
+    hint: 'Vença 10 combates.',
+    rarity: 'common',
+    category: 'combat'
   },
   {
-    id: 'milestone_max_luck',
-    code: 'GERAL',
-    title: 'Sorte Grande',
-    description: 'Obteve Sorte Inicial máxima (12) durante a criação do personagem.',
+    id: 'combat_gladiator',
+    code: 'COMBATE',
+    title: 'Gladiador',
+    description: 'Venceu 50 combates na sua história acumulada.',
+    icon: '⚔️',
+    type: 'milestone',
+    hint: 'Vença 50 combates.',
+    rarity: 'uncommon',
+    category: 'combat'
+  },
+  {
+    id: 'combat_war_machine',
+    code: 'COMBATE',
+    title: 'Máquina de Guerra',
+    description: 'Venceu 100 combates na sua história acumulada.',
+    icon: '⚔️',
+    type: 'milestone',
+    hint: 'Vença 100 combates.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_terminator',
+    code: 'COMBATE',
+    title: 'Exterminador',
+    description: 'Derrotou 500 monstros no total geral.',
+    icon: '💀',
+    type: 'milestone',
+    hint: 'Derrote 500 monstros.',
+    rarity: 'epic',
+    category: 'combat'
+  },
+  {
+    id: 'combat_no_mercy',
+    code: 'COMBATE',
+    title: 'Sem Misericórdia',
+    description: 'Venceu 5 combates seguidos sem sofrer nenhuma perda de energia.',
+    icon: '🔥',
+    type: 'milestone',
+    hint: 'Vença 5 combates seguidos sem perder energia.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_untouchable',
+    code: 'COMBATE',
+    title: 'Intocável',
+    description: 'Venceu um combate inteiro sem sofrer nenhum dano.',
+    icon: '🛡️',
+    type: 'milestone',
+    hint: 'Vença um combate sem sofrer dano.',
+    rarity: 'uncommon',
+    category: 'combat'
+  },
+  {
+    id: 'combat_wall',
+    code: 'COMBATE',
+    title: 'Muralha',
+    description: 'Venceu um combate com apenas 1 ponto de energia restante.',
+    icon: '🛡️',
+    type: 'milestone',
+    hint: 'Vença um combate com apenas 1 ponto de energia restante.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+
+  // ─── CATEGORIA: SORTE ──────────────────────────────────────────────────────
+  {
+    id: 'luck_first_test',
+    code: 'SORTE',
+    title: 'A Sorte Sorri',
+    description: 'Passou com sucesso no seu primeiro teste de sorte.',
+    icon: '🍀',
+    type: 'milestone',
+    hint: 'Passe no primeiro teste de sorte.',
+    rarity: 'common',
+    category: 'luck'
+  },
+  {
+    id: 'luck_favored_by_gods',
+    code: 'SORTE',
+    title: 'Favorito dos Deuses',
+    description: 'Passou em 10 testes de sorte seguidos sem falhar.',
+    icon: '🌟',
+    type: 'milestone',
+    hint: 'Passe 10 testes de sorte consecutivos.',
+    rarity: 'epic',
+    category: 'luck'
+  },
+  {
+    id: 'luck_gambler',
+    code: 'SORTE',
+    title: 'Apostador',
+    description: 'Testou sua sorte 50 vezes ao longo das aventuras.',
     icon: '🎲',
     type: 'milestone',
-    hint: 'Crie uma ficha com Sorte Inicial igual a 12.'
+    hint: 'Utilize Sorte 50 vezes.',
+    rarity: 'uncommon',
+    category: 'luck'
+  },
+  {
+    id: 'luck_bold',
+    code: 'SORTE',
+    title: 'Ousado',
+    description: 'Concluiu um livro-jogo com o atributo Sorte igual a 1.',
+    icon: '😈',
+    type: 'milestone',
+    hint: 'Chegue ao final de um livro com Sorte igual a 1.',
+    rarity: 'rare',
+    category: 'luck'
+  },
+
+  // ─── CATEGORIA: SOBREVIVÊNCIA ──────────────────────────────────────────────
+  {
+    id: 'survival_first_meal',
+    code: 'SOBREVIVÊNCIA',
+    title: 'Sobrevivente',
+    description: 'Consumiu uma provisão para recuperar suas forças pela primeira vez.',
+    icon: '🥖',
+    type: 'milestone',
+    hint: 'Consuma sua primeira provisão.',
+    rarity: 'common',
+    category: 'survival'
+  },
+  {
+    id: 'survival_banqueteer',
+    code: 'SOBREVIVÊNCIA',
+    title: 'Banqueteiro',
+    description: 'Consumiu 50 provisões acumuladas em sua jornada.',
+    icon: '🥩',
+    type: 'milestone',
+    hint: 'Consuma 50 provisões.',
+    rarity: 'uncommon',
+    category: 'survival'
+  },
+  {
+    id: 'survival_near_death',
+    code: 'SOBREVIVÊNCIA',
+    title: 'Quase Morto',
+    description: 'Ficou ou sobreviveu com exatamente 1 ponto de energia.',
+    icon: '💉',
+    type: 'milestone',
+    hint: 'Sobreviva com apenas 1 ponto de energia.',
+    rarity: 'common',
+    category: 'survival'
+  },
+  {
+    id: 'survival_unbreakable',
+    code: 'SOBREVIVÊNCIA',
+    title: 'Inquebrável',
+    description: 'Terminou um livro completo sem sofrer nenhuma derrota (morte).',
+    icon: '🏕️',
+    type: 'milestone',
+    hint: 'Termine um livro sem morrer nenhuma vez.',
+    rarity: 'legendary',
+    category: 'survival'
+  },
+
+  // ─── CATEGORIA: EXPLORAÇÃO (GERAL) ─────────────────────────────────────────
+  {
+    id: 'explore_first_step',
+    code: 'EXPLORAÇÃO',
+    title: 'Primeiro Passo',
+    description: 'Iniciou a sua jornada e entrou em sua primeira ficha de aventura.',
+    icon: '👣',
+    type: 'milestone',
+    hint: 'Entre em sua primeira aventura.',
+    rarity: 'common',
+    category: 'exploration'
+  },
+  {
+    id: 'explore_cartographer',
+    code: 'EXPLORAÇÃO',
+    title: 'Explorador',
+    description: 'Visitou 100 seções/parágrafos de livros no total acumulado.',
+    icon: '🗺️',
+    type: 'milestone',
+    hint: 'Visite 100 seções de livros.',
+    rarity: 'rare',
+    category: 'exploration'
+  },
+  {
+    id: 'explore_veteran_reader',
+    code: 'EXPLORAÇÃO',
+    title: 'Leitor Veterano',
+    description: 'Explorou e jogou pelo menos 5 livros-jogos diferentes.',
+    icon: '📚',
+    type: 'milestone',
+    hint: 'Jogue 5 livros diferentes.',
+    rarity: 'uncommon',
+    category: 'exploration'
+  },
+  {
+    id: 'explore_grandmaster',
+    code: 'EXPLORAÇÃO',
+    title: 'Mestre dos Livros-Jogo',
+    description: 'Concluiu com sucesso todas as aventuras cadastradas.',
+    icon: '🏰',
+    type: 'milestone',
+    hint: 'Conclua todos os livros cadastrados.',
+    rarity: 'legendary',
+    category: 'exploration'
+  },
+  {
+    id: 'explore_curious',
+    code: 'EXPLORAÇÃO',
+    title: 'Curioso',
+    description: 'Utilizou a busca e sugestões de monstros integradas pela primeira vez.',
+    icon: '🔎',
+    type: 'milestone',
+    hint: 'Utilize a busca de seções/encontros pela primeira vez.',
+    rarity: 'common',
+    category: 'exploration'
+  },
+
+  // ─── CATEGORIA: PERSONAGEM ─────────────────────────────────────────────────
+  {
+    id: 'char_first_hero',
+    code: 'PERSONAGEM',
+    title: 'Herói Nascente',
+    description: 'Criou e instanciou a sua primeira ficha de personagem.',
+    icon: '🧙',
+    type: 'milestone',
+    hint: 'Crie seu primeiro personagem.',
+    rarity: 'common',
+    category: 'character'
+  },
+  {
+    id: 'char_living_legend',
+    code: 'PERSONAGEM',
+    title: 'Lenda Viva',
+    description: 'Deu vida a 25 aventureiros na história da sua conta.',
+    icon: '👑',
+    type: 'milestone',
+    hint: 'Crie 25 personagens.',
+    rarity: 'rare',
+    category: 'character'
   },
   {
     id: 'milestone_max_skill',
-    code: 'GERAL',
-    title: 'Coração Valente',
+    code: 'PERSONAGEM',
+    title: 'Abençoado pelos Dados',
     description: 'Obteve Habilidade Inicial máxima (12) durante a criação do personagem.',
-    icon: '💪',
+    icon: '🎲',
     type: 'milestone',
-    hint: 'Crie uma ficha com Habilidade Inicial igual a 12.'
+    hint: 'Comece uma aventura com Habilidade máxima (12).',
+    rarity: 'uncommon',
+    category: 'character'
+  },
+  {
+    id: 'char_max_energy',
+    code: 'PERSONAGEM',
+    title: 'Vigor Incomparável',
+    description: 'Obteve Energia Inicial máxima (24) durante a criação do personagem.',
+    icon: '❤️',
+    type: 'milestone',
+    hint: 'Comece uma aventura com Energia máxima (24).',
+    rarity: 'uncommon',
+    category: 'character'
+  },
+  {
+    id: 'milestone_max_luck',
+    code: 'PERSONAGEM',
+    title: 'Destino Favorável',
+    description: 'Obteve Sorte Inicial máxima (12) durante a criação do personagem.',
+    icon: '🍀',
+    type: 'milestone',
+    hint: 'Comece uma aventura com Sorte máxima (12).',
+    rarity: 'uncommon',
+    category: 'character'
+  },
+
+  // ─── CATEGORIA: RECURSOS DO APP ────────────────────────────────────────────
+  {
+    id: 'app_retro',
+    code: 'RECURSOS',
+    title: 'Retrô',
+    description: 'Ativou a trilha sonora 16-bits do aplicativo pela primeira vez.',
+    icon: '🎧',
+    type: 'milestone',
+    hint: 'Ative a música pela primeira vez.',
+    rarity: 'common',
+    category: 'resources'
+  },
+  {
+    id: 'app_chiptune_lover',
+    code: 'RECURSOS',
+    title: 'Chiptune',
+    description: 'Manteve a trilha sonora de fundo ligada por pelo menos 1 hora acumulada.',
+    icon: '🔊',
+    type: 'milestone',
+    hint: 'Utilize a trilha sonora por 1 hora acumulada.',
+    rarity: 'uncommon',
+    category: 'resources'
+  },
+  {
+    id: 'app_dark_theme',
+    code: 'RECURSOS',
+    title: 'Filho da Noite',
+    description: 'Ativou o tema visual escuro (Night) para poupar as vistas.',
+    icon: '🌙',
+    type: 'milestone',
+    hint: 'Ative o tema Night.',
+    rarity: 'common',
+    category: 'resources'
+  },
+  {
+    id: 'app_scribe',
+    code: 'RECURSOS',
+    title: 'Escriba',
+    description: 'Exportou e fez backup local de uma ficha de personagem em JSON.',
+    icon: '📜',
+    type: 'milestone',
+    hint: 'Exporte sua primeira ficha.',
+    rarity: 'common',
+    category: 'resources'
+  },
+  {
+    id: 'app_collector',
+    code: 'RECURSOS',
+    title: 'Colecionador',
+    description: 'Importou com sucesso uma ficha de personagem externa de um arquivo JSON.',
+    icon: '📦',
+    type: 'milestone',
+    hint: 'Importe uma ficha.',
+    rarity: 'common',
+    category: 'resources'
+  },
+
+  // ─── CATEGORIA: DESAFIOS AVANÇADOS ─────────────────────────────────────────
+  {
+    id: 'challenge_no_luck',
+    code: 'DESAFIOS',
+    title: 'Sem Sorte',
+    description: 'Concluiu uma aventura vitoriosa sem realizar nenhum teste de Sorte.',
+    icon: '⚔️',
+    type: 'milestone',
+    hint: 'Conclua um livro sem utilizar Sorte.',
+    rarity: 'epic',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_heroic_fast',
+    code: 'DESAFIOS',
+    title: 'Jejum Heroico',
+    description: 'Concluiu uma aventura completa sem consumir nenhuma provisão.',
+    icon: '🥖',
+    type: 'milestone',
+    hint: 'Conclua um livro sem consumir provisões.',
+    rarity: 'epic',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_treasure_hunter',
+    code: 'DESAFIOS',
+    title: 'Caçador de Tesouros',
+    description: 'Terminou uma aventura carregando mais de 15 itens diferentes em seu inventário.',
+    icon: '💎',
+    type: 'milestone',
+    hint: 'Termine uma aventura carregando mais de 15 itens no inventário.',
+    rarity: 'rare',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_strategist',
+    code: 'DESAFIOS',
+    title: 'Estrategista',
+    description: 'Concluiu um livro-jogo completo sem fugir de nenhum combate contra monstros.',
+    icon: '🧠',
+    type: 'milestone',
+    hint: 'Conclua um livro sem fugir de nenhum combate.',
+    rarity: 'epic',
+    category: 'challenges'
   },
   {
     id: 'milestone_first_death',
-    code: 'GERAL',
+    code: 'DESAFIOS',
     title: 'Primeira Queda',
     description: 'Sofreu a sua primeira derrota (energia chegou a zero ou morte registrada).',
     icon: '💀',
     type: 'milestone',
-    hint: 'Morra em combate ou tenha sua energia reduzida a zero.'
+    hint: 'Tenha sua energia reduzida a zero.',
+    rarity: 'common',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_dead_again',
+    code: 'DESAFIOS',
+    title: 'Morto... Outra Vez',
+    description: 'Sofreu 10 derrotas ou mortes de personagens no total acumulado.',
+    icon: '☠️',
+    type: 'milestone',
+    hint: 'Morra 10 vezes.',
+    rarity: 'common',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_persistent',
+    code: 'DESAFIOS',
+    title: 'Persistente',
+    description: 'Sofreu 50 derrotas acumuladas (você realmente não desiste!).',
+    icon: '☠️☠️☠️',
+    type: 'milestone',
+    hint: 'Morra 50 vezes.',
+    rarity: 'uncommon',
+    category: 'challenges'
+  },
+  {
+    id: 'challenge_early_death',
+    code: 'DESAFIOS',
+    title: 'Eu Posso Explicar...',
+    description: 'Morreu logo no parágrafo ou na primeira decisão da aventura.',
+    icon: '😅',
+    type: 'milestone',
+    hint: 'Morra na primeira decisão do livro.',
+    rarity: 'uncommon',
+    category: 'challenges'
+  },
+
+  // ─── CATEGORIA: CONQUISTAS SECRETAS (SECRETS) ──────────────────────────────
+  {
+    id: 'secret_professional_loser',
+    code: 'SEGRETO',
+    title: 'Perdedor Profissional 🔒',
+    description: 'Morreu em 3 aventuras seguidas sem nenhuma vitória entre elas.',
+    icon: '👻',
+    type: 'milestone',
+    hint: 'Morrer em 3 aventuras seguidas.',
+    rarity: 'rare',
+    category: 'secret',
+    isSecret: true
+  },
+  {
+    id: 'secret_razors_edge',
+    code: 'SEGRETO',
+    title: 'Fio da Navalha 🔒',
+    description: 'Sobreviveu a um combate ou concluiu o jogo com exatamente 1 de Energia e 1 de Sorte.',
+    icon: '🩸',
+    type: 'milestone',
+    hint: 'Sobreviver ou vencer com 1 Energia e 1 Sorte.',
+    rarity: 'legendary',
+    category: 'secret',
+    isSecret: true
+  },
+  {
+    id: 'secret_perfect_saga',
+    code: 'SEGRETO',
+    title: 'Saga Perfeita 🔒',
+    description: 'Iniciou a aventura rolando atributos iniciais perfeitos: 12 Habilidade, 24 Energia e 12 Sorte.',
+    icon: '✨',
+    type: 'milestone',
+    hint: 'Tirar dados máximos em todos os atributos iniciais.',
+    rarity: 'legendary',
+    category: 'secret',
+    isSecret: true
+  },
+  {
+    id: 'secret_guild_loyal',
+    code: 'SEGRETO',
+    title: 'Fiel da Guilda 🔒',
+    description: 'Acessou o aplicativo em 30 dias diferentes para continuar suas aventuras.',
+    icon: '📅',
+    type: 'milestone',
+    hint: 'Abrir o app por 30 dias diferentes.',
+    rarity: 'rare',
+    category: 'secret',
+    isSecret: true
+  },
+  {
+    id: 'secret_music_appreciator',
+    code: 'SEGRETO',
+    title: 'Apreciador Musical 🔒',
+    description: 'Escutou a trilha sonora de um livro-jogo por 5 minutos sem trocar de tela ou interromper.',
+    icon: '🎵',
+    type: 'milestone',
+    hint: 'Escutar uma música completa sem trocar de tela.',
+    rarity: 'uncommon',
+    category: 'secret',
+    isSecret: true
+  },
+
+  // ─── HALL DA FAMA (MÉTRICOS) ───────────────────────────────────────────────
+  {
+    id: 'hall_champion_allansia',
+    code: 'HALL',
+    title: 'Campeão de Allansia',
+    description: 'Concluiu com sucesso 5 livros-jogos diferentes da coleção.',
+    icon: '🏆',
+    type: 'milestone',
+    hint: 'Conclua 5 livros-jogo diferentes.',
+    rarity: 'rare',
+    category: 'hall_of_fame'
+  },
+  {
+    id: 'hall_legend_adventures',
+    code: 'HALL',
+    title: 'Lenda das Aventuras Fantásticas',
+    description: 'Concluiu com sucesso 10 livros-jogos diferentes da coleção.',
+    icon: '🏆',
+    type: 'milestone',
+    hint: 'Conclua 10 livros-jogo diferentes.',
+    rarity: 'legendary',
+    category: 'hall_of_fame'
   }
 ];
 

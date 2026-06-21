@@ -44,6 +44,57 @@ interface Attribute {
   current: number;
 }
 
+export interface UserStats {
+  totalCombatsWon: number;
+  totalMonstersDefeated: number;
+  totalProvisionsConsumed: number;
+  totalLuckTestsPassed: number;
+  totalLuckTestsFailed: number;
+  totalLuckUses: number;
+  totalDeaths: number;
+  totalCharactersCreated: number;
+  musicTimeMs: number;
+  themeChanges: number;
+  sheetsExported: number;
+  sheetsImported: number;
+  visitedSections: Record<string, string[]>;
+  completedBooks: string[];
+  consecutiveLuckPasses: number;
+  consecutiveWinsNoDamage: number;
+  hasUsedLuckThisBook: boolean;
+  hasEatenProvisionsThisBook: boolean;
+  hasFledThisBook: boolean;
+  suggestionsUsed: boolean;
+  loginDays: string[];
+  recentDeathsCount: number;
+  energyAtCombatStart?: number;
+}
+
+const defaultUserStats = (): UserStats => ({
+  totalCombatsWon: 0,
+  totalMonstersDefeated: 0,
+  totalProvisionsConsumed: 0,
+  totalLuckTestsPassed: 0,
+  totalLuckTestsFailed: 0,
+  totalLuckUses: 0,
+  totalDeaths: 0,
+  totalCharactersCreated: 0,
+  musicTimeMs: 0,
+  themeChanges: 0,
+  sheetsExported: 0,
+  sheetsImported: 0,
+  visitedSections: {},
+  completedBooks: [],
+  consecutiveLuckPasses: 0,
+  consecutiveWinsNoDamage: 0,
+  hasUsedLuckThisBook: false,
+  hasEatenProvisionsThisBook: false,
+  hasFledThisBook: false,
+  suggestionsUsed: false,
+  loginDays: [],
+  recentDeathsCount: 0,
+});
+
 interface Item {
   id: string;
   name: string;
@@ -215,6 +266,8 @@ interface SheetState {
   unlockedAchievements: Array<{ achievement_id: string; unlocked_at: string }>;
   achievementsTableExists: boolean;
   justUnlocked: { id: string; title: string; icon: string } | null;
+  userStats: UserStats;
+  statsTableExists: boolean;
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -257,6 +310,10 @@ interface SheetState {
   unlockAchievement: (id: string) => Promise<void>;
   checkAchievements: (triggerType: 'stat' | 'death' | 'victory' | 'combat', data?: any) => Promise<void>;
   clearJustUnlocked: () => void;
+  loadUserStats: () => Promise<void>;
+  saveUserStats: () => Promise<void>;
+  incrementStat: (key: keyof UserStats | string, amount?: number, extraData?: any) => Promise<void>;
+  registerLuckTest: (success: boolean) => void;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -338,6 +395,8 @@ export const useSheetStore = create<SheetState>()(
       unlockedAchievements: [],
       achievementsTableExists: false,
       justUnlocked: null,
+      userStats: defaultUserStats(),
+      statsTableExists: false,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
@@ -345,6 +404,7 @@ export const useSheetStore = create<SheetState>()(
       setUser: (user) => {
         set({ user });
         get().loadAchievements();
+        get().loadUserStats();
       },
 
       clearLocalState: () => {
@@ -369,6 +429,8 @@ export const useSheetStore = create<SheetState>()(
           unlockedAchievements: [],
           achievementsTableExists: false,
           justUnlocked: null,
+          userStats: defaultUserStats(),
+          statsTableExists: false,
         });
       },
 
@@ -514,6 +576,8 @@ export const useSheetStore = create<SheetState>()(
             lastSynced: new Date().toISOString(),
           }));
 
+          get().incrementStat('totalCharactersCreated');
+
           setTimeout(() => {
             if (get().syncStatus === 'saved') set({ syncStatus: 'idle' });
           }, 2000);
@@ -658,7 +722,11 @@ export const useSheetStore = create<SheetState>()(
         });
         scheduleSave(get());
 
-        if (isInitial && (key === 'skill' || key === 'luck')) {
+        if (isInitial && (key === 'skill' || key === 'luck' || key === 'energy')) {
+          get().checkAchievements('stat');
+        }
+
+        if (key === 'energy' && !isInitial && get().attributes.energy.current === 1) {
           get().checkAchievements('stat');
         }
 
@@ -670,6 +738,17 @@ export const useSheetStore = create<SheetState>()(
             monster: activeMonster ? activeMonster.name : null,
             section: get().attributes.currentSection || null,
           });
+          
+          // Registrar morte nas estatísticas
+          get().incrementStat('totalDeaths', 1);
+          set((state) => ({
+            userStats: {
+              ...state.userStats,
+              recentDeathsCount: (state.userStats.recentDeathsCount || 0) + 1
+            }
+          }));
+          get().saveUserStats();
+
           get().setStatus('defeat');
         } else if (isLowEnergyWarning) {
           audio.playLowEnergyWarning();
@@ -757,6 +836,7 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
         if (section) {
           get().logTelemetry('section_visit', { section });
+          get().incrementStat('visitedSections', 1, { book: get().gamebook, section });
         }
       },
       setSuggestionsEnabled: (enabled) => {
@@ -884,15 +964,41 @@ export const useSheetStore = create<SheetState>()(
         scheduleSave(get());
         if (amount < 0) {
           get().logTelemetry('item_use', { item: 'provisions', quantity: Math.abs(amount) });
+          get().incrementStat('totalProvisionsConsumed', Math.abs(amount));
+          set((state) => ({
+            userStats: {
+              ...state.userStats,
+              hasEatenProvisionsThisBook: true
+            }
+          }));
+          get().saveUserStats();
         }
       },
 
       // ── Monsters ──────────────────────────────────────────────────────────
       addMonster: (monster) => {
+        if (get().monsters.length === 0) {
+          set((state) => ({
+            userStats: {
+              ...state.userStats,
+              energyAtCombatStart: state.attributes.energy.current
+            }
+          }));
+        }
         set((state) => ({ monsters: [...state.monsters, monster] }));
         scheduleSave(get());
       },
       removeMonster: (id) => {
+        const monster = get().monsters.find(m => m.id === id);
+        if (monster && monster.status === 'alive') {
+          set((state) => ({
+            userStats: {
+              ...state.userStats,
+              hasFledThisBook: true
+            }
+          }));
+          get().saveUserStats();
+        }
         set((state) => ({ monsters: state.monsters.filter((m) => m.id !== id) }));
         scheduleSave(get());
       },
@@ -918,7 +1024,37 @@ export const useSheetStore = create<SheetState>()(
             monster_skill: defeatedMonster.skill,
             monster_energy: defeatedMonster.energyMax,
           });
-          get().checkAchievements('combat');
+          
+          get().incrementStat('totalMonstersDefeated', 1);
+
+          const allDefeated = get().monsters.every(m => m.status === 'defeated');
+          if (allDefeated) {
+            get().incrementStat('totalCombatsWon', 1);
+            
+            const energyAtStart = get().userStats.energyAtCombatStart || 0;
+            const currentEnergy = get().attributes.energy.current;
+            const noDamage = currentEnergy >= energyAtStart;
+            
+            set((state) => {
+              const stats = { ...state.userStats };
+              if (noDamage) {
+                stats.consecutiveWinsNoDamage += 1;
+              } else {
+                stats.consecutiveWinsNoDamage = 0;
+              }
+              return { userStats: stats };
+            });
+            
+            get().saveUserStats();
+            get().checkAchievements('combat');
+
+            if (noDamage) {
+              get().unlockAchievement('combat_untouchable');
+            }
+            if (currentEnergy === 1) {
+              get().unlockAchievement('combat_wall');
+            }
+          }
         }
       },
       clearMonsters: () => {
@@ -957,6 +1093,9 @@ export const useSheetStore = create<SheetState>()(
       setTheme: (theme) => {
         set({ theme });
         scheduleSave(get());
+        if (theme === 'night') {
+          get().incrementStat('themeChanges');
+        }
       },
 
       toggleSound: () => {
@@ -990,6 +1129,14 @@ export const useSheetStore = create<SheetState>()(
         const user = get().user;
 
         if (status === 'victory') {
+          get().incrementStat('completedBooks', 1, get().gamebook);
+          set((state) => ({
+            userStats: {
+              ...state.userStats,
+              recentDeathsCount: 0
+            }
+          }));
+          get().saveUserStats();
           await get().checkAchievements('victory');
         } else if (status === 'defeat') {
           await get().checkAchievements('death');
@@ -1140,6 +1287,17 @@ export const useSheetStore = create<SheetState>()(
           resetKey: state.resetKey + 1,
           status: 'playing',
         }));
+
+        get().incrementStat('totalCharactersCreated');
+        set((state) => ({
+          userStats: {
+            ...state.userStats,
+            hasUsedLuckThisBook: false,
+            hasEatenProvisionsThisBook: false,
+            hasFledThisBook: false,
+          }
+        }));
+        get().saveUserStats();
 
         // Save the cleared state to Supabase instead of deleting the sheet
         await get().saveToSupabase();
@@ -1401,40 +1559,344 @@ export const useSheetStore = create<SheetState>()(
 
       checkAchievements: async (triggerType, data) => {
         const state = get();
+        const stats = state.userStats;
         
-        if (triggerType === 'stat') {
-          const skill = state.attributes.skill;
-          const luck = state.attributes.luck;
-          
-          if (skill && skill.initial === 12) {
-            await get().unlockAchievement('milestone_max_skill');
-          }
-          if (luck && luck.initial === 12) {
-            await get().unlockAchievement('milestone_max_luck');
+        const unlock = async (id: string) => {
+          await get().unlockAchievement(id);
+        };
+
+        // ─── CATEGORIA: COMBATE ──────────────────────────────────────────────
+        if (stats.totalCombatsWon >= 1) {
+          await unlock('milestone_first_blood');
+        }
+        if (stats.totalCombatsWon >= 10) {
+          await unlock('combat_veteran');
+        }
+        if (stats.totalCombatsWon >= 50) {
+          await unlock('combat_gladiator');
+        }
+        if (stats.totalCombatsWon >= 100) {
+          await unlock('combat_war_machine');
+        }
+        if (stats.totalMonstersDefeated >= 500) {
+          await unlock('combat_terminator');
+        }
+        if (stats.consecutiveWinsNoDamage >= 5) {
+          await unlock('combat_no_mercy');
+        }
+
+        // ─── CATEGORIA: SORTE ────────────────────────────────────────────────
+        if (stats.totalLuckTestsPassed >= 1) {
+          await unlock('luck_first_test');
+        }
+        if (stats.consecutiveLuckPasses >= 10) {
+          await unlock('luck_favored_by_gods');
+        }
+        if (stats.totalLuckUses >= 50) {
+          await unlock('luck_gambler');
+        }
+
+        // ─── CATEGORIA: SOBREVIVÊNCIA ────────────────────────────────────────
+        if (stats.totalProvisionsConsumed >= 1) {
+          await unlock('survival_first_meal');
+        }
+        if (stats.totalProvisionsConsumed >= 50) {
+          await unlock('survival_banqueteer');
+        }
+        if (state.attributes.energy.current === 1) {
+          await unlock('survival_near_death');
+        }
+
+        // ─── CATEGORIA: EXPLORAÇÃO ───────────────────────────────────────────
+        if (state.activeSheetId) {
+          await unlock('explore_first_step');
+        }
+        const totalVisitedSections = Object.values(stats.visitedSections || {}).reduce((acc, val) => acc + (val?.length || 0), 0);
+        if (totalVisitedSections >= 100) {
+          await unlock('explore_cartographer');
+        }
+        const uniqueBooksPlayed = Object.keys(stats.visitedSections || {}).length;
+        if (uniqueBooksPlayed >= 5) {
+          await unlock('explore_veteran_reader');
+        }
+        if (stats.completedBooks && stats.completedBooks.length >= 39) {
+          await unlock('explore_grandmaster');
+        }
+        if (stats.suggestionsUsed) {
+          await unlock('explore_curious');
+        }
+
+        // ─── CATEGORIA: PERSONAGEM ───────────────────────────────────────────
+        if (stats.totalCharactersCreated >= 1) {
+          await unlock('char_first_hero');
+        }
+        if (stats.totalCharactersCreated >= 25) {
+          await unlock('char_living_legend');
+        }
+        
+        const skill = state.attributes.skill;
+        const luck = state.attributes.luck;
+        const energy = state.attributes.energy;
+        
+        if (skill && skill.initial === 12) {
+          await unlock('milestone_max_skill');
+        }
+        if (luck && luck.initial === 12) {
+          await unlock('milestone_max_luck');
+        }
+        if (energy && energy.initial === 24) {
+          await unlock('char_max_energy');
+        }
+
+        // ─── CATEGORIA: RECURSOS DO APP ──────────────────────────────────────
+        if (state.musicEnabled) {
+          await unlock('app_retro');
+        }
+        if (stats.musicTimeMs >= 3600000) {
+          await unlock('app_chiptune_lover');
+        }
+        if (state.theme === 'night') {
+          await unlock('app_dark_theme');
+        }
+        if (stats.sheetsExported >= 1) {
+          await unlock('app_scribe');
+        }
+        if (stats.sheetsImported >= 1) {
+          await unlock('app_collector');
+        }
+
+        // ─── CATEGORIA: DESAFIOS AVANÇADOS ───────────────────────────────────
+        if (stats.totalDeaths >= 10) {
+          await unlock('challenge_dead_again');
+        }
+        if (stats.totalDeaths >= 50) {
+          await unlock('challenge_persistent');
+        }
+
+        if (triggerType === 'victory') {
+          const bookName = state.gamebook;
+          if (bookName) {
+            const bookAchId = getAchievementIdForBook(bookName);
+            if (bookAchId) {
+              await unlock(bookAchId);
+            }
           }
 
-          if (state.gold >= 30) {
-            await get().unlockAchievement('milestone_gold_hoarder');
+          if (!stats.hasUsedLuckThisBook) {
+            await unlock('challenge_no_luck');
+          }
+          if (!stats.hasEatenProvisionsThisBook) {
+            await unlock('challenge_heroic_fast');
+          }
+          if (state.inventory && state.inventory.length > 15) {
+            await unlock('challenge_treasure_hunter');
+          }
+          if (!stats.hasFledThisBook) {
+            await unlock('challenge_strategist');
+          }
+          if (state.attributes.luck.current === 1) {
+            await unlock('luck_bold');
+          }
+          if (state.monsters && state.monsters.length === 0) {
+            await unlock('survival_unbreakable');
+          }
+
+          if (stats.completedBooks && stats.completedBooks.length >= 5) {
+            await unlock('hall_champion_allansia');
+          }
+          if (stats.completedBooks && stats.completedBooks.length >= 10) {
+            await unlock('hall_legend_adventures');
+          }
+          
+          if (state.attributes.energy.current === 1 && state.attributes.luck.current === 1) {
+            await unlock('secret_razors_edge');
           }
         }
 
         if (triggerType === 'death') {
-          await get().unlockAchievement('milestone_first_death');
-        }
-
-        if (triggerType === 'victory') {
-          const book = state.gamebook;
-          if (book) {
-            const achievementId = getAchievementIdForBook(book);
-            if (achievementId) {
-              await get().unlockAchievement(achievementId);
-            }
+          await unlock('milestone_first_death');
+          
+          const isFirstSection = !state.attributes.currentSection || state.attributes.currentSection === '1' || state.attributes.currentSection === '0';
+          if (isFirstSection) {
+            await unlock('challenge_early_death');
+          }
+          
+          if (stats.recentDeathsCount >= 3) {
+            await unlock('secret_professional_loser');
           }
         }
 
-        if (triggerType === 'combat') {
-          await get().unlockAchievement('milestone_first_blood');
+        // ─── CONQUISTAS SECRETAS ─────────────────────────────────────────────
+        if (skill && skill.initial === 12 && luck && luck.initial === 12 && energy && energy.initial === 24) {
+          await unlock('secret_perfect_saga');
         }
+        if (stats.loginDays && stats.loginDays.length >= 30) {
+          await unlock('secret_guild_loyal');
+        }
+      },
+
+      loadUserStats: async () => {
+        const user = get().user;
+        if (!user) {
+          if (typeof window !== 'undefined') {
+            const local = localStorage.getItem('local_user_stats');
+            if (local) {
+              try {
+                set({ userStats: { ...defaultUserStats(), ...JSON.parse(local) }, statsTableExists: false });
+              } catch {
+                set({ userStats: defaultUserStats(), statsTableExists: false });
+              }
+            } else {
+              set({ userStats: defaultUserStats(), statsTableExists: false });
+            }
+          }
+          return;
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          if (data && data.stats) {
+            // Adiciona o dia de hoje no loginDays se for novo dia
+            const stats = { ...defaultUserStats(), ...data.stats };
+            const todayStr = new Date().toISOString().split('T')[0];
+            const days = stats.loginDays || [];
+            if (!days.includes(todayStr)) {
+              stats.loginDays = [...days, todayStr];
+            }
+            set({
+              userStats: stats,
+              statsTableExists: true
+            });
+            // Auto salva a atualização de login
+            await supabase.from('user_stats').update({ stats }).eq('user_id', user.id);
+          } else {
+            const initialStats = defaultUserStats();
+            const todayStr = new Date().toISOString().split('T')[0];
+            initialStats.loginDays = [todayStr];
+            
+            await supabase.from('user_stats').insert({
+              user_id: user.id,
+              stats: initialStats
+            });
+
+            set({
+              userStats: initialStats,
+              statsTableExists: true
+            });
+          }
+        } catch (err: any) {
+          console.warn('[StatsStore] Failed to fetch user_stats, falling back to local:', err?.message || err);
+          let localStats = defaultUserStats();
+          if (typeof window !== 'undefined') {
+            const local = localStorage.getItem('local_user_stats');
+            if (local) {
+              try {
+                localStats = { ...localStats, ...JSON.parse(local) };
+              } catch {}
+            }
+          }
+          const todayStr = new Date().toISOString().split('T')[0];
+          const days = localStats.loginDays || [];
+          if (!days.includes(todayStr)) {
+            localStats.loginDays = [...days, todayStr];
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('local_user_stats', JSON.stringify(localStats));
+            }
+          }
+          set({ userStats: localStats, statsTableExists: false });
+        }
+      },
+
+      saveUserStats: async () => {
+        const stats = get().userStats;
+        const user = get().user;
+        const tableExists = get().statsTableExists;
+
+        if (user && tableExists) {
+          try {
+            await supabase
+              .from('user_stats')
+              .upsert({
+                user_id: user.id,
+                stats,
+                updated_at: new Date().toISOString()
+              });
+          } catch (err) {
+            console.error('[StatsStore] Error saving user stats to Supabase:', err);
+          }
+        }
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('local_user_stats', JSON.stringify(stats));
+        }
+      },
+
+      incrementStat: async (key, amount = 1, extraData) => {
+        set((state) => {
+          const stats = { ...state.userStats };
+          
+          if (key === 'visitedSections') {
+            if (extraData && extraData.book && extraData.section) {
+              const bookSections = stats.visitedSections[extraData.book] || [];
+              if (!bookSections.includes(extraData.section)) {
+                stats.visitedSections = {
+                  ...stats.visitedSections,
+                  [extraData.book]: [...bookSections, extraData.section]
+                };
+              }
+            }
+          } else if (key === 'completedBooks') {
+            if (extraData && typeof extraData === 'string') {
+              const completed = stats.completedBooks || [];
+              if (!completed.includes(extraData)) {
+                stats.completedBooks = [...completed, extraData];
+              }
+            }
+          } else if (key === 'loginDays') {
+            if (extraData && typeof extraData === 'string') {
+              const days = stats.loginDays || [];
+              if (!days.includes(extraData)) {
+                stats.loginDays = [...days, extraData];
+              }
+            }
+          } else {
+            const val = (stats as any)[key] || 0;
+            (stats as any)[key] = val + amount;
+          }
+
+          return { userStats: stats };
+        });
+
+        await get().saveUserStats();
+        await get().checkAchievements('stat');
+      },
+
+      registerLuckTest: (success) => {
+        set((state) => {
+          const stats = { ...state.userStats };
+          stats.totalLuckUses = (stats.totalLuckUses || 0) + 1;
+          stats.hasUsedLuckThisBook = true;
+          
+          if (success) {
+            stats.totalLuckTestsPassed = (stats.totalLuckTestsPassed || 0) + 1;
+            stats.consecutiveLuckPasses = (stats.consecutiveLuckPasses || 0) + 1;
+          } else {
+            stats.totalLuckTestsFailed = (stats.totalLuckTestsFailed || 0) + 1;
+            stats.consecutiveLuckPasses = 0;
+          }
+          
+          return { userStats: stats };
+        });
+
+        get().saveUserStats();
+        get().checkAchievements('stat');
       },
 
       clearJustUnlocked: () => {

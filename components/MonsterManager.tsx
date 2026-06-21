@@ -248,6 +248,7 @@ export const MonsterManager = () => {
                       setSkill(m.habilidade);
                       setEnergy(m.energiaMaxima);
                       setShowSuggestions(false);
+                      useSheetStore.getState().incrementStat('suggestionsUsed');
                     }}
                     className="w-full text-left px-3 py-2.5 hover:bg-[#EAD8B8] text-[#2C1E14] text-xs font-bold border-b border-[#5C4033]/20 last:border-0 cursor-pointer transition-colors"
                   >

@@ -44,6 +44,8 @@ export default function PainelAdmin() {
     unlockedAchievements,
     achievementsTableExists,
     loadAchievements,
+    statsTableExists,
+    loadUserStats,
   } = useSheetStore();
 
   // Estados locais
@@ -72,6 +74,7 @@ export default function PainelAdmin() {
   const [ytSaving, setYtSaving] = useState(false);
   const [copiedYtSql, setCopiedYtSql] = useState(false);
   const [copiedAchievementsSql, setCopiedAchievementsSql] = useState(false);
+  const [copiedStatsSql, setCopiedStatsSql] = useState(false);
 
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
@@ -152,6 +155,7 @@ export default function PainelAdmin() {
           await loadNewsList();
           await loadYoutubeSettings();
           await loadAchievements();
+          await loadUserStats();
         }
       } else {
         clearLocalState();
@@ -177,6 +181,7 @@ export default function PainelAdmin() {
           await loadNewsList();
           await loadYoutubeSettings();
           await loadAchievements();
+          await loadUserStats();
         }
       } else {
         clearLocalState();
@@ -280,6 +285,26 @@ CREATE POLICY "Permitir inserção de conquistas pelo próprio usuário" ON publ
     navigator.clipboard.writeText(achievementsSqlCommand);
     setCopiedAchievementsSql(true);
     setTimeout(() => setCopiedAchievementsSql(false), 2000);
+  };
+
+  const statsSqlCommand = `CREATE TABLE public.user_stats (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  stats JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir leitura pública das estatísticas" ON public.user_stats
+  FOR SELECT USING (true);
+
+CREATE POLICY "Permitir upsert de estatísticas pelo próprio usuário" ON public.user_stats
+  FOR ALL WITH CHECK (auth.uid() = user_id);`;
+
+  const copyStatsSqlToClipboard = () => {
+    navigator.clipboard.writeText(statsSqlCommand);
+    setCopiedStatsSql(true);
+    setTimeout(() => setCopiedStatsSql(false), 2000);
   };
 
   const handleSaveYoutubeSettings = async (e: React.FormEvent) => {
@@ -2251,6 +2276,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
             {/* ── ABA 8: CONFIGURAÇÃO DE CONQUISTAS ── */}
             {activeAdminTab === 'conquistas' && (
               <div className="space-y-6 animate-fade-in text-left">
+                {/* CARD 1: USER ACHIEVEMENTS */}
                 <div className={`p-6 border-2 rounded-xl space-y-4 ${
                   isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30'
                 }`}>
@@ -2259,7 +2285,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                       isPapyrus ? 'text-[#8B4513]' : 'text-amber-500'
                     }`}>
                       <Award className="w-5 h-5 text-amber-500 animate-pulse" />
-                      Configuração e Script de Migração do Sistema de Conquistas
+                      Tabela de Conquistas (user_achievements)
                     </h3>
                     <div className="flex items-center gap-1.5">
                       <span className={`relative flex h-2 w-2 ${achievementsTableExists ? '' : 'opacity-60'}`}>
@@ -2316,10 +2342,84 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                         {copiedAchievementsSql ? 'Copiado!' : 'Copiar Script SQL'}
                       </button>
                     </div>
-                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[300px] rounded ${
+                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
                       isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
                     }`}>
                       {achievementsSqlCommand}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* CARD 2: USER STATS */}
+                <div className={`p-6 border-2 rounded-xl space-y-4 ${
+                  isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30'
+                }`}>
+                  <div className="flex items-center justify-between border-b border-current/10 pb-3">
+                    <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                      isPapyrus ? 'text-[#8B4513]' : 'text-amber-500'
+                    }`}>
+                      <Database className="w-5 h-5 text-cyan-500 animate-pulse" />
+                      Tabela de Estatísticas Acumuladas (user_stats)
+                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`relative flex h-2 w-2 ${statsTableExists ? '' : 'opacity-60'}`}>
+                        {statsTableExists && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2 w-2 ${statsTableExists ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                      </span>
+                      <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${statsTableExists ? 'text-green-500' : 'text-red-500 animate-pulse'}`}>
+                        {statsTableExists ? 'Tabela Supabase Ativa' : 'Tabela Supabase Ausente'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {statsTableExists ? (
+                    <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                      isPapyrus ? 'border-green-800/30 bg-green-900/5 text-green-900' : 'border-green-500/20 bg-green-950/10 text-green-400 font-sans'
+                    }`}>
+                      <div className="flex items-center gap-1.5">
+                        <Check size={16} className="text-green-500" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Tabela de Estatísticas Ativa e Sincronizada</h4>
+                      </div>
+                      <p className="text-[10px] leading-relaxed opacity-95">
+                        A tabela <code className="font-mono px-1 py-0.5 bg-black/10 rounded">user_stats</code> está configurada corretamente no banco de dados. As estatísticas acumuladas dos jogadores estão sendo salvas na nuvem.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                      isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10 text-[#2D1D16]' : 'border-amber-500/20 bg-amber-950/10 text-amber-400 font-sans'
+                    }`}>
+                      <div className="flex items-center gap-1.5">
+                        <ShieldAlert size={16} className="text-amber-500 animate-bounce" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Modo de Persistência Local Ativo (Fallback)</h4>
+                      </div>
+                      <p className="text-[10px] leading-relaxed opacity-95">
+                        A tabela de estatísticas acumuladas não foi detectada no Supabase. O sistema está salvando automaticamente o progresso dos jogadores de forma offline através de seu navegador. Para ativar a sincronização na nuvem e salvar estatísticas acumuladas nas contas dos jogadores, execute o script SQL abaixo no console do Supabase.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL de Migração (Supabase):</span>
+                      <button
+                        type="button"
+                        onClick={copyStatsSqlToClipboard}
+                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        }`}
+                      >
+                        {copiedStatsSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                        {copiedStatsSql ? 'Copiado!' : 'Copiar Script SQL'}
+                      </button>
+                    </div>
+                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
+                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    }`}>
+                      {statsSqlCommand}
                     </pre>
                   </div>
                 </div>

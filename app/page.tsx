@@ -469,6 +469,33 @@ export default function Home() {
     }
   }, [sheetStatus, activeSheetId]);
 
+  // Music duration stats tracker (cumulative and continuous)
+  const [continuousMusicSeconds, setContinuousMusicSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!musicEnabled || !activeSheetId) {
+      setContinuousMusicSeconds(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const store = useSheetStore.getState();
+      
+      // Increment cumulative music listening stat (every 10s)
+      store.incrementStat('musicTimeMs', 10000);
+      
+      setContinuousMusicSeconds(prev => {
+        const next = prev + 10;
+        if (next >= 300) { // 5 minutes continuous
+          store.unlockAchievement('secret_music_appreciator');
+        }
+        return next;
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [musicEnabled, activeSheetId, activeTab]); // Reset continuous count if tab or sheet changes!
+
   // Track total game play time (increments every minute if a sheet is open)
   useEffect(() => {
     if (!user || !activeSheetId) return;
@@ -530,6 +557,9 @@ export default function Home() {
     a.download = 'adventure-sheet.json';
     a.click();
     URL.revokeObjectURL(url);
+    
+    // Increment sheetsExported stat
+    state.incrementStat('sheetsExported');
   };
 
   // Import sheet from JSON file
@@ -555,6 +585,9 @@ export default function Home() {
         if (typeof data.provisions === 'number') store.updateProvisions(data.provisions - useSheetStore.getState().provisions);
         if (data.notes) store.setNotes(data.notes);
         await store.saveToSupabase();
+        
+        // Increment sheetsImported stat
+        store.incrementStat('sheetsImported');
       } catch {
         alert('Arquivo inválido. Por favor, use um JSON exportado deste app.');
       }
