@@ -2089,10 +2089,10 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                                 <td className="p-3">
                                   <span className={`px-2 py-0.5 font-bold uppercase rounded text-[9px] ${
                                     item.gamebook === 'Menu Principal'
-                                      ? 'bg-slate-500/10 text-slate-400 border border-slate-700/20'
+                                      ? (isPapyrus ? 'bg-slate-700/10 text-slate-700 border border-slate-700/30' : 'bg-slate-500/10 text-slate-400 border border-slate-700/20')
                                       : item.gamebook.startsWith('Criando')
-                                      ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse'
-                                      : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                      ? (isPapyrus ? 'bg-amber-700/10 text-amber-800 border border-amber-700/30 animate-pulse' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse')
+                                      : (isPapyrus ? 'bg-purple-800/10 text-purple-900 border border-purple-800/30' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20')
                                   }`}>
                                     {item.gamebook}
                                   </span>
@@ -2112,10 +2112,10 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                                   ) : (
                                     <span className={`px-1.5 py-0.5 rounded font-bold uppercase text-[9px] ${
                                       item.status === 'victory'
-                                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                                        ? (isPapyrus ? 'bg-emerald-800/10 text-emerald-800 border border-emerald-800/30' : 'bg-green-500/10 text-green-400 border border-green-500/20')
                                         : item.status === 'defeat'
-                                        ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-                                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                        ? (isPapyrus ? 'bg-red-800/10 text-red-800 border border-red-800/30' : 'bg-red-500/10 text-red-400 border border-red-500/20')
+                                        : (isPapyrus ? 'bg-blue-800/10 text-blue-800 border border-blue-800/30' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20')
                                     }`}>
                                       {item.status === 'victory' && '🏆 Vitória'}
                                       {item.status === 'defeat' && '💀 Morte'}

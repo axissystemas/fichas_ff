@@ -114,7 +114,7 @@ export const CompletionChecklist = () => {
             <AlertTriangle size={16} className="shrink-0 text-amber-500 mt-0.5" />
             <div>
               <strong className="block uppercase tracking-wide text-[10px]">Conclusão Bloqueada</strong>
-              Continue sua jornada até alcançar um final válido da aventura e cumprir pelo menos 2 requisitos de progresso.
+              Continue sua jornada até alcançar um final válido da aventura e cumprir pelo menos 2 requisitos de progresso, além de estar no parágrafo final.
             </div>
           </div>
         )}
@@ -126,10 +126,7 @@ export const CompletionChecklist = () => {
           <div key={idx} className="flex items-center justify-between gap-3 py-1 border-b border-current/5 last:border-b-0">
             <div className="flex items-center gap-2">
               <span className="shrink-0">{item.icon}</span>
-              <div className="flex flex-col text-left">
-                <span className="font-semibold leading-tight">{item.label}</span>
-                <span className="text-[10px] opacity-60 font-mono mt-0.5">{item.detail}</span>
-              </div>
+              <span className="font-semibold leading-tight text-left">{item.label}</span>
             </div>
             <div className={`p-1 rounded-full border ${
               item.complete
@@ -140,14 +137,6 @@ export const CompletionChecklist = () => {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Critério resumo */}
-      <div className="mt-4 pt-3 border-t border-current/5 text-[10px] opacity-75 font-sans flex justify-between items-center">
-        <span>Pontuação de evidências:</span>
-        <span className="font-bold font-mono">
-          {evidenceScore} / 4 (Mínimo: 2)
-        </span>
       </div>
     </div>
   );
