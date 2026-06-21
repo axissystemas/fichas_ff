@@ -90,30 +90,30 @@ export const CompletionChecklist = () => {
   ];
 
   return (
-    <div className={`border-2 rounded-lg p-4 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all ${cardClasses}`}>
-      <h3 className={`text-xs uppercase font-extrabold tracking-wider border-b pb-2 mb-3 flex items-center gap-2 ${titleClasses}`}>
-        <Trophy size={16} /> Elegibilidade de Conclusão
+    <div className={`border-2 rounded-lg p-3 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all ${cardClasses}`}>
+      <h3 className={`text-xs uppercase font-extrabold tracking-wider border-b pb-1.5 mb-2.5 flex items-center gap-1.5 ${titleClasses}`}>
+        <Trophy size={14} /> Elegibilidade de Conclusão
       </h3>
 
       {/* Banner de status */}
-      <div className={`p-3 border rounded mb-4 text-xs font-sans leading-relaxed ${
+      <div className={`p-2 border rounded mb-2.5 text-[10px] font-sans leading-tight ${
         canCompleteBook
           ? (isPapyrus ? 'bg-green-500/10 border-green-800/30 text-green-950' : 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400')
           : (isPapyrus ? 'bg-amber-500/10 border-amber-800/30 text-amber-950' : 'bg-amber-950/20 border-amber-500/30 text-amber-400')
       }`}>
         {canCompleteBook ? (
-          <div className="flex items-start gap-2">
-            <Check size={16} className="shrink-0 text-emerald-500 mt-0.5" />
+          <div className="flex items-start gap-1.5">
+            <Check size={13} className="shrink-0 text-emerald-500 mt-0.5" />
             <div>
-              <strong className="block uppercase tracking-wide text-[10px]">Elegibilidade Confirmada!</strong>
+              <strong className="block uppercase tracking-wide text-[9px]">Elegibilidade Confirmada!</strong>
               Você já pode concluir esta aventura clicando no botão <strong>Concluir Livro</strong> no cabeçalho.
             </div>
           </div>
         ) : (
-          <div className="flex items-start gap-2">
-            <AlertTriangle size={16} className="shrink-0 text-amber-500 mt-0.5" />
+          <div className="flex items-start gap-1.5">
+            <AlertTriangle size={13} className="shrink-0 text-amber-500 mt-0.5" />
             <div>
-              <strong className="block uppercase tracking-wide text-[10px]">Conclusão Bloqueada</strong>
+              <strong className="block uppercase tracking-wide text-[9px]">Conclusão Bloqueada</strong>
               Continue sua jornada até alcançar um final válido da aventura e cumprir pelo menos 2 requisitos de progresso, além de estar no parágrafo final.
             </div>
           </div>
@@ -121,9 +121,9 @@ export const CompletionChecklist = () => {
       </div>
 
       {/* Checklist Grid */}
-      <div className="space-y-2.5 font-sans text-xs">
+      <div className="space-y-1.5 font-sans text-xs">
         {checklistItems.map((item, idx) => (
-          <div key={idx} className="flex items-center justify-between gap-3 py-1 border-b border-current/5 last:border-b-0">
+          <div key={idx} className="flex items-center justify-between gap-3 py-0.5 border-b border-current/5 last:border-b-0">
             <div className="flex items-center gap-2">
               <span className="shrink-0">{item.icon}</span>
               <span className="font-semibold leading-tight text-left">{item.label}</span>
