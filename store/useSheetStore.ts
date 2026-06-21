@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
+import { audio } from '@/lib/audio';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -613,6 +614,7 @@ export const useSheetStore = create<SheetState>()(
       // ── Attributes ────────────────────────────────────────────────────────
       setAttribute: (key, value, isInitial) => {
         let playerDied = false;
+        let isLowEnergyWarning = false;
         set((state) => {
           const attr = state.attributes[key] || { initial: 0, current: 0 };
           // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual (exceto para fé)
@@ -621,6 +623,10 @@ export const useSheetStore = create<SheetState>()(
           
           if (key === 'energy' && !isInitial && attr.current > 0 && finalValue <= 0) {
             playerDied = true;
+          }
+          // Detecta se a energia diminuiu e ficou crítica (entre 1 e 4)
+          if (key === 'energy' && !isInitial && finalValue > 0 && finalValue <= 4 && attr.current > finalValue) {
+            isLowEnergyWarning = true;
           }
 
           return {
@@ -644,6 +650,8 @@ export const useSheetStore = create<SheetState>()(
             section: get().attributes.currentSection || null,
           });
           get().setStatus('defeat');
+        } else if (isLowEnergyWarning) {
+          audio.playLowEnergyWarning();
         }
       },
       setSpells: (spells) => {

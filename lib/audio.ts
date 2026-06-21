@@ -295,6 +295,19 @@ class ChiptuneEngine {
       timeOffset += note.d;
     });
   }
+
+  playLowEnergyWarning() {
+    const ctx = this.init();
+    if (!ctx || !this.enabled) return;
+    const now = ctx.currentTime;
+    // Retro double-beep alarm sound: 2 quick high-pitched square waves (B5: 987.77Hz)
+    this.createOscillator('square', 987.77, 0.07, [0.3, 0], [0.01, 0.06]);
+    setTimeout(() => {
+      if (this.enabled) {
+        this.createOscillator('square', 987.77, 0.07, [0.3, 0], [0.01, 0.06]);
+      }
+    }, 110);
+  }
 }
 
 class MusicPlayer {

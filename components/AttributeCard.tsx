@@ -13,9 +13,11 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
   const superpower = attributes.superpower;
 
+  const isEnergyLow = attrKey === 'energy' && attr.current > 0 && attr.current <= 4;
+
   const cardClasses = theme === 'papyrus' 
-    ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
-    : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
+    ? `bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14] ${isEnergyLow ? 'animate-pulse ring-2 ring-red-700/80 border-red-700 shadow-[0_0_15px_rgba(220,38,38,0.5)]' : ''}` 
+    : `bg-[#1a202c] border-[#4a5568] text-[#cbd5e0] ${isEnergyLow ? 'animate-pulse ring-2 ring-red-500/80 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.6)]' : ''}`;
 
   const rollInitial = () => {
     if (isMedo && attrKey === 'skill' && superpower === 'superforca') {

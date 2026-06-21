@@ -23,7 +23,7 @@ import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
-  Volume2, VolumeX, Music,
+  Volume2, VolumeX, Music, Skull, Trophy, Award, ShieldAlert
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 import { audio, music } from '@/lib/audio';
@@ -354,7 +354,16 @@ export default function Home() {
     attributes,
     newsList,
     loadNewsList,
+    gold,
+    monsters,
   } = useSheetStore();
+
+  const [inspectMode, setInspectMode] = useState(false);
+
+  // Reset inspectMode when activeSheetId changes
+  useEffect(() => {
+    setInspectMode(false);
+  }, [activeSheetId]);
 
   const isNewSheet = attributes.skill.initial === 0 && attributes.energy.initial === 0 && attributes.luck.initial === 0;
 
@@ -757,6 +766,21 @@ export default function Home() {
               {isPapyrus ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
+            {/* Concluir Aventura (só numa ficha aberta em jogo) */}
+            {showSheet && sheetStatus === 'playing' && (
+              <button
+                onClick={async () => {
+                  if (window.confirm('Você realmente completou com sucesso este livro-jogo? Sua vitória será gravada nas estatísticas!')) {
+                    const store = useSheetStore.getState();
+                    await store.setStatus('victory');
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white transition text-xs uppercase font-bold tracking-wider cursor-pointer"
+              >
+                <Trophy size={12} /> Concluir
+              </button>
+            )}
+
             {/* Reset (só numa ficha aberta) */}
             {showSheet && (
               <button
@@ -953,132 +977,321 @@ export default function Home() {
           isNewSheet ? (
             <CharacterCreation />
           ) : (
-            <div className="animate-fade-in">
-            {/* ── Menu de Abas (Apenas Mobile) ── */}
-            <div className={`md:hidden flex overflow-x-auto gap-2 mb-6 pb-2 border-b ${isPapyrus ? 'border-[#5C4033]/30' : 'border-[#4a5568]/50'}`}>
-              {['Status', 'Combate', 'Inventário', 'Notas'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${
-                    activeTab === tab 
-                      ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
-                      : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-8">
-              {/* Painel do Super-Herói (exclusivo para o livro do M.E.D.O.) */}
-              {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
-                <MedoTracker />
-              )}
-
-              {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
-                <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
-                  <AttributeCard label="Habilidade" attrKey="skill" />
-                  <AttributeCard label="Energia" attrKey="energy" />
-                  <AttributeCard label="Sorte" attrKey="luck" />
-                  {gamebook === 'A Cidadela do Caos' && (
-                    <AttributeCard label="Mágica" attrKey="magic" />
-                  )}
-                  {gamebook === 'A Cripta do Vampiro' && (
-                    <AttributeCard label="Fé" attrKey="faith" />
-                  )}
-                  <CurrentSectionCard />
-                  
-                  {/* Ouro e Provisões vão para cá no Mobile também */}
-                  <div className="md:hidden">
-                    <GoldAndProvisions />
+            <div className="animate-fade-in space-y-6">
+              {/* Alerta de Energia Baixa */}
+              {attributes.energy.current > 0 && attributes.energy.current <= 4 && (
+                <div className={`p-4 border-2 animate-pulse flex items-center justify-between gap-4 ${
+                  isPapyrus
+                    ? 'border-red-900 bg-red-900/10 text-red-955 shadow-md'
+                    : 'border-red-600 bg-red-950/20 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.15)] rounded-lg'
+                }`}>
+                  <div className="flex items-center gap-2.5">
+                    <ShieldAlert size={20} className="text-red-500 shrink-0" />
+                    <div className="text-left font-sans">
+                      <p className="text-xs uppercase font-extrabold tracking-wider">⚠️ Energia Criticamente Baixa! ({attributes.energy.current} / {attributes.energy.initial})</p>
+                      <p className="text-[10px] opacity-90 mt-0.5">O perigo espreita a cada esquina. Consuma Provisões ou use magias de cura imediatamente!</p>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
-                <div className={`md:col-span-4 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
-                  {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-                      <div className="lg:col-span-3 flex flex-col gap-6">
-                        <section
-                          className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                            isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                          }`}
-                        >
-                          <MonsterManager />
-                        </section>
+              {(sheetStatus === 'victory' || sheetStatus === 'defeat') && !inspectMode ? (
+                /* ── Tela Especial de Fim de Jogo ── */
+                sheetStatus === 'victory' ? (
+                  /* 🏆 TELA DE VITÓRIA 🏆 */
+                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${
+                    isPapyrus 
+                      ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]' 
+                      : 'border-emerald-500/30 bg-slate-900/80 text-slate-300 shadow-[0_0_50px_rgba(16,185,129,0.15)]'
+                  }`}>
+                    <Trophy size={72} className="text-yellow-500 animate-bounce mx-auto filter drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]" />
+                    <div className="space-y-2">
+                      <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-emerald-400'}`}>
+                        Vitória Gloriosa!
+                      </h2>
+                      <p className="text-sm font-sans max-w-md mx-auto opacity-90">
+                        Sua lenda foi escrita nas estrelas! Você concluiu com sucesso o livro-jogo: <strong className="italic">{gamebook || 'O Feiticeiro da Montanha de Fogo'}</strong>.
+                      </p>
+                    </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                          <DamageCard />
-                          <AttackCard key={`attack-${resetKey}`} />
-                          <DiceRoller key={`roller-${resetKey}`} />
-                        </div>
+                    <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
+
+                    {/* Resumo das Estatísticas */}
+                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${
+                      isPapyrus ? 'bg-[#EAD8B8]/40' : 'bg-slate-950/50 rounded-lg'
+                    }`}>
+                      <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Resumo da Jornada</h3>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Personagem:</span>
+                        <span className="font-bold">{activeSheetTitle}</span>
                       </div>
-                      <div className="lg:col-span-1">
-                        {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
-                        {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
-                        {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Último Parágrafo Visitado:</span>
+                        <span className="font-mono font-bold">#{attributes.currentSection || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Habilidade / Energia / Sorte Final:</span>
+                        <span className="font-bold">{attributes.skill.current} / {attributes.energy.current} / {attributes.luck.current}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Moedas de Ouro Acumuladas:</span>
+                        <span className="font-bold">{gold} 🪙</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Inimigos Derrotados em Combate:</span>
+                        <span className="font-bold">{monsters.filter((m: any) => m.status === 'defeated').length} ⚔️</span>
                       </div>
                     </div>
-                  ) : (
-                    <>
+
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto w-full mt-4">
+                      <button
+                        onClick={() => setInspectMode(true)}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
+                          isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        📖 Ver Ficha
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const store = useSheetStore.getState();
+                          await store.setStatus('playing');
+                        }}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
+                          isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        ↩️ Retomar
+                      </button>
+                      <button
+                        onClick={() => handleBackToDashboard()}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]' 
+                            : 'border-emerald-500 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                        }`}
+                      >
+                        ⬅️ Dashboard
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* 💀 TELA DE DERROTA (GAME OVER) 💀 */
+                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${
+                    isPapyrus 
+                      ? 'border-red-900 bg-red-900/5 text-red-955' 
+                      : 'border-red-500/30 bg-slate-900/90 text-slate-300 shadow-[0_0_50px_rgba(239,68,68,0.2)]'
+                  }`}>
+                    <Skull size={72} className="text-red-600 animate-pulse mx-auto filter drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" />
+                    <div className="space-y-2">
+                      <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-red-900' : 'text-red-500'}`}>
+                        Sua Jornada Terminou
+                      </h2>
+                      <p className="text-sm font-sans max-w-md mx-auto opacity-90">
+                        A morte o encontrou nas profundezas e mistérios de <strong className="italic">{gamebook || 'O Feiticeiro da Montanha de Fogo'}</strong>.
+                      </p>
+                    </div>
+
+                    <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
+
+                    {/* Resumo das Estatísticas */}
+                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${
+                      isPapyrus ? 'bg-red-900/5' : 'bg-slate-950/50 rounded-lg'
+                    }`}>
+                      <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Detalhes da Queda</h3>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Aventureiro:</span>
+                        <span className="font-bold">{activeSheetTitle}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Parágrafo do Falecimento:</span>
+                        <span className="font-mono font-bold">#{attributes.currentSection || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Inimigos Derrotados:</span>
+                        <span className="font-bold">{monsters.filter((m: any) => m.status === 'defeated').length} ⚔️</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-70">Causa:</span>
+                        <span className="font-bold text-red-500">Exaustão de Energia (Vida)</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto w-full mt-4">
+                      <button
+                        onClick={() => setInspectMode(true)}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
+                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        📖 Ver Ficha
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const store = useSheetStore.getState();
+                          await store.setStatus('playing');
+                        }}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
+                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        ↩️ Retomar
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Deseja realmente renascer? Sua ficha atual será resetada.')) {
+                            resetSheet();
+                          }
+                        }}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]' 
+                            : 'border-red-600 bg-red-600/10 text-red-400 hover:bg-red-600/20 shadow-[0_0_15px_rgba(220,38,38,0.15)]'
+                        }`}
+                      >
+                        🔄 Renascer
+                      </button>
+                      <button
+                        onClick={() => handleBackToDashboard()}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
+                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        ⬅️ Dashboard
+                      </button>
+                    </div>
+                  </div>
+                )
+              ) : (
+                /* ── Ficha de Personagem Normal ── */
+                <>
+                  {/* ── Menu de Abas (Apenas Mobile) ── */}
+                  <div className={`md:hidden flex overflow-x-auto gap-2 mb-6 pb-2 border-b ${isPapyrus ? 'border-[#5C4033]/30' : 'border-[#4a5568]/50'}`}>
+                    {['Status', 'Combate', 'Inventário', 'Notas'].map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${
+                          activeTab === tab 
+                            ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
+                            : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-8">
+                    {/* Painel do Super-Herói (exclusivo para o livro do M.E.D.O.) */}
+                    {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                      <MedoTracker />
+                    )}
+
+                    {/* BLOCO DE CIMA: Atributos + Monstros/Ações */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                      {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
+                      <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
+                        <AttributeCard label="Habilidade" attrKey="skill" />
+                        <AttributeCard label="Energia" attrKey="energy" />
+                        <AttributeCard label="Sorte" attrKey="luck" />
+                        {gamebook === 'A Cidadela do Caos' && (
+                          <AttributeCard label="Mágica" attrKey="magic" />
+                        )}
+                        {gamebook === 'A Cripta do Vampiro' && (
+                          <AttributeCard label="Fé" attrKey="faith" />
+                        )}
+                        <CurrentSectionCard />
+                        
+                        {/* Ouro e Provisões vão para cá no Mobile também */}
+                        <div className="md:hidden">
+                          <GoldAndProvisions />
+                        </div>
+                      </div>
+
+                      {/* COMBATE TAB (Mobile) / Coluna Direita (Desktop) */}
+                      <div className={`md:col-span-4 flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
+                        {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
+                          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+                            <div className="lg:col-span-3 flex flex-col gap-6">
+                              <section
+                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                                  isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                                }`}
+                              >
+                                <MonsterManager />
+                              </section>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <DamageCard />
+                                <AttackCard key={`attack-${resetKey}`} />
+                                <DiceRoller key={`roller-${resetKey}`} />
+                              </div>
+                            </div>
+                            <div className="lg:col-span-1">
+                              {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
+                              {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
+                              {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <section
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                                isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                              }`}
+                            >
+                              <MonsterManager />
+                              {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                                <p className={`text-[10px] mt-4 uppercase font-bold tracking-wider text-center ${isPapyrus ? 'text-red-800' : 'text-cyan-400 font-mono animate-pulse'}`}>
+                                  ⚠️ Nota: Derrotar permanentemente (matar) um criminoso custa 1 Ponto de Herói. Prefira apenas capturá-los!
+                                </p>
+                              )}
+                            </section>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                              <DamageCard />
+                              <AttackCard key={`attack-${resetKey}`} />
+                              <DiceRoller key={`roller-${resetKey}`} />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* INVENTÁRIO TAB (Mobile) / BLOCO DO MEIO (Desktop) */}
+                    <div className={`grid-cols-1 md:grid-cols-2 gap-6 ${activeTab === 'Inventário' ? 'grid' : 'hidden md:grid'}`}>
                       <section
                         className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
                           isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                         }`}
                       >
-                        <MonsterManager />
-                        {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
-                          <p className={`text-[10px] mt-4 uppercase font-bold tracking-wider text-center ${isPapyrus ? 'text-red-800' : 'text-cyan-400 font-mono animate-pulse'}`}>
-                            ⚠️ Nota: Derrotar permanentemente (matar) um criminoso custa 1 Ponto de Herói. Prefira apenas capturá-los!
-                          </p>
-                        )}
+                        <InventoryManager />
                       </section>
+                      <section
+                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
+                          isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                        }`}
+                      >
+                        <CombatHistory />
+                      </section>
+                    </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <DamageCard />
-                        <AttackCard key={`attack-${resetKey}`} />
-                        <DiceRoller key={`roller-${resetKey}`} />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                    {/* STATUS TAB extras (Mobile) / BLOCO INFERIOR (Desktop) */}
+                    <section className={`hidden md:block`}>
+                      <GoldAndProvisions />
+                    </section>
 
-              {/* INVENTÁRIO TAB (Mobile) / BLOCO DO MEIO (Desktop) */}
-              <div className={`grid-cols-1 md:grid-cols-2 gap-6 ${activeTab === 'Inventário' ? 'grid' : 'hidden md:grid'}`}>
-                <section
-                  className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                    isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                  }`}
-                >
-                  <InventoryManager />
-                </section>
-                <section
-                  className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                    isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                  }`}
-                >
-                  <CombatHistory />
-                </section>
-              </div>
-
-              {/* STATUS TAB extras (Mobile) / BLOCO INFERIOR (Desktop) */}
-              <section className={`hidden md:block`}>
-                <GoldAndProvisions />
-              </section>
-
-              {/* NOTAS TAB (Mobile) / BLOCO INFERIOR (Desktop) */}
-              <section className={`flex-col min-h-[200px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
-                <NotesCard />
-              </section>
+                    {/* NOTAS TAB (Mobile) / BLOCO INFERIOR (Desktop) */}
+                    <section className={`flex-col min-h-[200px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
+                      <NotesCard />
+                    </section>
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-        )
-      )}
+          )
+        )}
       </div>
     </main>
   );

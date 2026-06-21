@@ -11,7 +11,7 @@ function extractYoutubeId(urlOrId: string): string | null {
   if (trimmed.length === 11 && !trimmed.includes('/') && !trimmed.includes('.')) {
     return trimmed;
   }
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|live\/)([^#\&\?]*).*/;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|live\/|video\/)([^#\&\?]*).*/;
   const match = trimmed.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
 }
