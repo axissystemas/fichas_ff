@@ -21,7 +21,7 @@ export const AttackCard = () => {
   const rollAttack = () => {
     audio.playDiceRoll();
     const store = useSheetStore.getState();
-    const skill = store.attributes.skill.current;
+    const skill = store.getModifiedAttribute('skill');
     
     // 2d6 para aventureiro
     const advDice = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;

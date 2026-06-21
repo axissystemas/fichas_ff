@@ -8,13 +8,16 @@ interface Props {
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {
-  const { attributes, setAttribute, theme, gamebook } = useSheetStore();
+  const { attributes, setAttribute, theme, gamebook, getModifiedAttribute, inventory } = useSheetStore();
   const attr = attributes[attrKey] || { initial: 0, current: 0 };
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
   const superpower = attributes.superpower;
 
-  const isEnergyLow = attrKey === 'energy' && attr.current > 0 && attr.current <= 4;
-  const isFearHigh = attrKey === 'fear' && attr.initial > 0 && attr.current > 0 && attr.current >= attr.initial - 2;
+  const modifiedCurrent = getModifiedAttribute(attrKey);
+  const modifier = modifiedCurrent - attr.current;
+
+  const isEnergyLow = attrKey === 'energy' && modifiedCurrent > 0 && modifiedCurrent <= 4;
+  const isFearHigh = attrKey === 'fear' && attr.initial > 0 && modifiedCurrent > 0 && modifiedCurrent >= attr.initial - 2;
   const isAlert = isEnergyLow || isFearHigh;
 
   const cardClasses = theme === 'papyrus' 
@@ -68,12 +71,23 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
       <div className="flex items-center justify-between gap-4 mt-2 mb-2">
         <button 
           onClick={handleDecrement}
-          className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
+          className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm cursor-pointer ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
         >-</button>
-        <div className="text-4xl font-bold">{attr.current}</div>
+        <div className="text-4xl font-bold flex items-baseline gap-1.5">
+          <span>{modifiedCurrent}</span>
+          {modifier !== 0 && (
+            <span className={`text-sm font-bold font-sans ${
+              (attrKey === 'fear' ? modifier < 0 : modifier > 0)
+                ? (theme === 'papyrus' ? 'text-green-800' : 'text-green-400') 
+                : (theme === 'papyrus' ? 'text-red-800' : 'text-red-400')
+            }`}>
+              {modifier > 0 ? `+${modifier}` : modifier}
+            </span>
+          )}
+        </div>
         <button 
           onClick={handleIncrement}
-          className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
+          className={`w-12 h-12 border hover:bg-[#2C1E14] hover:text-[#FDF6E3] flex items-center justify-center text-xl font-bold rounded-sm cursor-pointer ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}
         >+</button>
       </div>
       <div className={`flex items-center justify-center gap-3 mt-4 p-2 ${theme === 'papyrus' ? 'bg-[#EAD8B8] text-[#2C1E14]' : 'bg-[#2d3748] text-[#cbd5e0]'}`}>

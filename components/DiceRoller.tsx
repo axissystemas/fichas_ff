@@ -19,7 +19,7 @@ interface RollResult {
 export const DiceRoller = () => {
   const [selectedAttr, setSelectedAttr] = useState<AttributeKey>('skill');
   const [result, setResult] = useState<RollResult | null>(null);
-  const { theme, gamebook, attributes, setAttribute, addCombatLog } = useSheetStore();
+  const { theme, gamebook, attributes, setAttribute, addCombatLog, getModifiedAttribute, inventory } = useSheetStore();
 
   const isPapyrus = theme === 'papyrus';
 
@@ -54,7 +54,7 @@ export const DiceRoller = () => {
 
   const runAttributeTest = () => {
     audio.playDiceRoll();
-    const attrValue = attributes[selectedAttr]?.current ?? 0;
+    const attrValue = getModifiedAttribute(selectedAttr);
 
     const d1 = Math.floor(Math.random() * 6) + 1;
     const d2 = Math.floor(Math.random() * 6) + 1;
@@ -65,7 +65,8 @@ export const DiceRoller = () => {
 
     // Apply special rule for Luck Test: decrease Luck score by 1
     if (selectedAttr === 'luck') {
-      setAttribute('luck', Math.max(0, attrValue - 1), false);
+      const baseLuck = attributes.luck.current;
+      setAttribute('luck', Math.max(0, baseLuck - 1), false);
     }
 
     setResult({
@@ -145,7 +146,7 @@ export const DiceRoller = () => {
                   value={attr.key}
                   className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}
                 >
-                  {attr.label} (atual: {attributes[attr.key]?.current ?? 0})
+                  {attr.label} (atual: {getModifiedAttribute(attr.key)})
                 </option>
               ))}
             </select>

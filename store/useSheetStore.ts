@@ -95,11 +95,21 @@ const defaultUserStats = (): UserStats => ({
   recentDeathsCount: 0,
 });
 
-interface Item {
+export interface AttributeModifiers {
+  skill?: number;
+  energy?: number;
+  luck?: number;
+  magic?: number;
+  faith?: number;
+  fear?: number;
+}
+
+export interface Item {
   id: string;
   name: string;
   quantity: number;
   equipped: boolean;
+  modifiers?: AttributeModifiers;
 }
 
 export interface Monster {
@@ -295,6 +305,8 @@ interface SheetState {
   addItem: (item: Item) => void;
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, delta: number) => void;
+  toggleEquipItem: (id: string) => void;
+  getModifiedAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear') => number;
   setTheme: (theme: 'papyrus' | 'night') => void;
   toggleSound: () => void;
   toggleMusic: () => void;
@@ -1174,6 +1186,21 @@ export const useSheetStore = create<SheetState>()(
         }));
         scheduleSave(get());
       },
+      toggleEquipItem: (id) => {
+        set((state) => ({
+          inventory: state.inventory.map((i) =>
+            i.id === id ? { ...i, equipped: !i.equipped } : i
+          ),
+        }));
+        scheduleSave(get());
+      },
+      getModifiedAttribute: (key) => {
+        const baseValue = get().attributes[key]?.current ?? 0;
+        const modifiers = get().inventory
+          .filter((item) => item.equipped && item.quantity > 0)
+          .reduce((sum, item) => sum + (item.modifiers?.[key] ?? 0), 0);
+        return Math.max(0, baseValue + modifiers);
+      },
 
       // ── Theme ─────────────────────────────────────────────────────────────
       setTheme: (theme) => {
@@ -1612,7 +1639,24 @@ export const useSheetStore = create<SheetState>()(
                 updated_at: new Date().toISOString() 
               });
 
-            if (error) throw error;
+            if (error) {
+              // Se for erro de coluna inexistente (código 42703), tenta salvar apenas os campos básicos
+              if (error.code === '42703') {
+                console.warn('[YoutubeSettingsStore] Colunas de redes sociais não existem na tabela youtube_settings. Salvando apenas configurações básicas...');
+                const { error: fallbackError } = await supabase
+                  .from('youtube_settings')
+                  .upsert({ 
+                    id: 1, 
+                    channel_id: channelId, 
+                    video_url: videoUrl, 
+                    is_live: isLive, 
+                    updated_at: new Date().toISOString() 
+                  });
+                if (fallbackError) throw fallbackError;
+              } else {
+                throw error;
+              }
+            }
           }
 
           // Sempre salva no localStorage também

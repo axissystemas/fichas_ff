@@ -15,6 +15,7 @@ export const MedoTracker = () => {
     updateClues,
     addCombatLog,
     saveToSupabase,
+    getModifiedAttribute,
   } = useSheetStore();
 
   const isPapyrus = theme === 'papyrus';
@@ -85,7 +86,7 @@ export const MedoTracker = () => {
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
       const total = d1 + d2;
-      const skill = attributes.skill.current;
+      const skill = getModifiedAttribute('skill');
 
       const hit = total <= skill;
       setAttribute('energy', attributes.energy.current - 2, false);

@@ -5,6 +5,23 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+export interface AttributeModifiers {
+  skill?: number;
+  energy?: number;
+  luck?: number;
+  magic?: number;
+  faith?: number;
+  fear?: number;
+}
+
+export interface DbItem {
+  id: string;
+  name: string;
+  quantity: number;
+  equipped: boolean;
+  modifiers?: AttributeModifiers;
+}
+
 // Database types
 export interface DbSheet {
   id: string;
@@ -18,12 +35,7 @@ export interface DbSheet {
   };
   gold: number;
   provisions: number;
-  inventory: Array<{
-    id: string;
-    name: string;
-    quantity: number;
-    equipped: boolean;
-  }>;
+  inventory: DbItem[];
   monsters: Array<{
     id: string;
     name: string;

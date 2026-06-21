@@ -378,6 +378,8 @@ export default function Home() {
     activeSheetLogs,
     youtubeSettings,
     loadYoutubeSettings,
+    getModifiedAttribute,
+    inventory,
   } = useSheetStore();
 
   const [inspectMode, setInspectMode] = useState(false);
@@ -393,6 +395,10 @@ export default function Home() {
   useEffect(() => {
     setInspectMode(false);
   }, [activeSheetId]);
+
+  const modifiedEnergy = getModifiedAttribute('energy');
+  const modifiedSkill = getModifiedAttribute('skill');
+  const modifiedLuck = getModifiedAttribute('luck');
 
   const isNewSheet = attributes.skill.initial === 0 && attributes.energy.initial === 0 && attributes.luck.initial === 0;
 
@@ -1316,7 +1322,7 @@ export default function Home() {
           ) : (
             <div className="animate-fade-in space-y-6">
               {/* Alerta de Energia Baixa */}
-              {attributes.energy.current > 0 && attributes.energy.current <= 4 && (
+              {modifiedEnergy > 0 && modifiedEnergy <= 4 && (
                 <div className={`p-4 border-2 animate-pulse flex items-center justify-between gap-4 ${isPapyrus
                   ? 'border-red-900 bg-red-900/10 text-red-955 shadow-md'
                   : 'border-red-600 bg-red-950/20 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.15)] rounded-lg'
@@ -1324,7 +1330,7 @@ export default function Home() {
                   <div className="flex items-center gap-2.5">
                     <ShieldAlert size={20} className="text-red-500 shrink-0" />
                     <div className="text-left font-sans">
-                      <p className="text-xs uppercase font-extrabold tracking-wider">⚠️ Energia Criticamente Baixa! ({attributes.energy.current} / {attributes.energy.initial})</p>
+                      <p className="text-xs uppercase font-extrabold tracking-wider">⚠️ Energia Criticamente Baixa! ({modifiedEnergy} / {attributes.energy.initial})</p>
                       <p className="text-[10px] opacity-90 mt-0.5">O perigo espreita a cada esquina. Consuma Provisões ou use magias de cura imediatamente!</p>
                     </div>
                   </div>
@@ -1365,7 +1371,7 @@ export default function Home() {
                       </div>
                       <div className="flex justify-between">
                         <span className="opacity-70">Habilidade / Energia / Sorte Final:</span>
-                        <span className="font-bold">{attributes.skill.current} / {attributes.energy.current} / {attributes.luck.current}</span>
+                        <span className="font-bold">{modifiedSkill} / {modifiedEnergy} / {modifiedLuck}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="opacity-70">Moedas de Ouro Acumuladas:</span>
@@ -1414,7 +1420,7 @@ export default function Home() {
                     }`}>
                     <Skull size={72} className="text-red-600 animate-pulse mx-auto filter drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" />
                     {(() => {
-                      const isMorteDeMedo = gamebook === 'A Mansão do Inferno' && attributes.fear && attributes.fear.initial > 0 && attributes.fear.current >= attributes.fear.initial;
+                      const isMorteDeMedo = gamebook === 'A Mansão do Inferno' && attributes.fear && attributes.fear.initial > 0 && getModifiedAttribute('fear') >= attributes.fear.initial;
                       return (
                         <>
                           <div className="space-y-2">
