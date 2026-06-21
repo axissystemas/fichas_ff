@@ -23,7 +23,8 @@ import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
-  Volume2, VolumeX, Music, Skull, Trophy, Award, ShieldAlert
+  Volume2, VolumeX, Music, Skull, Trophy, Award, ShieldAlert,
+  Instagram, Youtube
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 import { audio, music } from '@/lib/audio';
@@ -33,6 +34,13 @@ import { ACHIEVEMENTS } from '@/lib/achievements';
 import AchievementToast from '@/components/AchievementToast';
 import { victoryParagraphs } from '@/lib/victoryParagraphs';
 import { CompletionChecklist } from '@/components/CompletionChecklist';
+
+// Custom Discord Icon component
+const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 127.14 96.36" fill="currentColor" {...props}>
+    <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c1-.73,2-1.5,2.92-2.3a75.7,75.7,0,0,0,92.14,0c.93.8,1.91,1.57,2.92,2.3a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,122.57,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z" />
+  </svg>
+);
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
@@ -48,7 +56,7 @@ function SheetDashboard() {
 
   useEffect(() => {
     loadSheetsList();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCreate = async () => {
@@ -368,6 +376,8 @@ export default function Home() {
     gold,
     monsters,
     activeSheetLogs,
+    youtubeSettings,
+    loadYoutubeSettings,
   } = useSheetStore();
 
   const [inspectMode, setInspectMode] = useState(false);
@@ -425,6 +435,7 @@ export default function Home() {
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
     loadNewsList();
+    loadYoutubeSettings();
     if (typeof window !== 'undefined') {
       const redirect = sessionStorage.getItem('login_redirect');
       if (redirect) {
@@ -520,10 +531,10 @@ export default function Home() {
 
     const interval = setInterval(() => {
       const store = useSheetStore.getState();
-      
+
       // Increment cumulative music listening stat (every 10s)
       store.incrementStat('musicTimeMs', 10000);
-      
+
       setContinuousMusicSeconds(prev => {
         const next = prev + 10;
         if (next >= 300) { // 5 minutes continuous
@@ -599,7 +610,7 @@ export default function Home() {
     a.download = 'adventure-sheet.json';
     a.click();
     URL.revokeObjectURL(url);
-    
+
     // Increment sheetsExported stat
     state.incrementStat('sheetsExported');
   };
@@ -627,7 +638,7 @@ export default function Home() {
         if (typeof data.provisions === 'number') store.updateProvisions(data.provisions - useSheetStore.getState().provisions);
         if (data.notes) store.setNotes(data.notes);
         await store.saveToSupabase();
-        
+
         // Increment sheetsImported stat
         store.incrementStat('sheetsImported');
       } catch {
@@ -712,7 +723,7 @@ export default function Home() {
 
           if (!tableError && rawAchievements && rawAchievements.length > 0) {
             const userIds = Array.from(new Set(rawAchievements.map(a => a.user_id)));
-            
+
             const { data: profiles } = await supabase
               .from('user_profiles')
               .select('id, display_name')
@@ -724,7 +735,7 @@ export default function Home() {
               const def = ACHIEVEMENTS.find(ach => ach.id === a.achievement_id);
               const displayName = profileMap.get(a.user_id) || 'Aventureiro';
               const cleanName = displayName.includes('@') ? displayName.split('@')[0] : displayName;
-              
+
               return {
                 display_name: cleanName,
                 achievement_title: def ? def.title : 'Nova Conquista',
@@ -760,7 +771,7 @@ export default function Home() {
     channel.subscribe(async (statusSubscription) => {
       if (statusSubscription === 'SUBSCRIBED') {
         const name = user.user_metadata?.full_name || user.email || 'Jogador Anônimo';
-        
+
         let displayGamebook = 'Menu Principal';
         let displaySection = '-';
         let displayStatus = '-';
@@ -794,24 +805,20 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 font-serif ${
-        isPapyrus ? 'theme-papyrus' : 'theme-night'
-      }`}
+      className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 font-serif ${isPapyrus ? 'theme-papyrus' : 'theme-night'
+        }`}
     >
       <div
-        className={`w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-all duration-300 ${
-          showSheet || showLogin
-            ? 'max-w-[1280px] xl:max-w-[1400px]' 
-            : 'max-w-[1024px]'
-        } ${
-          isPapyrus ? 'theme-papyrus-card' : 'theme-night-card'
-        }`}
+        className={`w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-all duration-300 ${showSheet || showLogin
+          ? 'max-w-[1280px] xl:max-w-[1400px]'
+          : 'max-w-[1024px]'
+          } ${isPapyrus ? 'theme-papyrus-card' : 'theme-night-card'
+          }`}
       >
         {/* ── Cabeçalho ── */}
         <header
-          className={`flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b-2 ${
-            isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-[#4a5568] text-[#cbd5e0]'
-          }`}
+          className={`flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b-2 ${isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-[#4a5568] text-[#cbd5e0]'
+            }`}
         >
           <div className="text-center sm:text-left">
             {/* Title — clicking it when in a sheet goes back to dashboard */}
@@ -831,11 +838,10 @@ export default function Home() {
                     <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
                       Personagem
                     </span>
-                    <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 border ${
-                      isPapyrus
-                        ? 'bg-[#5C4033]/10 text-[#2D1D16] border-[#5C4033]/40'
-                        : 'bg-slate-800 text-slate-100 border-slate-600'
-                    }`}>
+                    <span className={`text-xs uppercase font-bold tracking-widest px-2 py-0.5 border ${isPapyrus
+                      ? 'bg-[#5C4033]/10 text-[#2D1D16] border-[#5C4033]/40'
+                      : 'bg-slate-800 text-slate-100 border-slate-600'
+                      }`}>
                       🧙 {activeSheetTitle}
                     </span>
                   </div>
@@ -848,11 +854,10 @@ export default function Home() {
                     <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
                       Livrojogo
                     </span>
-                    <span className={`text-xs font-bold italic px-2 py-0.5 border ${
-                      isPapyrus
-                        ? 'bg-[#8B4513]/10 text-[#6B3A2A] border-[#8B4513]/30'
-                        : 'bg-cyan-950/50 text-cyan-300 border-cyan-700/50'
-                    }`}>
+                    <span className={`text-xs font-bold italic px-2 py-0.5 border ${isPapyrus
+                      ? 'bg-[#8B4513]/10 text-[#6B3A2A] border-[#8B4513]/30'
+                      : 'bg-cyan-950/50 text-cyan-300 border-cyan-700/50'
+                      }`}>
                       📚 {gamebook || 'O Feiticeiro da Montanha de Fogo'}
                       {BOOKS_WITH_SUGGESTIONS.includes((gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
                     </span>
@@ -947,9 +952,9 @@ export default function Home() {
                 onClick={async () => {
                   if (window.confirm('Você realmente completou com sucesso este livro-jogo? Sua vitória será gravada nas estatísticas!')) {
                     setCelebrating(true);
-                    
+
                     audio.playVictory();
-                    
+
                     const end = Date.now() + 3500;
                     const colors = ['#bb0000', '#ffffff', '#facc15', '#f59e0b', '#3b82f6'];
 
@@ -982,11 +987,10 @@ export default function Home() {
                   }
                 }}
                 disabled={!canCompleteBook}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 border transition text-xs uppercase font-bold tracking-wider ${
-                  canCompleteBook
-                    ? 'border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white cursor-pointer'
-                    : 'opacity-55 cursor-not-allowed border-gray-500 text-gray-500 bg-transparent'
-                }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 border transition text-xs uppercase font-bold tracking-wider ${canCompleteBook
+                  ? 'border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white cursor-pointer'
+                  : 'opacity-55 cursor-not-allowed border-gray-500 text-gray-500 bg-transparent'
+                  }`}
               >
                 <Trophy size={12} /> Concluir Livro
               </button>
@@ -1012,11 +1016,10 @@ export default function Home() {
         {showLogin && (
           <div className="flex flex-col gap-8 py-10 px-4 animate-fade-in">
             {/* Barra de Estatísticas da Comunidade */}
-            <div className={`w-full p-4 border-2 rounded-sm flex flex-col md:flex-row items-center justify-around gap-6 text-center ${
-              isPapyrus
-                ? 'border-[#C5A059] bg-[#EAD8B8]/30 text-[#2D1D16]'
-                : 'border-slate-800 bg-slate-900/40 text-slate-300 shadow-[0_0_20px_rgba(0,0,0,0.2)]'
-            }`}>
+            <div className={`w-full p-4 border-2 rounded-sm flex flex-col md:flex-row items-center justify-around gap-6 text-center ${isPapyrus
+              ? 'border-[#C5A059] bg-[#EAD8B8]/30 text-[#2D1D16]'
+              : 'border-slate-800 bg-slate-900/40 text-slate-300 shadow-[0_0_20px_rgba(0,0,0,0.2)]'
+              }`}>
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl select-none">⚔️</span>
                 <div className="text-left md:text-center">
@@ -1025,7 +1028,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="hidden md:block w-px h-8 bg-current opacity-20" />
-              
+
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl select-none">📚</span>
                 <div className="text-left md:text-center">
@@ -1124,7 +1127,7 @@ export default function Home() {
                       <div className="flex items-center justify-center mb-1 drop-shadow-lg">
                         <img src="/logo.png" alt="Logo" className="w-24 h-24 object-contain" />
                       </div>
-                      
+
                       <div className="text-center space-y-2">
                         <h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-[#2D1D16] leading-tight">
                           Viva Aventuras Fantásticas Online
@@ -1147,7 +1150,7 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base select-none">☁️</span>
-                          <span className="font-bold">Salve sua aventura na nuvem.</span>
+                          <span className="font-bold">Salve sua ficha de aventura na nuvem.</span>
                         </div>
                       </div>
 
@@ -1197,7 +1200,7 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base text-cyan-400 select-none">☁️</span>
-                          <span className="font-medium">Salve sua aventura na nuvem.</span>
+                          <span className="font-medium">Salve sua ficha de aventura na nuvem.</span>
                         </div>
                       </div>
 
@@ -1217,13 +1220,52 @@ export default function Home() {
                   )}
                 </div>
 
+                {/* Bloco de Novidades da Guilda */}
+                <div className="w-full text-left flex-1">
+                  <div className={`${isPapyrus
+                    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
+                    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
+                    } h-full flex flex-col gap-6`}>
+                    <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
+                      📢 Novidades da Guilda
+                    </h3>
+                    <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                      {newsList.map((item, index) => (
+                        <div
+                          key={item.id || index}
+                          className={`space-y-1 ${index > 0 ? 'border-t border-current/5 pt-3' : ''}`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${getCategoryBadgeStyle(item.category, isPapyrus)}`}>
+                              {item.category}
+                            </span>
+                            <span className={`text-[9px] font-sans opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                              📅 {formatDate(item.date)}
+                            </span>
+                          </div>
+                          <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                            {item.title}
+                          </h4>
+                          <p className={`text-[10px] leading-relaxed opacity-85 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                            {item.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna da Direita: YouTube Live Stream e Conquistas Recentes */}
+              <div className="lg:col-span-7 flex flex-col gap-6 w-full">
+                <YouTubeLiveStream />
+
                 {/* Bloco de Conquistas Recentes */}
                 <div className="w-full text-left">
-                  <div className={`${
-                    isPapyrus
-                      ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 text-[#2D1D16]'
-                      : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 text-slate-300'
-                  } flex flex-col gap-4`}>
+                  <div className={`${isPapyrus
+                    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
+                    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
+                    } flex flex-col gap-4`}>
                     <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
                       🏆 Conquistas Recentes
                     </h3>
@@ -1251,51 +1293,10 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-
-                {/* Bloco de Novidades da Guilda */}
-                <div className="w-full text-left flex-1">
-                <div className={`${
-                  isPapyrus
-                    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16]'
-                    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300'
-                } h-full flex flex-col gap-6`}>
-                  <h3 className={`text-base font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} border-b border-current/10 pb-2 flex items-center gap-1.5`}>
-                    📢 Novidades da Guilda
-                  </h3>
-                  <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
-                    {newsList.map((item, index) => (
-                      <div
-                        key={item.id || index}
-                        className={`space-y-1 ${index > 0 ? 'border-t border-current/5 pt-3' : ''}`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className={`text-[9px] font-sans font-bold uppercase tracking-wider px-1.5 py-0.5 ${getCategoryBadgeStyle(item.category, isPapyrus)}`}>
-                            {item.category}
-                          </span>
-                          <span className={`text-[9px] font-sans opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                            📅 {formatDate(item.date)}
-                          </span>
-                        </div>
-                        <h4 className={`font-bold text-xs uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                          {item.title}
-                        </h4>
-                        <p className={`text-[10px] leading-relaxed opacity-85 font-sans ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
-                          {item.description}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
-
-            {/* Coluna da Direita: YouTube Live Stream */}
-            <div className="lg:col-span-7 w-full">
-              <YouTubeLiveStream />
-            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* ── Dashboard de Fichas ── */}
         {showDashboard && <SheetDashboard />}
@@ -1308,11 +1309,10 @@ export default function Home() {
             <div className="animate-fade-in space-y-6">
               {/* Alerta de Energia Baixa */}
               {attributes.energy.current > 0 && attributes.energy.current <= 4 && (
-                <div className={`p-4 border-2 animate-pulse flex items-center justify-between gap-4 ${
-                  isPapyrus
-                    ? 'border-red-900 bg-red-900/10 text-red-955 shadow-md'
-                    : 'border-red-600 bg-red-950/20 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.15)] rounded-lg'
-                }`}>
+                <div className={`p-4 border-2 animate-pulse flex items-center justify-between gap-4 ${isPapyrus
+                  ? 'border-red-900 bg-red-900/10 text-red-955 shadow-md'
+                  : 'border-red-600 bg-red-950/20 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.15)] rounded-lg'
+                  }`}>
                   <div className="flex items-center gap-2.5">
                     <ShieldAlert size={20} className="text-red-500 shrink-0" />
                     <div className="text-left font-sans">
@@ -1327,11 +1327,10 @@ export default function Home() {
                 /* ── Tela Especial de Fim de Jogo ── */
                 sheetStatus === 'victory' ? (
                   /* 🏆 TELA DE VITÓRIA 🏆 */
-                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${
-                    isPapyrus 
-                      ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]' 
-                      : 'border-emerald-500/30 bg-slate-900/80 text-slate-300 shadow-[0_0_50px_rgba(16,185,129,0.15)]'
-                  }`}>
+                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${isPapyrus
+                    ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]'
+                    : 'border-emerald-500/30 bg-slate-900/80 text-slate-300 shadow-[0_0_50px_rgba(16,185,129,0.15)]'
+                    }`}>
                     <Trophy size={72} className="text-yellow-500 animate-bounce mx-auto filter drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]" />
                     <div className="space-y-2">
                       <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-[#8B4513]' : 'text-emerald-400'}`}>
@@ -1345,9 +1344,8 @@ export default function Home() {
                     <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
 
                     {/* Resumo das Estatísticas */}
-                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${
-                      isPapyrus ? 'bg-[#EAD8B8]/40' : 'bg-slate-950/50 rounded-lg'
-                    }`}>
+                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${isPapyrus ? 'bg-[#EAD8B8]/40' : 'bg-slate-950/50 rounded-lg'
+                      }`}>
                       <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Resumo da Jornada</h3>
                       <div className="flex justify-between">
                         <span className="opacity-70">Personagem:</span>
@@ -1374,9 +1372,8 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto w-full mt-4">
                       <button
                         onClick={() => setInspectMode(true)}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
-                          isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
+                          }`}
                       >
                         📖 Ver Ficha
                       </button>
@@ -1385,19 +1382,17 @@ export default function Home() {
                           const store = useSheetStore.getState();
                           await store.setStatus('playing');
                         }}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
-                          isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-slate-700 text-slate-300'
+                          }`}
                       >
                         ↩️ Retomar
                       </button>
                       <button
                         onClick={() => handleBackToDashboard()}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${
-                          isPapyrus 
-                            ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]' 
-                            : 'border-emerald-500 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${isPapyrus
+                          ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]'
+                          : 'border-emerald-500 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                          }`}
                       >
                         ⬅️ Dashboard
                       </button>
@@ -1405,11 +1400,10 @@ export default function Home() {
                   </div>
                 ) : (
                   /* 💀 TELA DE DERROTA (GAME OVER) 💀 */
-                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${
-                    isPapyrus 
-                      ? 'border-red-900 bg-red-900/5 text-red-955' 
-                      : 'border-red-500/30 bg-slate-900/90 text-slate-300 shadow-[0_0_50px_rgba(239,68,68,0.2)]'
-                  }`}>
+                  <div className={`p-8 text-center border-2 rounded-xl flex flex-col gap-6 animate-fade-in ${isPapyrus
+                    ? 'border-red-900 bg-red-900/5 text-red-955'
+                    : 'border-red-500/30 bg-slate-900/90 text-slate-300 shadow-[0_0_50px_rgba(239,68,68,0.2)]'
+                    }`}>
                     <Skull size={72} className="text-red-600 animate-pulse mx-auto filter drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" />
                     <div className="space-y-2">
                       <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-red-900' : 'text-red-500'}`}>
@@ -1423,9 +1417,8 @@ export default function Home() {
                     <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
 
                     {/* Resumo das Estatísticas */}
-                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${
-                      isPapyrus ? 'bg-red-900/5' : 'bg-slate-950/50 rounded-lg'
-                    }`}>
+                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${isPapyrus ? 'bg-red-900/5' : 'bg-slate-950/50 rounded-lg'
+                      }`}>
                       <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Detalhes da Queda</h3>
                       <div className="flex justify-between">
                         <span className="opacity-70">Aventureiro:</span>
@@ -1448,9 +1441,8 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto w-full mt-4">
                       <button
                         onClick={() => setInspectMode(true)}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
-                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                          }`}
                       >
                         📖 Ver Ficha
                       </button>
@@ -1459,9 +1451,8 @@ export default function Home() {
                           const store = useSheetStore.getState();
                           await store.setStatus('playing');
                         }}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
-                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                          }`}
                       >
                         ↩️ Retomar
                       </button>
@@ -1471,19 +1462,17 @@ export default function Home() {
                             resetSheet();
                           }
                         }}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${
-                          isPapyrus 
-                            ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]' 
-                            : 'border-red-600 bg-red-600/10 text-red-400 hover:bg-red-600/20 shadow-[0_0_15px_rgba(220,38,38,0.15)]'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border-2 transition-all rounded ${isPapyrus
+                          ? 'border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F]'
+                          : 'border-red-600 bg-red-600/10 text-red-400 hover:bg-red-600/20 shadow-[0_0_15px_rgba(220,38,38,0.15)]'
+                          }`}
                       >
                         🔄 Renascer
                       </button>
                       <button
                         onClick={() => handleBackToDashboard()}
-                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${
-                          isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
-                        }`}
+                        className={`flex-1 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer border hover:bg-current/5 transition-all rounded ${isPapyrus ? 'border-red-955 text-red-955' : 'border-slate-700 text-slate-300'
+                          }`}
                       >
                         ⬅️ Dashboard
                       </button>
@@ -1499,11 +1488,10 @@ export default function Home() {
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${
-                          activeTab === tab 
-                            ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
-                            : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
-                        }`}
+                        className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${activeTab === tab
+                          ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
+                          : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
+                          }`}
                       >
                         {tab}
                       </button>
@@ -1531,7 +1519,7 @@ export default function Home() {
                         )}
                         <CurrentSectionCard />
                         <CompletionChecklist />
-                        
+
                         {/* Ouro e Provisões vão para cá no Mobile também */}
                         <div className="md:hidden">
                           <GoldAndProvisions />
@@ -1544,9 +1532,8 @@ export default function Home() {
                           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                             <div className="lg:col-span-3 flex flex-col gap-6">
                               <section
-                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                                  isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                                }`}
+                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                                  }`}
                               >
                                 <MonsterManager />
                               </section>
@@ -1566,9 +1553,8 @@ export default function Home() {
                         ) : (
                           <>
                             <section
-                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                                isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                              }`}
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                                }`}
                             >
                               <MonsterManager />
                               {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
@@ -1591,16 +1577,14 @@ export default function Home() {
                     {/* INVENTÁRIO TAB (Mobile) / BLOCO DO MEIO (Desktop) */}
                     <div className={`grid-cols-1 md:grid-cols-2 gap-6 ${activeTab === 'Inventário' ? 'grid' : 'hidden md:grid'}`}>
                       <section
-                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                          isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                        }`}
+                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                          }`}
                       >
                         <InventoryManager />
                       </section>
                       <section
-                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${
-                          isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                        }`}
+                        className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                          }`}
                       >
                         <CombatHistory />
                       </section>
@@ -1621,6 +1605,65 @@ export default function Home() {
             </div>
           )
         )}
+
+        {/* Footer / Rodapé */}
+        <footer className={`mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans tracking-wide ${
+          isPapyrus 
+            ? 'border-[#5C4033]/20 text-[#5C4033]/70' 
+            : 'border-[#4a5568]/30 text-slate-400'
+        }`}>
+          <div>
+            © {new Date().getFullYear()} Aventuras Fantásticas. Todos os direitos reservados.
+          </div>
+          
+          {/* Social Media Links */}
+          {(youtubeSettings.instagramUrl || youtubeSettings.youtubeUrl || youtubeSettings.discordUrl) && (
+            <div className="flex items-center gap-4">
+              {youtubeSettings.instagramUrl && (
+                <a
+                  href={youtubeSettings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
+                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                  }`}
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Instagram size={18} />
+                </a>
+              )}
+              {youtubeSettings.youtubeUrl && (
+                <a
+                  href={youtubeSettings.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
+                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                  }`}
+                  title="YouTube"
+                  aria-label="YouTube"
+                >
+                  <Youtube size={18} />
+                </a>
+              )}
+              {youtubeSettings.discordUrl && (
+                <a
+                  href={youtubeSettings.discordUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
+                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                  }`}
+                  title="Discord"
+                  aria-label="Discord"
+                >
+                  <DiscordIcon className="w-[18px] h-[18px]" />
+                </a>
+              )}
+            </div>
+          )}
+        </footer>
       </div>
 
       {/* Efeito de Congratulações de Vitória */}
@@ -1639,9 +1682,8 @@ export default function Home() {
                 PARABÉNS!
               </h2>
               <p
-                className={`text-sm md:text-base uppercase font-bold tracking-widest ${
-                  isPapyrus ? 'text-[#F5EAD4]' : 'text-slate-200'
-                }`}
+                className={`text-sm md:text-base uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#F5EAD4]' : 'text-slate-200'
+                  }`}
               >
                 Você Venceu o Jogo!
               </p>

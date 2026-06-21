@@ -264,7 +264,7 @@ interface SheetState {
   isAdmin: boolean | null;
   newsList: NewsItem[];
   newsTableExists: boolean;
-  youtubeSettings: { channelId: string; videoUrl: string; isLive: boolean };
+  youtubeSettings: { channelId: string; videoUrl: string; isLive: boolean; instagramUrl: string; youtubeUrl: string; discordUrl: string; };
   youtubeTableExists: boolean;
   unlockedAchievements: Array<{ achievement_id: string; unlocked_at: string }>;
   achievementsTableExists: boolean;
@@ -335,7 +335,7 @@ interface SheetState {
   updateNewsItem: (id: string, item: Partial<NewsItem>) => Promise<boolean>;
   deleteNewsItem: (id: string) => Promise<boolean>;
   loadYoutubeSettings: () => Promise<void>;
-  saveYoutubeSettings: (channelId: string, videoUrl: string, isLive: boolean) => Promise<boolean>;
+  saveYoutubeSettings: (channelId: string, videoUrl: string, isLive: boolean, instagramUrl: string, youtubeUrl: string, discordUrl: string) => Promise<boolean>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -396,7 +396,7 @@ export const useSheetStore = create<SheetState>()(
       isAdmin: null,
       newsList: [],
       newsTableExists: false,
-      youtubeSettings: { channelId: 'UCQJ2X-kM3wX2HnC4a8e2r7g', videoUrl: '', isLive: false },
+      youtubeSettings: { channelId: 'UCQJ2X-kM3wX2HnC4a8e2r7g', videoUrl: '', isLive: false, instagramUrl: '', youtubeUrl: '', discordUrl: '' },
       youtubeTableExists: false,
       unlockedAchievements: [],
       achievementsTableExists: false,
@@ -1513,16 +1513,33 @@ export const useSheetStore = create<SheetState>()(
                 channelId: data.channel_id,
                 videoUrl: data.video_url || '',
                 isLive: data.is_live,
+                instagramUrl: data.instagram_url || '',
+                youtubeUrl: data.youtube_url || '',
+                discordUrl: data.discord_url || '',
               },
               youtubeTableExists: true,
             });
           } else {
             // Se a tabela existe mas está vazia, insere a linha padrão
-            const defaultSettings = { channel_id: 'UCQJ2X-kM3wX2HnC4a8e2r7g', video_url: '', is_live: false };
+            const defaultSettings = { 
+              channel_id: 'UCQJ2X-kM3wX2HnC4a8e2r7g', 
+              video_url: '', 
+              is_live: false,
+              instagram_url: '',
+              youtube_url: '',
+              discord_url: ''
+            };
             const { error: insertErr } = await supabase.from('youtube_settings').insert([{ id: 1, ...defaultSettings }]);
             if (!insertErr) {
               set({
-                youtubeSettings: { channelId: defaultSettings.channel_id, videoUrl: '', isLive: false },
+                youtubeSettings: { 
+                  channelId: defaultSettings.channel_id, 
+                  videoUrl: '', 
+                  isLive: false,
+                  instagramUrl: '',
+                  youtubeUrl: '',
+                  discordUrl: ''
+                },
                 youtubeTableExists: true,
               });
             }
@@ -1532,24 +1549,46 @@ export const useSheetStore = create<SheetState>()(
           let localChannel = 'UCQJ2X-kM3wX2HnC4a8e2r7g';
           let localVideo = '';
           let localLive = false;
+          let localInstagram = '';
+          let localYoutube = '';
+          let localDiscord = '';
           if (typeof window !== 'undefined') {
             localChannel = localStorage.getItem('yt_channel_id') || localChannel;
             localVideo = localStorage.getItem('yt_video_url') || localVideo;
             localLive = localStorage.getItem('yt_is_live') === 'true';
+            localInstagram = localStorage.getItem('yt_instagram_url') || '';
+            localYoutube = localStorage.getItem('yt_youtube_url') || '';
+            localDiscord = localStorage.getItem('yt_discord_url') || '';
           }
           set({
-            youtubeSettings: { channelId: localChannel, videoUrl: localVideo, isLive: localLive },
+            youtubeSettings: { 
+              channelId: localChannel, 
+              videoUrl: localVideo, 
+              isLive: localLive,
+              instagramUrl: localInstagram,
+              youtubeUrl: localYoutube,
+              discordUrl: localDiscord
+            },
             youtubeTableExists: false,
           });
         }
       },
-      saveYoutubeSettings: async (channelId, videoUrl, isLive) => {
+      saveYoutubeSettings: async (channelId, videoUrl, isLive, instagramUrl, youtubeUrl, discordUrl) => {
         try {
           const tableExists = get().youtubeTableExists;
           if (tableExists) {
             const { error } = await supabase
               .from('youtube_settings')
-              .upsert({ id: 1, channel_id: channelId, video_url: videoUrl, is_live: isLive, updated_at: new Date().toISOString() });
+              .upsert({ 
+                id: 1, 
+                channel_id: channelId, 
+                video_url: videoUrl, 
+                is_live: isLive, 
+                instagram_url: instagramUrl, 
+                youtube_url: youtubeUrl, 
+                discord_url: discordUrl,
+                updated_at: new Date().toISOString() 
+              });
 
             if (error) throw error;
           }
@@ -1559,10 +1598,13 @@ export const useSheetStore = create<SheetState>()(
             localStorage.setItem('yt_channel_id', channelId);
             localStorage.setItem('yt_video_url', videoUrl);
             localStorage.setItem('yt_is_live', isLive ? 'true' : 'false');
+            localStorage.setItem('yt_instagram_url', instagramUrl);
+            localStorage.setItem('yt_youtube_url', youtubeUrl);
+            localStorage.setItem('yt_discord_url', discordUrl);
           }
 
           set({
-            youtubeSettings: { channelId, videoUrl, isLive }
+            youtubeSettings: { channelId, videoUrl, isLive, instagramUrl, youtubeUrl, discordUrl }
           });
           return true;
         } catch (err) {

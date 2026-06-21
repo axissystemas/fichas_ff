@@ -71,6 +71,9 @@ export default function PainelAdmin() {
   const [ytChannelId, setYtChannelId] = useState('');
   const [ytVideoUrl, setYtVideoUrl] = useState('');
   const [ytIsLive, setYtIsLive] = useState(false);
+  const [ytInstagramUrl, setYtInstagramUrl] = useState('');
+  const [ytYoutubeUrl, setYtYoutubeUrl] = useState('');
+  const [ytDiscordUrl, setYtDiscordUrl] = useState('');
   const [ytSaving, setYtSaving] = useState(false);
   const [copiedYtSql, setCopiedYtSql] = useState(false);
   const [copiedAchievementsSql, setCopiedAchievementsSql] = useState(false);
@@ -230,6 +233,9 @@ export default function PainelAdmin() {
       setYtChannelId(youtubeSettings.channelId || '');
       setYtVideoUrl(youtubeSettings.videoUrl || '');
       setYtIsLive(youtubeSettings.isLive || false);
+      setYtInstagramUrl(youtubeSettings.instagramUrl || '');
+      setYtYoutubeUrl(youtubeSettings.youtubeUrl || '');
+      setYtDiscordUrl(youtubeSettings.discordUrl || '');
     }
   }, [youtubeSettings]);
 
@@ -238,6 +244,9 @@ export default function PainelAdmin() {
   channel_id TEXT NOT NULL DEFAULT 'UCQJ2X-kM3wX2HnC4a8e2r7g',
   video_url TEXT DEFAULT '',
   is_live BOOLEAN NOT NULL DEFAULT false,
+  instagram_url TEXT DEFAULT '',
+  youtube_url TEXT DEFAULT '',
+  discord_url TEXT DEFAULT '',
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   CONSTRAINT single_row CHECK (id = 1)
 );
@@ -256,9 +265,15 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.youtube_s
   );
 
 -- Insere o registro inicial padrão
-INSERT INTO public.youtube_settings (id, channel_id, video_url, is_live)
-VALUES (1, 'UCQJ2X-kM3wX2HnC4a8e2r7g', '', false)
-ON CONFLICT (id) DO NOTHING;`;
+INSERT INTO public.youtube_settings (id, channel_id, video_url, is_live, instagram_url, youtube_url, discord_url)
+VALUES (1, 'UCQJ2X-kM3wX2HnC4a8e2r7g', '', false, '', '', '')
+ON CONFLICT (id) DO NOTHING;
+
+-- Caso sua tabela já exista no banco, execute este script para adicionar as novas colunas:
+-- ALTER TABLE public.youtube_settings 
+-- ADD COLUMN IF NOT EXISTS instagram_url TEXT DEFAULT '',
+-- ADD COLUMN IF NOT EXISTS youtube_url TEXT DEFAULT '',
+-- ADD COLUMN IF NOT EXISTS discord_url TEXT DEFAULT '';`;
 
   const copyYtSqlToClipboard = () => {
     navigator.clipboard.writeText(youtubeSqlCommand);
@@ -342,7 +357,14 @@ GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
   const handleSaveYoutubeSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setYtSaving(true);
-    const success = await saveYoutubeSettings(ytChannelId.trim(), ytVideoUrl.trim(), ytIsLive);
+    const success = await saveYoutubeSettings(
+      ytChannelId.trim(), 
+      ytVideoUrl.trim(), 
+      ytIsLive,
+      ytInstagramUrl.trim(),
+      ytYoutubeUrl.trim(),
+      ytDiscordUrl.trim()
+    );
     setYtSaving(false);
     if (success) {
       alert('Configurações do YouTube salvas com sucesso!');
@@ -2278,6 +2300,57 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                         <label htmlFor="yt-live-toggle" className="text-xs uppercase font-bold tracking-wider cursor-pointer select-none">
                           Transmitindo "AO VIVO" (Modifica o player e ativa indicador)
                         </label>
+                      </div>
+
+                      {/* Redes Sociais */}
+                      <div className="border-t border-current/10 pt-4 space-y-4 text-left">
+                        <h4 className={`text-xs uppercase font-extrabold tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} opacity-90`}>Links de Redes Sociais (Rodapé)</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">YouTube (Canal)</label>
+                            <input
+                              type="text"
+                              className={`w-full ${
+                                isPapyrus
+                                  ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-sans'
+                                  : 'border border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded'
+                              }`}
+                              placeholder="Ex: https://youtube.com/@..."
+                              value={ytYoutubeUrl}
+                              onChange={(e) => setYtYoutubeUrl(e.target.value)}
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Instagram</label>
+                            <input
+                              type="text"
+                              className={`w-full ${
+                                isPapyrus
+                                  ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-sans'
+                                  : 'border border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded'
+                              }`}
+                              placeholder="Ex: https://instagram.com/..."
+                              value={ytInstagramUrl}
+                              onChange={(e) => setYtInstagramUrl(e.target.value)}
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] uppercase font-bold tracking-wider opacity-75">Discord</label>
+                            <input
+                              type="text"
+                              className={`w-full ${
+                                isPapyrus
+                                  ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-2 focus:ring-[#C5A059] px-3 py-2 text-sm font-sans'
+                                  : 'border border-slate-700 bg-slate-950 text-[#cbd5e0] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 px-3 py-2 text-sm font-mono rounded'
+                              }`}
+                              placeholder="Ex: https://discord.gg/..."
+                              value={ytDiscordUrl}
+                              onChange={(e) => setYtDiscordUrl(e.target.value)}
+                            />
+                          </div>
+                        </div>
                       </div>
 
                       <button
