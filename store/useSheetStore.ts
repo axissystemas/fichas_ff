@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
 import { audio } from '@/lib/audio';
+import { ACHIEVEMENTS, getAchievementIdForBook } from '@/lib/achievements';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -211,6 +212,9 @@ interface SheetState {
   newsTableExists: boolean;
   youtubeSettings: { channelId: string; videoUrl: string; isLive: boolean };
   youtubeTableExists: boolean;
+  unlockedAchievements: Array<{ achievement_id: string; unlocked_at: string }>;
+  achievementsTableExists: boolean;
+  justUnlocked: { id: string; title: string; icon: string } | null;
 
   // Actions
   setUser: (user: AuthUser | null) => void;
@@ -249,6 +253,10 @@ interface SheetState {
   setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
   advanceTime: () => void;
   updateClues: (clues: { local?: string; dia?: string; horario?: string; lider?: string; outras?: string }) => void;
+  loadAchievements: () => Promise<void>;
+  unlockAchievement: (id: string) => Promise<void>;
+  checkAchievements: (triggerType: 'stat' | 'death' | 'victory' | 'combat', data?: any) => Promise<void>;
+  clearJustUnlocked: () => void;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -327,11 +335,17 @@ export const useSheetStore = create<SheetState>()(
       newsTableExists: false,
       youtubeSettings: { channelId: 'UCQJ2X-kM3wX2HnC4a8e2r7g', videoUrl: '', isLive: false },
       youtubeTableExists: false,
+      unlockedAchievements: [],
+      achievementsTableExists: false,
+      justUnlocked: null,
 
       // ── Sync helpers ───────────────────────────────────────────────────────
       setSyncStatus: (syncStatus) => set({ syncStatus }),
 
-      setUser: (user) => set({ user }),
+      setUser: (user) => {
+        set({ user });
+        get().loadAchievements();
+      },
 
       clearLocalState: () => {
         set({
@@ -352,6 +366,9 @@ export const useSheetStore = create<SheetState>()(
           syncStatus: 'idle',
           lastSynced: null,
           isAdmin: null,
+          unlockedAchievements: [],
+          achievementsTableExists: false,
+          justUnlocked: null,
         });
       },
 
@@ -641,6 +658,10 @@ export const useSheetStore = create<SheetState>()(
         });
         scheduleSave(get());
 
+        if (isInitial && (key === 'skill' || key === 'luck')) {
+          get().checkAchievements('stat');
+        }
+
         if (playerDied) {
           const monsters = get().monsters;
           const activeMonster = monsters.find(m => m.status === 'alive');
@@ -856,6 +877,7 @@ export const useSheetStore = create<SheetState>()(
       updateGold: (amount) => {
         set((state) => ({ gold: Math.max(0, state.gold + amount) }));
         scheduleSave(get());
+        get().checkAchievements('stat');
       },
       updateProvisions: (amount) => {
         set((state) => ({ provisions: Math.max(0, state.provisions + amount) }));
@@ -896,6 +918,7 @@ export const useSheetStore = create<SheetState>()(
             monster_skill: defeatedMonster.skill,
             monster_energy: defeatedMonster.energyMax,
           });
+          get().checkAchievements('combat');
         }
       },
       clearMonsters: () => {
@@ -965,6 +988,13 @@ export const useSheetStore = create<SheetState>()(
         set({ status });
         const activeSheetId = get().activeSheetId;
         const user = get().user;
+
+        if (status === 'victory') {
+          await get().checkAchievements('victory');
+        } else if (status === 'defeat') {
+          await get().checkAchievements('death');
+        }
+
         if (activeSheetId && user) {
           try {
             await supabase.from('adventure_sheets').update({ status }).eq('id', activeSheetId).eq('user_id', user.id);
@@ -1272,6 +1302,143 @@ export const useSheetStore = create<SheetState>()(
           console.error('[YoutubeSettingsStore] saveYoutubeSettings error:', err);
           return false;
         }
+      },
+
+      loadAchievements: async () => {
+        const user = get().user;
+        if (!user) {
+          if (typeof window !== 'undefined') {
+            const local = localStorage.getItem('local_achievements');
+            if (local) {
+              try {
+                set({ unlockedAchievements: JSON.parse(local), achievementsTableExists: false });
+              } catch {
+                set({ unlockedAchievements: [], achievementsTableExists: false });
+              }
+            } else {
+              set({ unlockedAchievements: [], achievementsTableExists: false });
+            }
+          }
+          return;
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from('user_achievements')
+            .select('*')
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+
+          set({
+            unlockedAchievements: (data || []).map((d: any) => ({
+              achievement_id: d.achievement_id,
+              unlocked_at: d.unlocked_at
+            })),
+            achievementsTableExists: true
+          });
+        } catch (err: any) {
+          console.warn('[AchievementsStore] Failed to fetch user_achievements, falling back to local:', err?.message || err);
+          let localList: any[] = [];
+          if (typeof window !== 'undefined') {
+            const local = localStorage.getItem('local_achievements');
+            if (local) {
+              try {
+                localList = JSON.parse(local);
+              } catch {}
+            }
+          }
+          set({ unlockedAchievements: localList, achievementsTableExists: false });
+        }
+      },
+
+      unlockAchievement: async (achievementId: string) => {
+        const list = get().unlockedAchievements;
+        if (list.some(a => a.achievement_id === achievementId)) {
+          return;
+        }
+
+        const nowStr = new Date().toISOString();
+        const newAchievement = { achievement_id: achievementId, unlocked_at: nowStr };
+        const updatedList = [...list, newAchievement];
+
+        const definition = ACHIEVEMENTS.find(a => a.id === achievementId);
+        if (definition) {
+          set({
+            unlockedAchievements: updatedList,
+            justUnlocked: {
+              id: definition.id,
+              title: definition.title,
+              icon: definition.icon
+            }
+          });
+        } else {
+          set({ unlockedAchievements: updatedList });
+        }
+
+        audio.playCoin();
+
+        const user = get().user;
+        const tableExists = get().achievementsTableExists;
+        if (user && tableExists) {
+          try {
+            await supabase
+              .from('user_achievements')
+              .insert({
+                user_id: user.id,
+                achievement_id: achievementId,
+                unlocked_at: nowStr
+              });
+          } catch (err) {
+            console.error('[AchievementsStore] Error saving achievement to database:', err);
+          }
+        }
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('local_achievements', JSON.stringify(updatedList));
+        }
+      },
+
+      checkAchievements: async (triggerType, data) => {
+        const state = get();
+        
+        if (triggerType === 'stat') {
+          const skill = state.attributes.skill;
+          const luck = state.attributes.luck;
+          
+          if (skill && skill.initial === 12) {
+            await get().unlockAchievement('milestone_max_skill');
+          }
+          if (luck && luck.initial === 12) {
+            await get().unlockAchievement('milestone_max_luck');
+          }
+
+          if (state.gold >= 30) {
+            await get().unlockAchievement('milestone_gold_hoarder');
+          }
+        }
+
+        if (triggerType === 'death') {
+          await get().unlockAchievement('milestone_first_death');
+        }
+
+        if (triggerType === 'victory') {
+          const book = state.gamebook;
+          if (book) {
+            const achievementId = getAchievementIdForBook(book);
+            if (achievementId) {
+              await get().unlockAchievement(achievementId);
+            }
+          }
+        }
+
+        if (triggerType === 'combat') {
+          await get().unlockAchievement('milestone_first_blood');
+        }
+      },
+
+      clearJustUnlocked: () => {
+        set({ justUnlocked: null });
       },
     }),
     {

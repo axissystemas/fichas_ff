@@ -108,6 +108,25 @@ export function YouTubeLiveStream() {
         )}
       </div>
 
+      {/* Live Chat Container (visible when live and videoId is available) */}
+      {isLive && videoId && (
+        <div className="flex flex-col gap-2 w-full animate-fade-in">
+          <div className="flex items-center gap-1.5 border-b border-current/10 pb-1.5">
+            <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" />
+            <span className="text-[10px] font-sans font-bold uppercase tracking-wider">Chat da Transmissão</span>
+          </div>
+          <div className={`w-full h-[280px] border border-current/25 overflow-hidden relative ${
+            isPapyrus ? 'bg-[#FDF6E3]/50' : 'bg-slate-950/40 rounded-lg'
+          }`}>
+            <iframe
+              src={`https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}${isPapyrus ? '' : '&dark_theme=1'}`}
+              title="YouTube Live Chat"
+              className="w-full h-full border-0"
+            ></iframe>
+          </div>
+        </div>
+      )}
+
       {/* Channel Information / Actions */}
       <div className="flex flex-col gap-4 mt-auto">
         <div className="flex flex-col gap-1">

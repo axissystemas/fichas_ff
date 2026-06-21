@@ -37,7 +37,8 @@ export const GAMEBOOKS = [
   'As Montanhas Shamutanti',
   'Kharé: Porto dos Ardis',
   'As Sete Serpentes',
-  'A Coroa dos Reis'
+  'A Coroa dos Reis',
+  'Robô Comando'
 ] as const;
 
 export type Gamebook = typeof GAMEBOOKS[number];

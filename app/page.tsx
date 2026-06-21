@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 import { audio, music } from '@/lib/audio';
+import confetti from 'canvas-confetti';
+import AchievementsGallery from '@/components/AchievementsGallery';
+import AchievementToast from '@/components/AchievementToast';
 
 // ─── Sheet Dashboard ──────────────────────────────────────────────────────────
 
@@ -100,6 +103,11 @@ function SheetDashboard() {
         >
           <PlusCircle size={14} /> Nova Ficha
         </button>
+      </div>
+
+      {/* Galeria de Conquistas */}
+      <div className="mb-6">
+        <AchievementsGallery />
       </div>
 
       {/* Create Sheet Form */}
@@ -359,6 +367,13 @@ export default function Home() {
   } = useSheetStore();
 
   const [inspectMode, setInspectMode] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
+
+  // Load achievements on mount or user changes
+  const loadAchievements = useSheetStore(state => state.loadAchievements);
+  useEffect(() => {
+    loadAchievements();
+  }, [user, loadAchievements]);
 
   // Reset inspectMode when activeSheetId changes
   useEffect(() => {
@@ -771,8 +786,39 @@ export default function Home() {
               <button
                 onClick={async () => {
                   if (window.confirm('Você realmente completou com sucesso este livro-jogo? Sua vitória será gravada nas estatísticas!')) {
-                    const store = useSheetStore.getState();
-                    await store.setStatus('victory');
+                    setCelebrating(true);
+                    
+                    audio.playVictory();
+                    
+                    const end = Date.now() + 3500;
+                    const colors = ['#bb0000', '#ffffff', '#facc15', '#f59e0b', '#3b82f6'];
+
+                    (function frame() {
+                      confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: colors
+                      });
+                      confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: colors
+                      });
+
+                      if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                      }
+                    }());
+
+                    setTimeout(async () => {
+                      setCelebrating(false);
+                      const store = useSheetStore.getState();
+                      await store.setStatus('victory');
+                    }, 3500);
                   }
                 }}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white transition text-xs uppercase font-bold tracking-wider cursor-pointer"
@@ -1293,6 +1339,42 @@ export default function Home() {
           )
         )}
       </div>
+
+      {/* Efeito de Congratulações de Vitória */}
+      {celebrating && (
+        <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm animate-fade-in">
+          <div className="text-center space-y-6 max-w-md px-6 animate-scale-up">
+            <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center border-4 border-amber-400 bg-amber-500/10 text-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.3)] animate-pulse">
+              <Trophy size={40} />
+            </div>
+
+            <div className="space-y-2">
+              <h2
+                className="text-4xl md:text-5xl font-extrabold tracking-widest bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 bg-clip-text text-transparent"
+                style={{ fontFamily: isPapyrus ? "'Cinzel', Georgia, serif" : 'inherit' }}
+              >
+                PARABÉNS!
+              </h2>
+              <p
+                className={`text-sm md:text-base uppercase font-bold tracking-widest ${
+                  isPapyrus ? 'text-[#F5EAD4]' : 'text-slate-200'
+                }`}
+              >
+                Você Venceu o Jogo!
+              </p>
+            </div>
+
+            <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
+
+            <p className={`text-xs ${isPapyrus ? 'text-[#EAD8B8]/80' : 'text-slate-400'} font-sans`}>
+              Registrando sua vitória nas estatísticas...
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Toasts de Conquistas */}
+      <AchievementToast />
     </main>
   );
 }

@@ -41,6 +41,9 @@ export default function PainelAdmin() {
     youtubeTableExists,
     loadYoutubeSettings,
     saveYoutubeSettings,
+    unlockedAchievements,
+    achievementsTableExists,
+    loadAchievements,
   } = useSheetStore();
 
   // Estados locais
@@ -68,6 +71,7 @@ export default function PainelAdmin() {
   const [ytIsLive, setYtIsLive] = useState(false);
   const [ytSaving, setYtSaving] = useState(false);
   const [copiedYtSql, setCopiedYtSql] = useState(false);
+  const [copiedAchievementsSql, setCopiedAchievementsSql] = useState(false);
 
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
@@ -79,7 +83,7 @@ export default function PainelAdmin() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Aba ativa do Painel Admin
-  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras' | 'novidades' | 'online' | 'youtube'>('geral');
+  const [activeAdminTab, setActiveAdminTab] = useState<'geral' | 'jogadores' | 'combate' | 'aventuras' | 'novidades' | 'online' | 'youtube' | 'conquistas'>('geral');
 
   // Usuários online em tempo real
   const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
@@ -147,6 +151,7 @@ export default function PainelAdmin() {
           await loadStatsData();
           await loadNewsList();
           await loadYoutubeSettings();
+          await loadAchievements();
         }
       } else {
         clearLocalState();
@@ -171,6 +176,7 @@ export default function PainelAdmin() {
           await loadStatsData();
           await loadNewsList();
           await loadYoutubeSettings();
+          await loadAchievements();
         }
       } else {
         clearLocalState();
@@ -252,6 +258,28 @@ ON CONFLICT (id) DO NOTHING;`;
     navigator.clipboard.writeText(youtubeSqlCommand);
     setCopiedYtSql(true);
     setTimeout(() => setCopiedYtSql(false), 2000);
+  };
+
+  const achievementsSqlCommand = `CREATE TABLE public.user_achievements (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  achievement_id TEXT NOT NULL,
+  unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, achievement_id)
+);
+
+ALTER TABLE public.user_achievements ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir leitura pública das conquistas" ON public.user_achievements
+  FOR SELECT USING (true);
+
+CREATE POLICY "Permitir inserção de conquistas pelo próprio usuário" ON public.user_achievements
+  FOR INSERT WITH CHECK (auth.uid() = user_id);`;
+
+  const copyAchievementsSqlToClipboard = () => {
+    navigator.clipboard.writeText(achievementsSqlCommand);
+    setCopiedAchievementsSql(true);
+    setTimeout(() => setCopiedAchievementsSql(false), 2000);
   };
 
   const handleSaveYoutubeSettings = async (e: React.FormEvent) => {
@@ -1039,7 +1067,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
           <div className="space-y-8 animate-fade-in font-sans">
             {/* ── Navegação por Abas (Visual Premium) ── */}
             <div className={`flex flex-wrap gap-2 border-b pb-1 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
-              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube'] as const).map(tab => (
+              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube', 'conquistas'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -1079,6 +1107,12 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                     <span className="flex items-center gap-1.5">
                       <Youtube size={13} className="text-red-500" />
                       Youtube / Live
+                    </span>
+                  )}
+                  {tab === 'conquistas' && (
+                    <span className="flex items-center gap-1.5">
+                      <Award size={13} className="text-amber-500" />
+                      Conquistas
                     </span>
                   )}
                 </button>
@@ -2210,6 +2244,84 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {/* ── ABA 8: CONFIGURAÇÃO DE CONQUISTAS ── */}
+            {activeAdminTab === 'conquistas' && (
+              <div className="space-y-6 animate-fade-in text-left">
+                <div className={`p-6 border-2 rounded-xl space-y-4 ${
+                  isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30'
+                }`}>
+                  <div className="flex items-center justify-between border-b border-current/10 pb-3">
+                    <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                      isPapyrus ? 'text-[#8B4513]' : 'text-amber-500'
+                    }`}>
+                      <Award className="w-5 h-5 text-amber-500 animate-pulse" />
+                      Configuração e Script de Migração do Sistema de Conquistas
+                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`relative flex h-2 w-2 ${achievementsTableExists ? '' : 'opacity-60'}`}>
+                        {achievementsTableExists && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2 w-2 ${achievementsTableExists ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                      </span>
+                      <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${achievementsTableExists ? 'text-green-500' : 'text-red-500 animate-pulse'}`}>
+                        {achievementsTableExists ? 'Tabela Supabase Ativa' : 'Tabela Supabase Ausente'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {achievementsTableExists ? (
+                    <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                      isPapyrus ? 'border-green-800/30 bg-green-900/5 text-green-900' : 'border-green-500/20 bg-green-950/10 text-green-400 font-sans'
+                    }`}>
+                      <div className="flex items-center gap-1.5">
+                        <Check size={16} className="text-green-500" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Tabela de Conquistas Ativa e Sincronizada</h4>
+                      </div>
+                      <p className="text-[10px] leading-relaxed opacity-95">
+                        A tabela <code className="font-mono px-1 py-0.5 bg-black/10 rounded">user_achievements</code> está configurada corretamente no banco de dados. Os desbloqueios dos jogadores estão sendo persistidos em nuvem.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                      isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10 text-[#2D1D16]' : 'border-amber-500/20 bg-amber-950/10 text-amber-400 font-sans'
+                    }`}>
+                      <div className="flex items-center gap-1.5">
+                        <ShieldAlert size={16} className="text-amber-500 animate-bounce" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Modo de Persistência Local Ativo (Fallback)</h4>
+                      </div>
+                      <p className="text-[10px] leading-relaxed opacity-95">
+                        A tabela de conquistas não foi detectada no Supabase. O sistema está salvando automaticamente o progresso dos jogadores de forma offline através do <code className="font-mono px-1 py-0.5 bg-black/10 rounded">localStorage</code> de seus navegadores. Para ativar a sincronização na nuvem e salvar conquistas nas contas dos jogadores, execute o script SQL abaixo no console do Supabase.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL de Migração (Supabase):</span>
+                      <button
+                        type="button"
+                        onClick={copyAchievementsSqlToClipboard}
+                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        }`}
+                      >
+                        {copiedAchievementsSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                        {copiedAchievementsSql ? 'Copiado!' : 'Copiar Script SQL'}
+                      </button>
+                    </div>
+                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[300px] rounded ${
+                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    }`}>
+                      {achievementsSqlCommand}
+                    </pre>
+                  </div>
                 </div>
               </div>
             )}
