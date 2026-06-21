@@ -5,7 +5,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, Loader2, LogOut, Search, PlusCircle, Trash2, Pencil, Check, X,
-  Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy,
+  Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy, Bookmark,
   Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube
 } from 'lucide-react';
 import {
@@ -75,6 +75,7 @@ export default function PainelAdmin() {
   const [copiedYtSql, setCopiedYtSql] = useState(false);
   const [copiedAchievementsSql, setCopiedAchievementsSql] = useState(false);
   const [copiedStatsSql, setCopiedStatsSql] = useState(false);
+  const [copiedRpcSql, setCopiedRpcSql] = useState(false);
 
   // Estados para gerenciamento de fichas
   const [creating, setCreating] = useState(false);
@@ -305,6 +306,37 @@ CREATE POLICY "Permitir upsert de estatísticas pelo próprio usuário" ON publi
     navigator.clipboard.writeText(statsSqlCommand);
     setCopiedStatsSql(true);
     setTimeout(() => setCopiedStatsSql(false), 2000);
+  };
+
+  const rpcSqlCommand = `CREATE OR REPLACE FUNCTION public.get_recent_achievements()
+RETURNS TABLE (
+  display_name TEXT,
+  achievement_id TEXT,
+  unlocked_at TIMESTAMP WITH TIME ZONE
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    COALESCE(p.display_name, 'Aventureiro')::TEXT AS display_name,
+    a.achievement_id,
+    a.unlocked_at
+  FROM public.user_achievements a
+  LEFT JOIN public.user_profiles p ON a.user_id = p.id
+  ORDER BY a.unlocked_at DESC
+  LIMIT 5;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO anon;
+GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
+
+  const copyRpcSqlToClipboard = () => {
+    navigator.clipboard.writeText(rpcSqlCommand);
+    setCopiedRpcSql(true);
+    setTimeout(() => setCopiedRpcSql(false), 2000);
   };
 
   const handleSaveYoutubeSettings = async (e: React.FormEvent) => {
@@ -2420,6 +2452,55 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                       isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
                     }`}>
                       {statsSqlCommand}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* CARD 3: POSTGRES RPC FUNCTIONS */}
+                <div className={`p-6 border-2 rounded-xl space-y-4 ${
+                  isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30'
+                }`}>
+                  <div className="flex items-center justify-between border-b border-current/10 pb-3">
+                    <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                      isPapyrus ? 'text-[#8B4513]' : 'text-amber-500'
+                    }`}>
+                      <Database className="w-5 h-5 text-cyan-500 animate-pulse" />
+                      Funções RPC do Postgres (Estatísticas & Conquistas Recentes)
+                    </h3>
+                  </div>
+
+                  <div className={`p-4 border text-left space-y-2 rounded-lg ${
+                    isPapyrus ? 'border-[#5C4033]/50 bg-[#EAD8B8]/10 text-[#2D1D16]' : 'border-cyan-500/20 bg-cyan-950/10 text-cyan-400 font-sans'
+                  }`}>
+                    <div className="flex items-center gap-1.5">
+                      <Bookmark size={16} className="text-cyan-500" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider">Feed de Conquistas Globais Ativo</h4>
+                    </div>
+                    <p className="text-[10px] leading-relaxed opacity-95">
+                      Para alimentar as conquistas recentes em tempo real de forma otimizada e segura na página inicial, execute o script SQL abaixo no console do Supabase. Essa função permite coletar com segurança os nomes dos jogadores sem expor seus e-mails.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL da Função RPC:</span>
+                      <button
+                        type="button"
+                        onClick={copyRpcSqlToClipboard}
+                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
+                          isPapyrus 
+                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        }`}
+                      >
+                        {copiedRpcSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                        {copiedRpcSql ? 'Copiado!' : 'Copiar Script SQL'}
+                      </button>
+                    </div>
+                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
+                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    }`}>
+                      {rpcSqlCommand}
                     </pre>
                   </div>
                 </div>
