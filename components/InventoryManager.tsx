@@ -18,6 +18,7 @@ export const InventoryManager = () => {
   const [magicMod, setMagicMod] = useState(0);
   const [faithMod, setFaithMod] = useState(0);
   const [fearMod, setFearMod] = useState(0);
+  const [damageReductionMod, setDamageReductionMod] = useState(0);
 
   const cardClasses = theme === 'papyrus' 
     ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
@@ -38,6 +39,7 @@ export const InventoryManager = () => {
     if (magicMod !== 0 && gamebook === 'A Cidadela do Caos') modifiers.magic = magicMod;
     if (faithMod !== 0 && gamebook === 'A Cripta do Vampiro') modifiers.faith = faithMod;
     if (fearMod !== 0 && gamebook === 'A Mansão do Inferno') modifiers.fear = fearMod;
+    if (damageReductionMod !== 0) modifiers.damageReduction = damageReductionMod;
 
     addItem({
       id: crypto.randomUUID(),
@@ -55,6 +57,7 @@ export const InventoryManager = () => {
     setMagicMod(0);
     setFaithMod(0);
     setFearMod(0);
+    setDamageReductionMod(0);
     setShowModifiers(false);
   };
 
@@ -111,7 +114,8 @@ export const InventoryManager = () => {
                         luck: 'SOR',
                         magic: 'MAG',
                         faith: 'FÉ',
-                        fear: 'MEDO'
+                        fear: 'MEDO',
+                        damageReduction: 'PROT'
                       };
                       return (
                         <span 
@@ -158,7 +162,7 @@ export const InventoryManager = () => {
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
-              className={`grid grid-cols-3 gap-2.5 mt-2.5 p-3 border rounded-sm ${
+              className={`grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-2.5 p-3 border rounded-sm ${
                 theme === 'papyrus' ? 'border-[#5C4033]/30 bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-950/40'
               }`}
             >
@@ -188,6 +192,16 @@ export const InventoryManager = () => {
                   type="number" 
                   value={luckMod || ''} 
                   onChange={e => setLuckMod(parseInt(e.target.value) || 0)} 
+                  placeholder="0" 
+                  className={inputClasses + ' py-1'} 
+                />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[9px] font-bold uppercase tracking-wider opacity-75">Prot. Dano</label>
+                <input 
+                  type="number" 
+                  value={damageReductionMod || ''} 
+                  onChange={e => setDamageReductionMod(parseInt(e.target.value) || 0)} 
                   placeholder="0" 
                   className={inputClasses + ' py-1'} 
                 />

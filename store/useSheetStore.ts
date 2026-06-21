@@ -102,6 +102,7 @@ export interface AttributeModifiers {
   magic?: number;
   faith?: number;
   fear?: number;
+  damageReduction?: number;
 }
 
 export interface Item {
