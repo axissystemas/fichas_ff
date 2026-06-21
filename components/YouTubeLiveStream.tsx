@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Youtube, Radio, ExternalLink } from 'lucide-react';
+import { Youtube } from 'lucide-react';
 import { useSheetStore } from '@/store/useSheetStore';
 
 // Helper function to extract Video ID from YouTube URLs
@@ -45,16 +45,8 @@ export function YouTubeLiveStream() {
   }
 
   const cardBase = isPapyrus
-    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16] flex flex-col gap-6 h-full'
-    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300 flex flex-col gap-6 h-full';
-
-  const btnBase = isPapyrus
-    ? 'border border-[#5C4033] text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider py-2 px-3'
-    : 'border border-[#4a5568] text-[#cbd5e0] hover:bg-slate-700/60 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider py-2 px-3 rounded';
-
-  const primaryBtnBase = isPapyrus
-    ? 'border-2 border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider py-2.5 px-4'
-    : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded flex items-center justify-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider py-2.5 px-4';
+    ? 'border-2 border-[#C5A059] bg-[#EAD8B8]/30 shadow-inner rounded-sm p-6 sm:p-10 text-[#2D1D16] flex flex-col gap-6'
+    : 'border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl p-6 sm:p-10 text-slate-300 flex flex-col gap-6';
 
   return (
     <div className={cardBase}>
@@ -106,73 +98,6 @@ export function YouTubeLiveStream() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Live Chat Container (visible when live and videoId is available) */}
-      {isLive && videoId && (
-        <div className="flex flex-col gap-2 w-full animate-fade-in">
-          <div className="flex items-center gap-1.5 border-b border-current/10 pb-1.5">
-            <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" />
-            <span className="text-[10px] font-sans font-bold uppercase tracking-wider">Chat da Transmissão</span>
-          </div>
-          <div className={`w-full h-[280px] border border-current/25 overflow-hidden relative ${
-            isPapyrus ? 'bg-[#FDF6E3]/50' : 'bg-slate-950/40 rounded-lg'
-          }`}>
-            <iframe
-              src={`https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}${isPapyrus ? '' : '&dark_theme=1'}`}
-              title="YouTube Live Chat"
-              className="w-full h-full border-0"
-            ></iframe>
-          </div>
-        </div>
-      )}
-
-      {/* Channel Information / Actions */}
-      <div className="flex flex-col gap-4 mt-auto">
-        <div className="flex flex-col gap-1">
-          <h4 className={`font-bold text-sm uppercase tracking-wide flex items-center gap-1.5 ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-            Nerdolas e Trolls RPG
-          </h4>
-          <p className="text-[11px] leading-relaxed opacity-80 font-sans">
-            Acompanhe nossas lives de RPG, mesas de Fighting Fantasy, campanhas temáticas e discussões de sistemas clássicos!
-          </p>
-        </div>
-
-        {/* Action Buttons Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {/* Subscribe */}
-          <a
-            href="https://www.youtube.com/@nerdolasetrollsrpg?sub_confirmation=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${primaryBtnBase} text-center`}
-          >
-            Inscrever-se <ExternalLink className="w-3 h-3" />
-          </a>
-
-          {/* Open Chat */}
-          <a
-            href={videoId 
-              ? `https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${typeof window !== 'undefined' ? window.location.hostname : ''}` 
-              : `https://www.youtube.com/@nerdolasetrollsrpg/live`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${btnBase} text-center`}
-          >
-            Abrir Chat <Radio className="w-3 h-3 text-red-500" />
-          </a>
-
-          {/* Channel Link */}
-          <a
-            href="https://www.youtube.com/@nerdolasetrollsrpg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${btnBase} text-center`}
-          >
-            Canal YouTube <ExternalLink className="w-3 h-3" />
-          </a>
-        </div>
       </div>
     </div>
   );
