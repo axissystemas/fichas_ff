@@ -55,5 +55,6 @@ export const BOOKS_WITH_SUGGESTIONS = [
   'Mares de Sangue',
   'Encontro Marcado com o M.E.D.O.',
   'A Cripta do Vampiro',
-  'Exércitos da Morte'
+  'Exércitos da Morte',
+  'A Mansão do Inferno'
 ] as const;

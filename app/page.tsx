@@ -1413,38 +1413,50 @@ export default function Home() {
                     : 'border-red-500/30 bg-slate-900/90 text-slate-300 shadow-[0_0_50px_rgba(239,68,68,0.2)]'
                     }`}>
                     <Skull size={72} className="text-red-600 animate-pulse mx-auto filter drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" />
-                    <div className="space-y-2">
-                      <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-red-900' : 'text-red-500'}`}>
-                        Sua Jornada Terminou
-                      </h2>
-                      <p className="text-sm font-sans max-w-md mx-auto opacity-90">
-                        A morte o encontrou nas profundezas e mistérios de <strong className="italic">{gamebook || 'O Feiticeiro da Montanha de Fogo'}</strong>.
-                      </p>
-                    </div>
+                    {(() => {
+                      const isMorteDeMedo = gamebook === 'A Mansão do Inferno' && attributes.fear && attributes.fear.initial > 0 && attributes.fear.current >= attributes.fear.initial;
+                      return (
+                        <>
+                          <div className="space-y-2">
+                            <h2 className={`text-3xl font-extrabold uppercase tracking-widest ${isPapyrus ? 'text-red-900' : 'text-red-500'}`}>
+                              {isMorteDeMedo ? 'Você Morreu de Medo!' : 'Sua Jornada Terminou'}
+                            </h2>
+                            <p className="text-sm font-sans max-w-md mx-auto opacity-90">
+                              {isMorteDeMedo 
+                                ? 'O pavor absoluto paralisou seu coração nos corredores sombrios de A Mansão do Inferno.'
+                                : `A morte o encontrou nas profundezas e mistérios de `}
+                              {!isMorteDeMedo && <strong className="italic">{gamebook || 'O Feiticeiro da Montanha de Fogo'}</strong>}
+                            </p>
+                          </div>
 
-                    <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
+                          <div className="w-24 h-0.5 bg-current/20 mx-auto"></div>
 
-                    {/* Resumo das Estatísticas */}
-                    <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${isPapyrus ? 'bg-red-900/5' : 'bg-slate-950/50 rounded-lg'
-                      }`}>
-                      <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Detalhes da Queda</h3>
-                      <div className="flex justify-between">
-                        <span className="opacity-70">Aventureiro:</span>
-                        <span className="font-bold">{activeSheetTitle}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="opacity-70">Parágrafo do Falecimento:</span>
-                        <span className="font-mono font-bold">#{attributes.currentSection || 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="opacity-70">Inimigos Derrotados:</span>
-                        <span className="font-bold">{monsters.filter((m: any) => m.status === 'defeated').length} ⚔️</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="opacity-70">Causa:</span>
-                        <span className="font-bold text-red-500">Exaustão de Energia (Vida)</span>
-                      </div>
-                    </div>
+                          {/* Resumo das Estatísticas */}
+                          <div className={`max-w-md mx-auto w-full p-4 border border-current/10 font-sans text-xs space-y-2.5 ${isPapyrus ? 'bg-red-900/5' : 'bg-slate-950/50 rounded-lg'
+                            }`}>
+                            <h3 className="font-bold uppercase tracking-wider text-center border-b border-current/10 pb-1.5 mb-2">Detalhes da Queda</h3>
+                            <div className="flex justify-between">
+                              <span className="opacity-70">Aventureiro:</span>
+                              <span className="font-bold">{activeSheetTitle}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="opacity-70">Parágrafo do Falecimento:</span>
+                              <span className="font-mono font-bold">#{attributes.currentSection || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="opacity-70">Inimigos Derrotados:</span>
+                              <span className="font-bold">{monsters.filter((m: any) => m.status === 'defeated').length} ⚔️</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="opacity-70">Causa:</span>
+                              <span className="font-bold text-red-500">
+                                {isMorteDeMedo ? 'Morte por Medo (Pavor Excessivo)' : 'Exaustão de Energia (Vida)'}
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
 
                     <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto w-full mt-4">
                       <button
@@ -1524,6 +1536,9 @@ export default function Home() {
                         )}
                         {gamebook === 'A Cripta do Vampiro' && (
                           <AttributeCard label="Fé" attrKey="faith" />
+                        )}
+                        {gamebook === 'A Mansão do Inferno' && (
+                          <AttributeCard label="Medo" attrKey="fear" />
                         )}
                         <CurrentSectionCard />
                         <CompletionChecklist />

@@ -197,6 +197,7 @@ interface SheetState {
       knights: number;
       others: number;
     };
+    fear?: Attribute;
   };
   gold: number;
   provisions: number;
@@ -253,6 +254,7 @@ interface SheetState {
         knights: number;
         others: number;
       };
+      fear?: Attribute;
     };
     gold?: number;
     provisions?: number;
@@ -278,7 +280,7 @@ interface SheetState {
   clearLocalState: () => void;
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith', value: number, isInitial: boolean) => void;
+  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear', value: number, isInitial: boolean) => void;
   setSpells: (spells: Record<string, number>) => void;
   toggleDisease: (disease: string) => void;
   updateCoffinsDestroyed: (delta: number) => void;
@@ -522,6 +524,7 @@ export const useSheetStore = create<SheetState>()(
           const isCidadela = gamebook === 'A Cidadela do Caos';
           const isVampiro = gamebook === 'A Cripta do Vampiro';
           const isExercitos = gamebook === 'Exércitos da Morte';
+          const isMansao = gamebook === 'A Mansão do Inferno';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -541,6 +544,9 @@ export const useSheetStore = create<SheetState>()(
             } : {}),
             ...(isExercitos ? {
               army: { warriors: 100, dwarfs: 50, elves: 50, knights: 50, others: 0 },
+            } : {}),
+            ...(isMansao ? {
+              fear: { initial: 0, current: 0 },
             } : {})
           };
           const payload = {
@@ -714,13 +720,29 @@ export const useSheetStore = create<SheetState>()(
         let isLowEnergyWarning = false;
         set((state) => {
           const attr = state.attributes[key] || { initial: 0, current: 0 };
-          // Se não estiver mudando o valor inicial, garante que o valor não passe do inicial atual (exceto para fé)
+          
           const isFaith = key === 'faith';
-          const finalValue = (!isInitial && !isFaith) ? Math.min(value, attr.initial) : value;
+          const isFear = key === 'fear';
+          let finalValue = value;
+          
+          if (!isInitial) {
+            if (isFear) {
+              finalValue = Math.max(0, Math.min(value, attr.initial));
+            } else if (!isFaith) {
+              finalValue = Math.max(0, Math.min(value, attr.initial));
+            } else {
+              finalValue = Math.max(0, value);
+            }
+          }
           
           if (key === 'energy' && !isInitial && attr.current > 0 && finalValue <= 0) {
             playerDied = true;
           }
+          
+          if (key === 'fear' && !isInitial && attr.initial > 0 && finalValue >= attr.initial) {
+            playerDied = true;
+          }
+          
           // Detecta se a energia diminuiu e ficou crítica (entre 1 e 4)
           if (key === 'energy' && !isInitial && finalValue > 0 && finalValue <= 4 && attr.current > finalValue) {
             isLowEnergyWarning = true;

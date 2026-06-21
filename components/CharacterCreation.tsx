@@ -28,6 +28,7 @@ export const CharacterCreation = () => {
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
   const isCidadela = gamebook === 'A Cidadela do Caos';
   const isVampiro = gamebook === 'A Cripta do Vampiro';
+  const isMansao = gamebook === 'A Mansão do Inferno';
   
   // Selected superpower for MEDO
   const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
@@ -38,6 +39,7 @@ export const CharacterCreation = () => {
   const [rolledLuck, setRolledLuck] = useState<number | null>(null);
   const [rolledMagic, setRolledMagic] = useState<number | null>(null);
   const [rolledFaith, setRolledFaith] = useState<number | null>(null);
+  const [rolledFear, setRolledFear] = useState<number | null>(null);
 
   // Rolling states
   const [rollingSkill, setRollingSkill] = useState(false);
@@ -45,6 +47,7 @@ export const CharacterCreation = () => {
   const [rollingLuck, setRollingLuck] = useState(false);
   const [rollingMagic, setRollingMagic] = useState(false);
   const [rollingFaith, setRollingFaith] = useState(false);
+  const [rollingFear, setRollingFear] = useState(false);
 
   // Display values during rolling animation
   const [displaySkill, setDisplaySkill] = useState(0);
@@ -52,6 +55,7 @@ export const CharacterCreation = () => {
   const [displayLuck, setDisplayLuck] = useState(0);
   const [displayMagic, setDisplayMagic] = useState(0);
   const [displayFaith, setDisplayFaith] = useState(0);
+  const [displayFear, setDisplayFear] = useState(0);
 
   // Selected spells for Cidadela
   const [selectedSpells, setSelectedSpells] = useState<Record<string, number>>({});
@@ -167,6 +171,25 @@ export const CharacterCreation = () => {
     }, 600);
   };
 
+    const rollFear = () => {
+      if (rollingFear || rolledFear !== null) return;
+      setRollingFear(true);
+      audio.playDiceRoll();
+
+      const interval = setInterval(() => {
+        setDisplayFear(Math.floor(Math.random() * 6) + 1 + 6);
+      }, 60);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+        setRolledFear(finalVal);
+        setDisplayFear(finalVal);
+        setRollingFear(false);
+        audio.playCoin();
+      }, 600);
+    };
+
   const handleAdjustSpell = (spellKey: string, delta: number) => {
     const currentCount = selectedSpells[spellKey] || 0;
     const newCount = currentCount + delta;
@@ -206,6 +229,7 @@ export const CharacterCreation = () => {
     if (rolledSkill === null || rolledEnergy === null || rolledLuck === null) return;
     if (isCidadela && rolledMagic === null) return;
     if (isVampiro && rolledFaith === null) return;
+    if (isMansao && rolledFear === null) return;
 
     // Play retro victory fanfare
     audio.playVictory();
@@ -229,6 +253,11 @@ export const CharacterCreation = () => {
       setAttribute('faith', rolledFaith, false);
     }
 
+    if (isMansao && rolledFear !== null) {
+      setAttribute('fear', rolledFear, true);
+      setAttribute('fear', 0, false); // Começa com 0 pontos de medo atual
+    }
+
     if (isMedo && selectedPower) {
       setSuperpower(selectedPower);
       updateHeroPoints(0);
@@ -245,9 +274,10 @@ export const CharacterCreation = () => {
     const powerStr = isMedo ? ` | Poder: ${selectedPower === 'superforca' ? 'Superforça' : selectedPower === 'psi' ? 'Psi' : selectedPower === 'hta' ? 'HTA' : 'Rajada'}` : '';
     const magicStr = isCidadela ? ` | Mágica: ${rolledMagic}` : '';
     const faithStr = isVampiro ? ` | Fé: ${rolledFaith}` : '';
+    const fearStr = isMansao ? ` | Medo Máx: ${rolledFear}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}`,
     });
 
     // Log telemetry
@@ -259,6 +289,7 @@ export const CharacterCreation = () => {
       spells: isCidadela ? selectedSpells : undefined,
       superpower: isMedo ? selectedPower : undefined,
       faith: isVampiro ? rolledFaith : undefined,
+      fear: isMansao ? rolledFear : undefined,
     });
 
     // Save state to Supabase
@@ -271,7 +302,8 @@ export const CharacterCreation = () => {
     rolledLuck !== null &&
     (!isMedo || selectedPower !== null) &&
     (!isCidadela || rolledMagic !== null) &&
-    (!isVampiro || rolledFaith !== null);
+    (!isVampiro || rolledFaith !== null) &&
+    (!isMansao || rolledFear !== null);
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -409,7 +441,7 @@ export const CharacterCreation = () => {
         </p>
       </div>
 
-      <div className={`grid grid-cols-1 ${(isCidadela || isVampiro) ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6 mb-8`}>
+      <div className={`grid grid-cols-1 ${(isCidadela || isVampiro || isMansao) ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6 mb-8`}>
         {/* SKILL (Habilidade) Card */}
         <div 
           onClick={
@@ -614,6 +646,47 @@ export const CharacterCreation = () => {
                 disabled={rollingMagic}
               >
                 Role 2d6+6
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* FEAR (Medo) Card */}
+        {isMansao && (
+          <div 
+            onClick={rolledFear === null ? rollFear : undefined}
+            className={attributeCardStyle(rolledFear !== null, rollingFear)}
+          >
+            <div className="flex items-center gap-1.5 justify-center mb-1">
+              <Flame size={16} className={isPapyrus ? 'text-[#8B0000]' : 'text-red-500'} />
+              <span className="text-xs uppercase font-extrabold tracking-wider">Medo Máximo</span>
+            </div>
+
+            <div className="my-4 h-16 flex items-center justify-center">
+              {rollingFear ? (
+                <span className="text-4xl font-extrabold animate-bounce">{displayFear}</span>
+              ) : rolledFear !== null ? (
+                <motion.span 
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-5xl font-extrabold"
+                >
+                  {rolledFear}
+                </motion.span>
+              ) : (
+                <Dices size={36} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
+              )}
+            </div>
+
+            {rolledFear !== null ? (
+              <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
+            ) : (
+              <button 
+                onClick={(e) => { e.stopPropagation(); rollFear(); }}
+                className={buttonStyle}
+                disabled={rollingFear}
+              >
+                Role 1d6+6
               </button>
             )}
           </div>

@@ -1,0 +1,160 @@
+{
+  "livro": "A Mansão do Inferno",
+  "codigoLivro": "FF10",
+  "monstros": [
+    {
+      "id": "ff10-franklin-001",
+      "nome": "Franklin (Mordomo)",
+      "tipo": "Humanoide",
+      "habilidade": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "O mordomo sinistro que o recebe na mansão.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Saguão", "Corredor"]
+    },
+    {
+      "id": "ff10-demonio-inferno-001",
+      "nome": "Franklin (Demônio do Inferno)",
+      "tipo": "Demônio",
+      "habilidade": 14,
+      "energiaMaxima": 12,
+      "boss": true,
+      "descricao": "A verdadeira e terrível forma demoníaca do mordomo.",
+      "habilidadesEspeciais": ["Aterrorizar"],
+      "ambientes": ["Sala de Sacrifício"]
+    },
+    {
+      "id": "ff10-shekou-001",
+      "nome": "Shekou",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "O carcunda que serve a seita na mansão.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Porão", "Masmorra"]
+    },
+    {
+      "id": "ff10-conde-drumer-001",
+      "nome": "Conde de Drumer (Lord Kelnor)",
+      "tipo": "Humanoide",
+      "habilidade": 9,
+      "energiaMaxima": 10,
+      "boss": true,
+      "descricao": "O mestre da Mansão do Inferno e líder do culto.",
+      "habilidadesEspeciais": ["Líder"],
+      "ambientes": ["Câmara Secreta"]
+    },
+    {
+      "id": "ff10-cao-guarda-001",
+      "nome": "Cão de Guarda",
+      "tipo": "Animal",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Cão feroz treinado para atacar intrusos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Jardim", "Corredor"]
+    },
+    {
+      "id": "ff10-cao-infernal-001",
+      "nome": "Cão Infernal",
+      "tipo": "Demônio",
+      "habilidade": 8,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Criatura do submundo envolta em chamas e fumaça.",
+      "habilidadesEspeciais": ["Sopro de Fogo"],
+      "ambientes": ["Corredor"]
+    },
+    {
+      "id": "ff10-zumbi-001",
+      "nome": "Zumbi",
+      "tipo": "Morto-vivo",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Corpo reanimado que se move lentamente.",
+      "habilidadesEspeciais": ["Morto-vivo"],
+      "ambientes": ["Quarto de Hóspedes", "Cemitério"]
+    },
+    {
+      "id": "ff10-esqueleto-001",
+      "nome": "Esqueleto",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Guerreiro ósseo sem carne movido por energia mágica.",
+      "habilidadesEspeciais": ["Morto-vivo"],
+      "ambientes": ["Cripta", "Masmorra"]
+    },
+    {
+      "id": "ff10-carnical-001",
+      "nome": "Carniçal",
+      "tipo": "Morto-vivo",
+      "habilidade": 8,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Morto-vivo carniceiro com garras afiadas e peçonhentas.",
+      "habilidadesEspeciais": ["Garras"],
+      "ambientes": ["Cemitério", "Masmorra"]
+    },
+    {
+      "id": "ff10-vampiro-001",
+      "nome": "Vampiro",
+      "tipo": "Morto-vivo",
+      "habilidade": 10,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Lorde das trevas sugador de sangue humano.",
+      "habilidadesEspeciais": ["Morto-vivo", "Drenar Vida"],
+      "ambientes": ["Cripta"]
+    },
+    {
+      "id": "ff10-lobisomem-001",
+      "nome": "Lobisomem",
+      "tipo": "Feral",
+      "habilidade": 8,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Humano amaldiçoado transformado em lobo monstruoso.",
+      "habilidadesEspeciais": ["Garras"],
+      "ambientes": ["Jardim", "Quarto"]
+    },
+    {
+      "id": "ff10-espectro-001",
+      "nome": "Espectro (Fantasma)",
+      "tipo": "Morto-vivo",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Entidade incorpórea que atravessa paredes e gela a alma.",
+      "habilidadesEspeciais": ["Incorpóreo", "Causa Medo"],
+      "ambientes": ["Quarto de Hóspedes", "Corredor"]
+    },
+    {
+      "id": "ff10-cultista-001",
+      "nome": "Cultista",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Membro encapuzado que serve a seita satânica da mansão.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Sala de Sacrifício", "Corredor"]
+    },
+    {
+      "id": "ff10-carcereiro-001",
+      "nome": "Carcereiro",
+      "tipo": "Humanoide",
+      "habilidade": 7,
+      "energiaMaxima": 7,
+      "boss": false,
+      "descricao": "Guarda brutal dos prisioneiros das masmorras.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Masmorra"]
+    }
+  ]
+}

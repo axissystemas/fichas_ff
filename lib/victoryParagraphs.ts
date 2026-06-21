@@ -2,7 +2,7 @@ export const victoryParagraphs: Record<string, string[]> = {
   'O Feiticeiro da Montanha de Fogo': ['400'],
   'A Cidadela do Caos': ['400'],
   'A Masmorra da Morte': ['400'],
-  'Criatura Selvagem': ['400'],
+  'Criatura Selvagem': ['460'],
   'A Cidade dos Ladrões': ['400'],
   'A Cripta do Feiticeiro': ['400'],
   'A Mansão do Inferno': ['400'],
