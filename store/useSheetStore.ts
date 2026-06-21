@@ -1027,6 +1027,54 @@ export const useSheetStore = create<SheetState>()(
           
           get().incrementStat('totalMonstersDefeated', 1);
 
+          // Triggers para os novos vilões/monstros das conquistas
+          const nameNorm = defeatedMonster.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (nameNorm.includes('zagor')) {
+            get().unlockAchievement('combat_slayer_zagor');
+          }
+          if (nameNorm.includes('balthus') || nameNorm.includes('balthusdire')) {
+            get().unlockAchievement('combat_slayer_balthus');
+          }
+          if (nameNorm.includes('zanbar bone')) {
+            get().unlockAchievement('combat_slayer_zanbar');
+          }
+          if (nameNorm.includes('razaak')) {
+            get().unlockAchievement('combat_slayer_razaak');
+          }
+          if (nameNorm.includes('heydrich')) {
+            get().unlockAchievement('combat_slayer_heydrich');
+          }
+          if (nameNorm.includes('agglax')) {
+            get().unlockAchievement('combat_slayer_agglax');
+          }
+          if (nameNorm.includes('malbordus')) {
+            get().unlockAchievement('combat_slayer_malbordus');
+          }
+          if (nameNorm.includes('bruxa da neve')) {
+            get().unlockAchievement('combat_slayer_snow_witch');
+          }
+          if (nameNorm.includes('rei lagarto')) {
+            get().unlockAchievement('combat_slayer_lizard_king');
+          }
+          if (nameNorm.includes('arqui-mago') || nameNorm.includes('arquimago')) {
+            get().unlockAchievement('combat_slayer_archmage');
+          }
+          if (nameNorm.includes('sidney knox')) {
+            get().unlockAchievement('combat_slayer_knox');
+          }
+          if (nameNorm.includes('zera')) {
+            get().unlockAchievement('combat_slayer_zera');
+          }
+          if (nameNorm.includes('cadanca')) {
+            get().unlockAchievement('combat_slayer_cadanca');
+          }
+          if (nameNorm.includes('dragao')) {
+            get().unlockAchievement('combat_slayer_dragon');
+          }
+          if (nameNorm.includes('demonio')) {
+            get().unlockAchievement('combat_slayer_demon');
+          }
+
           const allDefeated = get().monsters.every(m => m.status === 'defeated');
           if (allDefeated) {
             get().incrementStat('totalCombatsWon', 1);

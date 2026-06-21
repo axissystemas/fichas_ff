@@ -1010,6 +1010,171 @@ export const ACHIEVEMENTS: Achievement[] = [
     hint: 'Conclua 10 livros-jogo diferentes.',
     rarity: 'legendary',
     category: 'hall_of_fame'
+  },
+  {
+    id: 'combat_slayer_zagor',
+    code: 'VILÃO',
+    title: 'Morte ao Feiticeiro',
+    description: 'Derrotou o temível feiticeiro Zagor em combate.',
+    icon: '🧙‍♂️',
+    type: 'milestone',
+    hint: 'Derrote o feiticeiro Zagor em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_balthus',
+    code: 'VILÃO',
+    title: 'Fim da Tirania',
+    description: 'Derrotou Balthus Dire em combate na sua Cidadela.',
+    icon: '🏰',
+    type: 'milestone',
+    hint: 'Derrote Balthus Dire em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_zanbar',
+    code: 'VILÃO',
+    title: 'Cinzas ao Vento',
+    description: 'Derrotou o Príncipe da Noite Zanbar Bone.',
+    icon: '💀',
+    type: 'milestone',
+    hint: 'Derrote Zanbar Bone em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_razaak',
+    code: 'VILÃO',
+    title: 'Purificação Ancestral',
+    description: 'Destruiu o ressuscitado Necromante Razaak.',
+    icon: '⚰️',
+    type: 'milestone',
+    hint: 'Derrote o Necromante Razaak em combate.',
+    rarity: 'epic',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_heydrich',
+    code: 'VILÃO',
+    title: 'Estaca no Coração',
+    description: 'Derrotou o Conde Reiner Heydrich em seu castelo.',
+    icon: '🦇',
+    type: 'milestone',
+    hint: 'Derrote o Conde Reiner Heydrich em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_agglax',
+    code: 'VILÃO',
+    title: 'Luz nas Sombras',
+    description: 'Derrotou o Senhor das Sombras Agglax em Exércitos da Morte.',
+    icon: '🛡️',
+    type: 'milestone',
+    hint: 'Derrote Agglax, o Senhor das Sombras, em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_malbordus',
+    code: 'VILÃO',
+    title: 'Dragões Adormecidos',
+    description: 'Impediu os planos do feiticeiro Malbordus no deserto.',
+    icon: '🌋',
+    type: 'milestone',
+    hint: 'Derrote o feiticeiro Malbordus em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_snow_witch',
+    code: 'VILÃO',
+    title: 'Degelo Gélido',
+    description: 'Derrotou a Bruxa da Neve em seu reino de gelo.',
+    icon: '❄️',
+    type: 'milestone',
+    hint: 'Derrote a Bruxa da Neve em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_lizard_king',
+    code: 'VILÃO',
+    title: 'Reinado Extinto',
+    description: 'Derrotou o tirânico Rei Lagarto.',
+    icon: '🦎',
+    type: 'milestone',
+    hint: 'Derrote o Rei Lagarto em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_archmage',
+    code: 'VILÃO',
+    title: 'Queda de Mampang',
+    description: 'Derrotou o lendário Arqui-mago de Mampang.',
+    icon: '👑',
+    type: 'milestone',
+    hint: 'Derrote o Arqui-mago de Mampang em combate.',
+    rarity: 'epic',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_knox',
+    code: 'VILÃO',
+    title: 'Ordem Restaurada',
+    description: 'Derrotou Sidney Knox, o líder do M.E.D.O. em Titan City.',
+    icon: '🦸‍♂️',
+    type: 'milestone',
+    hint: 'Derrote Sidney Knox em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_zera',
+    code: 'VILÃO',
+    title: 'Confronto no Asteróide',
+    description: 'Derrotou o contrabandista intergaláctico Zera.',
+    icon: '🌌',
+    type: 'milestone',
+    hint: 'Derrote Zera em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_cadanca',
+    code: 'VILÃO',
+    title: 'Pirata Purificado',
+    description: 'Derrotou o terrível pirata morto-vivo Capitão Cadança.',
+    icon: '🏴‍☠️',
+    type: 'milestone',
+    hint: 'Derrote o Capitão Cadança em combate.',
+    rarity: 'rare',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_dragon',
+    code: 'COMBATE',
+    title: 'Matador de Dragões',
+    description: 'Venceu e derrotou um dragão ancestral em combate.',
+    icon: '🐉',
+    type: 'milestone',
+    hint: 'Derrote qualquer criatura "Dragão" em combate.',
+    rarity: 'epic',
+    category: 'combat'
+  },
+  {
+    id: 'combat_slayer_demon',
+    code: 'COMBATE',
+    title: 'Exorcista',
+    description: 'Exilou um demônio em combate.',
+    icon: '👹',
+    type: 'milestone',
+    hint: 'Derrote um "Demônio" em combate.',
+    rarity: 'uncommon',
+    category: 'combat'
   }
 ];
 
