@@ -83,13 +83,29 @@ export function YouTubeLiveStream() {
 
       {/* Video Iframe Container */}
       <div className="relative aspect-video w-full border border-current/20 shadow-md bg-black overflow-hidden group">
-        <iframe
-          src={embedUrl}
-          title="YouTube Live Stream"
-          className="absolute top-0 left-0 w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        ></iframe>
+        {isLive ? (
+          <iframe
+            src={embedUrl}
+            title="YouTube Live Stream"
+            className="absolute top-0 left-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-slate-950">
+            <img
+              src="/offline-banner.jpg"
+              alt="Offline - Aventuras Fantásticas"
+              className="w-full h-full object-cover select-none pointer-events-none"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-4">
+              <div className="flex items-center gap-1.5 text-white">
+                <span className="h-2 w-2 rounded-full bg-slate-500"></span>
+                <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-90">Canal Atualmente Offline</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Channel Information / Actions */}
