@@ -827,7 +827,7 @@ export default function Home() {
               onClick={() => showSheet && handleBackToDashboard()}
               title={showSheet ? 'Voltar ao painel de fichas' : undefined}
             >
-              Aventuras Fantásticas
+              Fichas de Aventuras Fantásticas
             </h1>
             {/* Sub-header: character name, gamebook, sync status and auth */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
@@ -1024,7 +1024,7 @@ export default function Home() {
                 <span className="text-2xl select-none">⚔️</span>
                 <div className="text-left md:text-center">
                   <div className="font-extrabold text-base tracking-wide">312</div>
-                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Combates Registrados</div>
+                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Combates via Ficha</div>
                 </div>
               </div>
               <div className="hidden md:block w-px h-8 bg-current opacity-20" />
@@ -1033,7 +1033,7 @@ export default function Home() {
                 <span className="text-2xl select-none">📚</span>
                 <div className="text-left md:text-center">
                   <div className="font-extrabold text-base tracking-wide">85</div>
-                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Aventuras Iniciadas</div>
+                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Fichas Iniciadas</div>
                 </div>
               </div>
               <div className="hidden md:block w-px h-8 bg-current opacity-20" />
@@ -1042,7 +1042,7 @@ export default function Home() {
                 <span className="text-2xl select-none">🏆</span>
                 <div className="text-left md:text-center">
                   <div className="font-extrabold text-base tracking-wide">12</div>
-                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Livros Concluídos</div>
+                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Fichas Concluídas</div>
                 </div>
               </div>
               <div className="hidden md:block w-px h-8 bg-current opacity-20" />
@@ -1051,7 +1051,7 @@ export default function Home() {
                 <span className="text-2xl select-none">👥</span>
                 <div className="text-left md:text-center">
                   <div className="font-extrabold text-base tracking-wide">24</div>
-                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Aventureiros</div>
+                  <div className={`text-[9px] uppercase font-bold tracking-widest opacity-75 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>Aventureiros com Ficha</div>
                 </div>
               </div>
             </div>
@@ -1130,7 +1130,7 @@ export default function Home() {
 
                       <div className="text-center space-y-2">
                         <h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-[#2D1D16] leading-tight">
-                          Viva Aventuras Fantásticas Online
+                          Viva Aventuras Fantásticas com Fichas Online
                         </h2>
                         <div className="w-24 h-0.5 bg-[#C5A059] mx-auto"></div>
                       </div>
@@ -1138,19 +1138,19 @@ export default function Home() {
                       <div className="w-full max-w-[320px] text-left space-y-2.5 my-1.5 font-serif text-[#5C4033] text-[13px] bg-[#5C4033]/5 p-4 border border-[#5C4033]/20 rounded-sm">
                         <div className="flex items-center gap-2.5">
                           <span className="text-base select-none">🧙</span>
-                          <span className="font-bold">Crie personagens.</span>
+                          <span className="font-bold">Gerencie atributos e itens de sua ficha.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base select-none">⚔️</span>
-                          <span className="font-bold">Enfrente monstros.</span>
+                          <span className="font-bold">Controle combates e role dados na ficha.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base select-none">🏆</span>
-                          <span className="font-bold">Conquiste feitos lendários.</span>
+                          <span className="font-bold">Registre conquistas e histórico de aventuras.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base select-none">☁️</span>
-                          <span className="font-bold">Salve sua ficha de aventura na nuvem.</span>
+                          <span className="font-bold">Sincronize suas fichas de forma segura na nuvem.</span>
                         </div>
                       </div>
 
@@ -1166,6 +1166,10 @@ export default function Home() {
                         </svg>
                         Conectar via Google
                       </button>
+
+                      <div className="w-full max-w-[320px] mt-4 border-t border-[#5C4033]/20 pt-3 text-[10px] text-center leading-relaxed text-[#5C4033]/70 font-sans italic">
+                        <strong>Aviso Legal:</strong> Este aplicativo é um assistente digital (ficha interativa) para uso com os livros-jogos físicos ou digitais da série Fighting Fantasy. O conteúdo dos livros e suas regras completas não estão inclusos.
+                      </div>
                     </div>
                   ) : (
                     <div className="w-full flex flex-col items-center gap-5 p-6 sm:p-10 border border-[#4a5568]/50 bg-slate-900/60 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.1)] rounded-xl">
@@ -1180,7 +1184,7 @@ export default function Home() {
                           Sua Jornada Começa Aqui
                         </h2>
                         <p className="text-[10px] uppercase tracking-wider text-cyan-400/80 font-mono font-bold">
-                          Viva Aventuras Fantásticas Online
+                          Viva Aventuras Fantásticas com Fichas Online
                         </p>
                         <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent mx-auto"></div>
                       </div>
@@ -1188,19 +1192,19 @@ export default function Home() {
                       <div className="w-full max-w-[320px] text-left space-y-2.5 my-1.5 font-sans text-slate-300 text-[13px] bg-slate-950/40 p-4 border border-[#4a5568]/30 rounded-lg">
                         <div className="flex items-center gap-2.5">
                           <span className="text-base text-cyan-400 select-none">🧙</span>
-                          <span className="font-medium">Crie personagens.</span>
+                          <span className="font-medium">Gerencie atributos e itens de sua ficha.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base text-cyan-400 select-none">⚔️</span>
-                          <span className="font-medium">Enfrente monstros.</span>
+                          <span className="font-medium">Controle combates e role dados na ficha.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base text-cyan-400 select-none">🏆</span>
-                          <span className="font-medium">Conquiste feitos lendários.</span>
+                          <span className="font-medium">Registre conquistas e histórico de aventuras.</span>
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span className="text-base text-cyan-400 select-none">☁️</span>
-                          <span className="font-medium">Salve sua ficha de aventura na nuvem.</span>
+                          <span className="font-medium">Sincronize suas fichas de forma segura na nuvem.</span>
                         </div>
                       </div>
 
@@ -1216,6 +1220,10 @@ export default function Home() {
                         </svg>
                         Autenticar Google
                       </button>
+
+                      <div className="w-full max-w-[320px] mt-4 border-t border-slate-700/50 pt-3 text-[10px] text-center leading-relaxed text-slate-400 font-sans italic">
+                        <strong>Aviso Legal:</strong> Este aplicativo é um assistente digital (ficha interativa) para uso com os livros-jogos físicos ou digitais da série Fighting Fantasy. O conteúdo dos livros e suas regras completas não estão inclusos.
+                      </div>
                     </div>
                   )}
                 </div>
