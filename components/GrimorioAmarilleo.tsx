@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
 import { 
@@ -121,6 +122,7 @@ export const GrimorioAmarilleo = () => {
   const { attributes, setAttribute, addCombatLog, theme, addItem, updateProvisions } = useSheetStore();
   const willpower = attributes.willpower || { initial: 0, current: 0 };
   const isPapyrus = theme === 'papyrus';
+  const [isOpen, setIsOpen] = useState(true);
 
   const handleCast = (spellKey: string, spellName: string, cost: number) => {
     if (willpower.current < cost) {
@@ -185,142 +187,151 @@ export const GrimorioAmarilleo = () => {
     addCombatLog({ type: 'spell', value: textLog });
   };
 
-  // Styles based on theme
   const wrapperClass = isPapyrus
     ? 'border-4 border-[#5C4033] bg-[#FDF6E3] p-6 shadow-[-8px_8px_0px_rgba(0,0,0,0.15)] font-serif mb-6'
     : 'border border-purple-500/30 bg-slate-950/60 backdrop-blur-md p-6 rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.1)] mb-6';
 
   const titleClass = isPapyrus
-    ? 'text-xl font-extrabold uppercase tracking-widest text-[#5C4033] mb-4 flex items-center gap-2 border-b-2 border-[#5C4033]/20 pb-2'
-    : 'text-xl font-bold uppercase tracking-widest bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent mb-4 flex items-center gap-2 border-b border-slate-800 pb-2';
+    ? 'text-xl font-extrabold uppercase tracking-widest text-[#5C4033] flex items-center justify-between pb-2 cursor-pointer select-none border-b-2 border-[#5C4033]/20 mb-4'
+    : 'text-xl font-bold uppercase tracking-widest bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent flex items-center justify-between pb-2 cursor-pointer select-none border-b border-slate-800 mb-4';
 
   return (
     <div className={wrapperClass}>
-      <h3 className={titleClass}>
-        <BookOpen size={20} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
-        <span>Grimório Amarílleo</span>
-      </h3>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={titleClass}
+      >
+        <div className="flex items-center gap-2">
+          <BookOpen size={20} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
+          <span>Grimório Amarílleo</span>
+        </div>
+        <span className={`text-sm transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''} ${isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'}`}>
+          ▼
+        </span>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {AMARILLEO_SPELLS.map((spell) => {
-          const Icon = spell.icon;
-          
-          // Check if this is a special spell or standard
-          const isSpecial = spell.type !== undefined;
-          const costDisplay = spell.type === 'special_alimento' 
-            ? 'Varia 1-3 PM' 
-            : spell.type === 'special_roubar' 
-            ? '5 PM' 
-            : `${spell.cost} PM`;
+      {isOpen && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {AMARILLEO_SPELLS.map((spell) => {
+            const Icon = spell.icon;
             
-          const isOut = !isSpecial && willpower.current < (spell.cost || 0);
+            // Check if this is a special spell or standard
+            const isSpecial = spell.type !== undefined;
+            const costDisplay = spell.type === 'special_alimento' 
+              ? 'Varia 1-3 PM' 
+              : spell.type === 'special_roubar' 
+              ? '5 PM' 
+              : `${spell.cost} PM`;
+              
+            const isOut = !isSpecial && willpower.current < (spell.cost || 0);
 
-          const cardClass = isPapyrus
-            ? `border-2 p-2.5 flex flex-col justify-between transition-all duration-200 ${
-                isOut 
-                  ? 'border-[#5C4033]/20 bg-[#5C4033]/5 opacity-50' 
-                  : 'border-[#5C4033] bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/35'
-              }`
-            : `border bg-slate-900/40 p-2.5 flex flex-col justify-between transition-all duration-200 rounded-xl ${
-                isOut
-                  ? 'border-slate-800/40 opacity-40'
-                  : 'border-purple-500/25 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 hover:border-purple-500/50'
-              }`;
+            const cardClass = isPapyrus
+              ? `border-2 p-2.5 flex flex-col justify-between transition-all duration-200 ${
+                  isOut 
+                    ? 'border-[#5C4033]/20 bg-[#5C4033]/5 opacity-50' 
+                    : 'border-[#5C4033] bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/35'
+                }`
+              : `border bg-slate-900/40 p-2.5 flex flex-col justify-between transition-all duration-200 rounded-xl ${
+                  isOut
+                    ? 'border-slate-800/40 opacity-40'
+                    : 'border-purple-500/25 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 hover:border-purple-500/50'
+                }`;
 
-          const buttonClass = isPapyrus
-            ? 'w-full py-1.5 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
-            : 'w-full py-1.5 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
+            const buttonClass = isPapyrus
+              ? 'w-full py-1.5 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
+              : 'w-full py-1.5 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
 
-          return (
-            <div key={spell.key} className={cardClass}>
-              <div>
-                <div className="flex justify-between items-start mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Icon size={14} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
-                    <h4 className={`font-bold text-[11px] uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                      {spell.name}
-                    </h4>
-                  </div>
-                  <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    isPapyrus 
-                      ? 'bg-[#5C4033]/15 text-[#5C4033]' 
-                      : 'bg-purple-950/40 text-purple-300'
-                  }`}>
-                    {costDisplay}
-                  </span>
-                </div>
-                
-                <p className={`text-[10px] leading-relaxed mb-2 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
-                  {spell.description}
-                </p>
-
-                {spell.effectBadge && !isOut && (
-                  <div className="mb-2">
-                    <span className={`text-[8px] uppercase font-bold tracking-wider px-1 py-0.5 rounded ${
+            return (
+              <div key={spell.key} className={cardClass}>
+                <div>
+                  <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <Icon size={14} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
+                      <h4 className={`font-bold text-[11px] uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                        {spell.name}
+                      </h4>
+                    </div>
+                    <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
                       isPapyrus 
-                        ? 'bg-[#8B4513]/10 text-[#8B4513]' 
-                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                        ? 'bg-[#5C4033]/15 text-[#5C4033]' 
+                        : 'bg-purple-950/40 text-purple-300'
                     }`}>
-                      ⚡ {spell.effectBadge}
+                      {costDisplay}
                     </span>
                   </div>
+                  
+                  <p className={`text-[10px] leading-relaxed mb-2 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
+                    {spell.description}
+                  </p>
+
+                  {spell.effectBadge && !isOut && (
+                    <div className="mb-2">
+                      <span className={`text-[8px] uppercase font-bold tracking-wider px-1 py-0.5 rounded ${
+                        isPapyrus 
+                          ? 'bg-[#8B4513]/10 text-[#8B4513]' 
+                          : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                      }`}>
+                        ⚡ {spell.effectBadge}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {spell.type === 'special_alimento' ? (
+                  <div className="flex flex-col gap-1 mt-2">
+                    <button
+                      disabled={willpower.current < 1}
+                      onClick={() => handleCastAlimento(1, 1)}
+                      className={buttonClass}
+                    >
+                      1 PM (+1 Provisão)
+                    </button>
+                    <button
+                      disabled={willpower.current < 2}
+                      onClick={() => handleCastAlimento(2, 3)}
+                      className={buttonClass}
+                    >
+                      2 PM (+3 Provisões)
+                    </button>
+                    <button
+                      disabled={willpower.current < 3}
+                      onClick={() => handleCastAlimento(3, 5)}
+                      className={buttonClass}
+                    >
+                      3 PM (+5 Provisões)
+                    </button>
+                  </div>
+                ) : spell.type === 'special_roubar' ? (
+                  <div className="flex flex-col gap-1 mt-2">
+                    <button
+                      disabled={willpower.current < 5}
+                      onClick={() => handleCastRoubar('Talismã Dourado')}
+                      className={buttonClass}
+                    >
+                      Talismã Dourado (5 PM)
+                    </button>
+                    <button
+                      disabled={willpower.current < 5}
+                      onClick={() => handleCastRoubar('Adaga de Prata')}
+                      className={buttonClass}
+                    >
+                      Adaga de Prata (5 PM)
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleCast(spell.key, spell.name, spell.cost || 0)}
+                    disabled={isOut}
+                    className={buttonClass}
+                  >
+                    {isOut ? 'Sem PM suficiente' : 'Conjurar'}
+                  </button>
                 )}
               </div>
-
-              {spell.type === 'special_alimento' ? (
-                <div className="flex flex-col gap-1 mt-2">
-                  <button
-                    disabled={willpower.current < 1}
-                    onClick={() => handleCastAlimento(1, 1)}
-                    className={buttonClass}
-                  >
-                    1 PM (+1 Provisão)
-                  </button>
-                  <button
-                    disabled={willpower.current < 2}
-                    onClick={() => handleCastAlimento(2, 3)}
-                    className={buttonClass}
-                  >
-                    2 PM (+3 Provisões)
-                  </button>
-                  <button
-                    disabled={willpower.current < 3}
-                    onClick={() => handleCastAlimento(3, 5)}
-                    className={buttonClass}
-                  >
-                    3 PM (+5 Provisões)
-                  </button>
-                </div>
-              ) : spell.type === 'special_roubar' ? (
-                <div className="flex flex-col gap-1 mt-2">
-                  <button
-                    disabled={willpower.current < 5}
-                    onClick={() => handleCastRoubar('Talismã Dourado')}
-                    className={buttonClass}
-                  >
-                    Talismã Dourado (5 PM)
-                  </button>
-                  <button
-                    disabled={willpower.current < 5}
-                    onClick={() => handleCastRoubar('Adaga de Prata')}
-                    className={buttonClass}
-                  >
-                    Adaga de Prata (5 PM)
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleCast(spell.key, spell.name, spell.cost || 0)}
-                  disabled={isOut}
-                  className={buttonClass}
-                >
-                  {isOut ? 'Sem PM suficiente' : 'Conjurar'}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
