@@ -1998,29 +1998,6 @@ export default function Home() {
                         {/* Vantagens & Desvantagens (Mobile - A Lenda de Zagor) */}
                         {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
                           <div className="space-y-3 mt-4">
-                            {attributes.selectedHero === 'personalizado' && (
-                              <div className={`p-4 border rounded-2xl flex flex-col gap-2 ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                                <label className="text-[10px] font-bold uppercase tracking-wider">Arquétipo do Herói</label>
-                                <select
-                                  value={attributes.customArchetype || 'anvar'}
-                                  onChange={(e) => {
-                                    useSheetStore.getState().setCustomArchetype(e.target.value as any);
-                                    useSheetStore.getState().saveToSupabase();
-                                  }}
-                                  className={`w-full px-3 py-2 text-[10px] font-bold uppercase tracking-wider border focus:ring-1 focus:ring-current ${
-                                    isPapyrus 
-                                      ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]' 
-                                      : 'border-slate-700 bg-slate-900 text-slate-200 rounded'
-                                  }`}
-                                >
-                                  <option value="anvar">Bárbaro (Anvar)</option>
-                                  <option value="braxus">Guerreiro (Braxus)</option>
-                                  <option value="restolho">Anão (Restolho)</option>
-                                  <option value="sallazar">Mago (Sallazar)</option>
-                                </select>
-                              </div>
-                            )}
-
                             <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                               <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isPapyrus ? 'text-[#5C4033]' : 'text-green-400'}`}>
                                 🟢 Vantagem
@@ -2417,58 +2394,28 @@ export default function Home() {
 
                         {/* Vantagens & Desvantagens (Desktop - A Lenda de Zagor) */}
                         {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
-                          <div className="flex flex-col gap-6">
-                            {attributes.selectedHero === 'personalizado' && (
-                              <div className={`p-4 border-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728] bg-[#EAD8B8]/20' : 'border-[#4a5568] bg-[#1a202c]/40'}`}>
-                                <div>
-                                  <h4 className="text-sm font-bold uppercase tracking-wider">Arquétipo do Herói Personalizado</h4>
-                                  <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'}`}>
-                                    Selecione o arquétipo para carregar suas vantagens, desvantagens e magias:
-                                  </p>
-                                </div>
-                                <select
-                                  value={attributes.customArchetype || 'anvar'}
-                                  onChange={(e) => {
-                                    useSheetStore.getState().setCustomArchetype(e.target.value as any);
-                                    useSheetStore.getState().saveToSupabase();
-                                  }}
-                                  className={`px-3 py-2 text-xs font-bold uppercase tracking-wider border focus:ring-1 focus:ring-current ${
-                                    isPapyrus 
-                                      ? 'border-[#5C4033] bg-[#FDF6E3] text-[#2D1D16]' 
-                                      : 'border-slate-700 bg-slate-900 text-slate-200 focus:ring-cyan-500 rounded'
-                                  }`}
-                                >
-                                  <option value="anvar">Bárbaro (Anvar)</option>
-                                  <option value="braxus">Guerreiro (Braxus)</option>
-                                  <option value="restolho">Anão (Restolho)</option>
-                                  <option value="sallazar">Mago (Sallazar)</option>
-                                </select>
-                              </div>
-                            )}
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <section
-                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
-                              >
-                                <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-green-400'}`}>
-                                  🟢 Vantagem
-                                </h3>
-                                <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
-                                  {getHeroAdvantage(effectiveHero)}
-                                </p>
-                              </section>
-                              
-                              <section
-                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
-                              >
-                                <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-red-400'}`}>
-                                  🔴 Desvantagem
-                                </h3>
-                                <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
-                                  {getHeroDisadvantage(effectiveHero)}
-                                </p>
-                              </section>
-                            </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <section
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
+                            >
+                              <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-green-400'}`}>
+                                🟢 Vantagem
+                              </h3>
+                              <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                {getHeroAdvantage(effectiveHero)}
+                              </p>
+                            </section>
+                            
+                            <section
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
+                            >
+                              <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-red-400'}`}>
+                                🔴 Desvantagem
+                              </h3>
+                              <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                {getHeroDisadvantage(effectiveHero)}
+                              </p>
+                            </section>
                           </div>
                         )}
 

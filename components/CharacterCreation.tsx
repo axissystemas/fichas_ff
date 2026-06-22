@@ -21,9 +21,10 @@ export const CharacterCreation = () => {
     setSpells,
     gold,
     provisions,
-    updateGold,
     updateProvisions,
     setSelectedHero,
+    setCustomArchetype,
+    updateGold,
   } = useSheetStore();
   
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
@@ -37,6 +38,7 @@ export const CharacterCreation = () => {
 
   // Selected hero for A Lenda de Zagor
   const [selectedHeroLocal, setSelectedHeroLocal] = useState<'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null>(null);
+  const [customArchetypeLocal, setCustomArchetypeLocal] = useState<'anvar' | 'braxus' | 'restolho' | 'sallazar' | null>(null);
 
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
@@ -86,6 +88,7 @@ export const CharacterCreation = () => {
 
   const handleSelectHero = (hero: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado') => {
     setSelectedHeroLocal(hero);
+    setCustomArchetypeLocal(null);
     if (hero === 'anvar') {
       setRolledSkill(10);
       setRolledEnergy(22);
@@ -288,6 +291,10 @@ export const CharacterCreation = () => {
       alert('Por favor, escolha um herói primeiro!');
       return;
     }
+    if (isZagor && selectedHeroLocal === 'personalizado' && !customArchetypeLocal) {
+      alert('Por favor, escolha a classe do seu herói personalizado!');
+      return;
+    }
     if (rolledSkill === null || rolledEnergy === null || rolledLuck === null) return;
     if (isCidadela && rolledMagic === null) return;
     if (isVampiro && rolledFaith === null) return;
@@ -323,6 +330,9 @@ export const CharacterCreation = () => {
 
     if (isZagor && rolledWillpower !== null) {
       setSelectedHero(selectedHeroLocal);
+      if (selectedHeroLocal === 'personalizado') {
+        setCustomArchetype(customArchetypeLocal);
+      }
       setAttribute('willpower', rolledWillpower, true);
       setAttribute('willpower', rolledWillpower, false);
     }
@@ -586,13 +596,54 @@ export const CharacterCreation = () => {
               );
             })}
           </div>
+
+          {selectedHeroLocal === 'personalizado' && (
+            <div className="text-center mt-6 animate-fade-in">
+              <h4 className={`text-xs uppercase font-bold tracking-wider mb-2 ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                Classe do Herói Personalizado
+              </h4>
+              <p className={`text-[10px] mb-3 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400 font-sans'}`}>
+                Selecione o arquétipo para determinar seu estilo de jogo, vantagens e desvantagens:
+              </p>
+              <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
+                {[
+                  { id: 'anvar', name: 'Bárbaro (Anvar)' },
+                  { id: 'braxus', name: 'Guerreiro (Braxus)' },
+                  { id: 'restolho', name: 'Anão (Restolho)' },
+                  { id: 'sallazar', name: 'Mago (Sallazar)' }
+                ].map((arc) => {
+                  const isArcSelected = customArchetypeLocal === arc.id;
+                  const arcBtnClass = isArcSelected
+                    ? isPapyrus
+                      ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/40 font-bold scale-105'
+                      : 'border-2 border-cyan-400 bg-cyan-950/20 text-cyan-300 font-bold scale-105 rounded-lg'
+                    : isPapyrus
+                      ? 'border border-[#5C4033]/30 bg-transparent hover:bg-[#EAD8B8]/10'
+                      : 'border border-slate-700 bg-transparent hover:border-slate-500 rounded-lg hover:bg-slate-900/30';
+                  return (
+                    <button
+                      key={arc.id}
+                      type="button"
+                      onClick={() => {
+                        setCustomArchetypeLocal(arc.id as any);
+                        audio.playBlip();
+                      }}
+                      className={`px-3 py-1.5 text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer ${arcBtnClass}`}
+                    >
+                      {arc.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           
           <div className="w-full h-[1px] bg-current opacity-10 mt-8 mb-4"></div>
         </div>
       )}
 
       {/* Attribute Rolling Setup */}
-      {(!isZagor || selectedHeroLocal) && (
+      {(!isZagor || (selectedHeroLocal && (selectedHeroLocal !== 'personalizado' || customArchetypeLocal))) && (
         <>
           <div className="text-center mb-8">
             <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
@@ -869,7 +920,7 @@ export const CharacterCreation = () => {
             <div className="flex items-center gap-1.5 justify-center mb-1">
               <Sparkles size={16} className={isPapyrus ? 'text-[#8B008B]' : 'text-purple-400'} />
               <span className="text-xs uppercase font-extrabold tracking-wider">
-                {selectedHeroLocal === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'}
+                {(selectedHeroLocal === 'sallazar' || (selectedHeroLocal === 'personalizado' && customArchetypeLocal === 'sallazar')) ? 'Pontos de Magia' : 'Força de Vontade'}
               </span>
             </div>
 
