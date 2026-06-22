@@ -2330,7 +2330,7 @@ export default function Home() {
                       <div className="md:col-span-3 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
-                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' || (gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar') ? (
+                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                               <div className="lg:col-span-3 flex flex-col gap-6">
                                 <section
@@ -2350,7 +2350,6 @@ export default function Home() {
                                 {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
-                                {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && <GrimorioAmarilleo />}
                               </div>
                             </div>
                           ) : (
@@ -2375,6 +2374,10 @@ export default function Home() {
                             </>
                           )}
                         </div>
+
+                        {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
+                          <GrimorioAmarilleo />
+                        )}
 
                         {/* Seção do Inventário (Desktop) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
