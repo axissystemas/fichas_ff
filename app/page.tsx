@@ -1938,7 +1938,7 @@ export default function Home() {
                           <DamageCard />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-4">
                           <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                             <AttackCard key={`attack-mobile-${resetKey}`} />
                           </div>
