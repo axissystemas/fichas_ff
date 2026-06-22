@@ -4,7 +4,7 @@ import { audio } from '@/lib/audio';
 
 interface Props {
   label: string;
-  attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear';
+  attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower';
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {
@@ -40,6 +40,8 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
     } else if (gamebook === 'A Cripta do Vampiro' && attrKey === 'faith') {
       roll = (Math.floor(Math.random() * 6) + 1) + 3; // 1d6 + 3
     } else if (gamebook === 'A Mansão do Inferno' && attrKey === 'fear') {
+      roll = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+    } else if (gamebook === 'A Lenda de Zagor' && attrKey === 'willpower') {
       roll = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
     } else {
       const modifier = 6;
@@ -92,7 +94,8 @@ export const AttributeCard = ({ label, attrKey }: Props) => {
       </div>
       <div className={`flex items-center justify-center gap-3 mt-4 p-2 ${theme === 'papyrus' ? 'bg-[#EAD8B8] text-[#2C1E14]' : 'bg-[#2d3748] text-[#cbd5e0]'}`}>
         <span className="text-sm uppercase font-bold">Inicial: {attr.initial}</span>
-        {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && (
+        {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && 
+         !(gamebook === 'A Lenda de Zagor' && attributes.selectedHero && attributes.selectedHero !== 'personalizado') && (
           <button onClick={rollInitial} className="hover:text-[#C5A059] transition p-1 border border-transparent hover:border-current rounded">
             <RefreshCw size={18} />
           </button>

@@ -20,6 +20,7 @@ import { CidadelaTracker } from '@/components/CidadelaTracker';
 import { VampiroTracker } from '@/components/VampiroTracker';
 import { ExercitosTracker } from '@/components/ExercitosTracker';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
+import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
@@ -345,6 +346,36 @@ const getCategoryBadgeStyle = (category: string, isPapyrus: boolean) => {
   return 'bg-slate-500/10 text-slate-400 border border-slate-700';
 };
 
+const getHeroAdvantage = (hero: string) => {
+  switch (hero) {
+    case 'anvar':
+      return 'Anvar possui um sexto sentido avisando-o de ataques! Algumas vezes vai encontrar uma criatura (ou armadilha) que pode surpreendê-lo e infligir dano antes que você possa agir. Anvar não pode ser surpreendido. Então, se o parágrafo o instruir a perder pontos de ENERGIA, ou caso se veja preso de alguma forma por ser surpreendido, Anvar não sofre nenhum dano.';
+    case 'braxus':
+      return 'O talento de Braxus é sua versatilidade. Ele pode usar qualquer arma ou proteção que outros aventureiros não podem. Portanto, ele não sofre nenhuma desvantagem que outros aventureiros têm (veja Desvantagens a seguir).';
+    case 'restolho':
+      return 'Restolho tem um conhecimento especial sobre como lutar contra alguns monstros do subterrâneo. Ao confrontar uma criatura com a palavra "Pedra" no nome (como "estátua de pedra" ou "golem de pedra"), Restolho acrescenta 2 à sua Força de Ataque.';
+    case 'sallazar':
+      return 'Sallazar é muito perceptivo e minucioso. Sempre que precisar Testar sua Percepção, pode subtrair 2 do resultado. Também é capaz de ler tomos mágicos especiais e entende detalhes de runas mágicas que outros personagens não entendem. Além disso, Sallazar pode lançar qualquer magia do Grimório quantas vezes quiser, desde que tenha PONTOS DE MAGIA suficientes.';
+    default:
+      return 'Nenhuma vantagem inicial predefinida.';
+  }
+};
+
+const getHeroDisadvantage = (hero: string) => {
+  switch (hero) {
+    case 'anvar':
+      return 'Anvar fica bastante desconfortável vestindo qualquer armadura metálica (cota de malha ou armadura de placa de aço). Como Anvar, você não pode vestir placas de aço e, apesar de tolerar cotas de malha (e vesti-las), não ganhará nenhum bônus na sua Força de Ataque por isso. Embora possa usar arcos longos e flechas, não teve treinamento no uso de bestas; se usar alguma, deve subtrair 2 de sua Força de Ataque.';
+    case 'braxus':
+      return 'Braxus é tão versátil que não possui essas desvantagens! Caso jogue com um dos outros, lembre-se de anotar a desvantagem no espaço apropriado da ficha de aventura.';
+    case 'restolho':
+      return 'Restolho não pode usar espadas de duas mãos e arcos longos — são grandes demais para ele. Pode usar cotas de malha, mas só pode usar uma armadura de placas de aço de tamanho anão (se o texto não disser que aquela armadura de placas de aço é feita para anões, Restolho não pode usá-la).';
+    case 'sallazar':
+      return 'Sallazar possui problemas similares, mas de forma mais severa: não pode usar cotas de malha nem placas de aço (mal conseguiria se mexer com o peso!) Além disso, não pode usar bestas, arcos longos ou espadas de duas mãos. Ele precisa ter ao menos uma mão livre para conjurar feitiços!';
+    default:
+      return 'Nenhuma desvantagem inicial predefinida.';
+  }
+};
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -402,6 +433,10 @@ export default function Home() {
   useEffect(() => {
     setInspectMode(false);
   }, [activeSheetId]);
+
+  const effectiveHero = (attributes.selectedHero === 'personalizado'
+    ? (attributes.customArchetype || 'anvar')
+    : attributes.selectedHero) || '';
 
   const modifiedEnergy = getModifiedAttribute('energy');
   const modifiedSkill = getModifiedAttribute('skill');
@@ -820,7 +855,7 @@ export default function Home() {
     };
   }, [user, gamebook, attributes.currentSection, showSheet, sheetStatus, isNewSheet]);
 
-  const renderMobileAttributeCard = (label: string, attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear', desc: string) => {
+  const renderMobileAttributeCard = (label: string, attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower', desc: string) => {
     const attr = attributes[attrKey] || { initial: 0, current: 0 };
     const modifiedCurrent = getModifiedAttribute(attrKey);
     const modifier = modifiedCurrent - attr.current;
@@ -845,6 +880,8 @@ export default function Home() {
       } else if (gamebook === 'A Cripta do Vampiro' && attrKey === 'faith') {
         roll = (Math.floor(Math.random() * 6) + 1) + 3;
       } else if (gamebook === 'A Mansão do Inferno' && attrKey === 'fear') {
+        roll = Math.floor(Math.random() * 6) + 1 + 6;
+      } else if (gamebook === 'A Lenda de Zagor' && attrKey === 'willpower') {
         roll = Math.floor(Math.random() * 6) + 1 + 6;
       } else {
         roll = Math.floor(Math.random() * 6) + 1 + 6;
@@ -919,7 +956,8 @@ export default function Home() {
             </button>
             
             {/* Roll initial button */}
-            {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && (
+            {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && 
+             !(gamebook === 'A Lenda de Zagor' && attributes.selectedHero && attributes.selectedHero !== 'personalizado') && (
               <button
                 onClick={rollInitialMobile}
                 className={`p-1 rounded-full border border-transparent hover:border-current active:scale-90 transition-all ${
@@ -999,6 +1037,34 @@ export default function Home() {
                       {BOOKS_WITH_SUGGESTIONS.includes((gamebook || 'O Feiticeiro da Montanha de Fogo') as any) && ' 👾'}
                     </span>
                   </div>
+
+                  {/* Selected Hero for Zagor */}
+                  {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
+                    <>
+                      {/* Separator */}
+                      <span className={`hidden sm:block text-xs opacity-30 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-500'}`}>|</span>
+                      
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                          Herói
+                        </span>
+                        <span className={`text-xs font-bold uppercase px-2 py-0.5 border ${isPapyrus
+                          ? 'bg-[#8B5A2B]/10 text-[#5C4033] border-[#8B5A2B]/30'
+                          : 'bg-indigo-950/50 text-indigo-300 border-indigo-700/50'
+                          }`}>
+                          🛡️ {attributes.selectedHero === 'sallazar'
+                            ? 'Mago Sallazar'
+                            : attributes.selectedHero === 'restolho'
+                              ? 'Restolho'
+                              : attributes.selectedHero === 'anvar'
+                                ? 'Anvar'
+                                : attributes.selectedHero === 'braxus'
+                                  ? 'Braxus'
+                                  : `Personalizado (${attributes.customArchetype === 'sallazar' ? 'Mago' : attributes.customArchetype === 'restolho' ? 'Anão' : attributes.customArchetype === 'braxus' ? 'Guerreiro' : attributes.customArchetype === 'anvar' ? 'Bárbaro' : 'Sem Classe'})`}
+                        </span>
+                      </div>
+                    </>
+                  )}
 
                   {/* Separator */}
                   <span className={`hidden sm:block text-xs opacity-30 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-500'}`}>|</span>
@@ -1666,6 +1732,19 @@ export default function Home() {
                             <p className={`text-[10px] font-sans truncate opacity-80 max-w-[160px] sm:max-w-[240px] font-bold ${isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'}`}>
                               📚 {gamebook || 'O Feiticeiro da Montanha de Fogo'}
                             </p>
+                            {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
+                              <p className={`text-[9px] font-sans uppercase tracking-wider truncate opacity-90 max-w-[160px] sm:max-w-[240px] font-extrabold mt-0.5 ${isPapyrus ? 'text-[#8B5A2B]' : 'text-indigo-400'}`}>
+                                🛡️ {attributes.selectedHero === 'sallazar'
+                                  ? 'Mago Sallazar'
+                                  : attributes.selectedHero === 'restolho'
+                                    ? 'Restolho'
+                                    : attributes.selectedHero === 'anvar'
+                                      ? 'Anvar'
+                                      : attributes.selectedHero === 'braxus'
+                                        ? 'Braxus'
+                                        : `Personalizado (${attributes.customArchetype === 'sallazar' ? 'Mago' : attributes.customArchetype === 'restolho' ? 'Anão' : attributes.customArchetype === 'braxus' ? 'Guerreiro' : attributes.customArchetype === 'anvar' ? 'Bárbaro' : 'Sem Classe'})`}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
@@ -1866,6 +1945,13 @@ export default function Home() {
                           {gamebook === 'A Cidadela do Caos' && renderMobileAttributeCard('Mágica', 'magic', 'Sua reserva de poder mágico para lançar feitiços.')}
                           {gamebook === 'A Cripta do Vampiro' && renderMobileAttributeCard('Fé', 'faith', 'Sua proteção e força espiritual contra as trevas.')}
                           {gamebook === 'A Mansão do Inferno' && renderMobileAttributeCard('Medo', 'fear', 'Seu controle de estresse. Não deixe atingir o máximo.')}
+                          {gamebook === 'A Lenda de Zagor' && renderMobileAttributeCard(
+                            effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade',
+                            'willpower',
+                            attributes.selectedHero === 'sallazar' 
+                              ? 'Sua reserva de magia para conjurar feitiços do Grimório Amarílleo.'
+                              : 'Sua determinação e resistência psicológica.'
+                          )}
                         </div>
 
                         {/* Seções complementares de Status */}
@@ -1905,13 +1991,55 @@ export default function Home() {
                                   </div>
                                 );
                               })
-                            ) : (
-                              <div className={`w-full py-6 text-center text-[10px] italic border border-dashed rounded-xl opacity-60 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800/60'}`}>
-                                Nenhuma conquista desbloqueada nesta aventura.
-                              </div>
-                            )}
+                            ) : null}
                           </div>
                         </div>
+
+                        {/* Vantagens & Desvantagens (Mobile - A Lenda de Zagor) */}
+                        {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
+                          <div className="space-y-3 mt-4">
+                            {attributes.selectedHero === 'personalizado' && (
+                              <div className={`p-4 border rounded-2xl flex flex-col gap-2 ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                                <label className="text-[10px] font-bold uppercase tracking-wider">Arquétipo do Herói</label>
+                                <select
+                                  value={attributes.customArchetype || 'anvar'}
+                                  onChange={(e) => {
+                                    useSheetStore.getState().setCustomArchetype(e.target.value as any);
+                                    useSheetStore.getState().saveToSupabase();
+                                  }}
+                                  className={`w-full px-3 py-2 text-[10px] font-bold uppercase tracking-wider border focus:ring-1 focus:ring-current ${
+                                    isPapyrus 
+                                      ? 'border-[#5C4033] bg-[#EAD8B8]/30 text-[#2D1D16]' 
+                                      : 'border-slate-700 bg-slate-900 text-slate-200 rounded'
+                                  }`}
+                                >
+                                  <option value="anvar">Bárbaro (Anvar)</option>
+                                  <option value="braxus">Guerreiro (Braxus)</option>
+                                  <option value="restolho">Anão (Restolho)</option>
+                                  <option value="sallazar">Mago (Sallazar)</option>
+                                </select>
+                              </div>
+                            )}
+
+                            <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                              <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isPapyrus ? 'text-[#5C4033]' : 'text-green-400'}`}>
+                                🟢 Vantagem
+                              </h4>
+                              <p className={`text-[10px] leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                {getHeroAdvantage(effectiveHero)}
+                              </p>
+                            </div>
+                            
+                            <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                              <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isPapyrus ? 'text-[#5C4033]' : 'text-red-400'}`}>
+                                🔴 Desvantagem
+                              </h4>
+                              <p className={`text-[10px] leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                {getHeroDisadvantage(effectiveHero)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1960,6 +2088,11 @@ export default function Home() {
                         {gamebook === 'Exércitos da Morte' && (
                           <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                             <ExercitosTracker />
+                          </div>
+                        )}
+                        {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <GrimorioAmarilleo />
                           </div>
                         )}
                       </div>
@@ -2206,6 +2339,12 @@ export default function Home() {
                         {gamebook === 'A Mansão do Inferno' && (
                           <AttributeCard label="Medo" attrKey="fear" />
                         )}
+                        {gamebook === 'A Lenda de Zagor' && (
+                          <AttributeCard 
+                            label={effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'} 
+                            attrKey="willpower" 
+                          />
+                        )}
                         <CurrentSectionCard />
                         <CompletionChecklist />
                       </div>
@@ -2214,7 +2353,7 @@ export default function Home() {
                       <div className="md:col-span-3 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
-                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
+                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' || (gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar') ? (
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                               <div className="lg:col-span-3 flex flex-col gap-6">
                                 <section
@@ -2234,6 +2373,7 @@ export default function Home() {
                                 {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
+                                {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && <GrimorioAmarilleo />}
                               </div>
                             </div>
                           ) : (
@@ -2274,6 +2414,63 @@ export default function Home() {
                             <CombatHistory />
                           </section>
                         </div>
+
+                        {/* Vantagens & Desvantagens (Desktop - A Lenda de Zagor) */}
+                        {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
+                          <div className="flex flex-col gap-6">
+                            {attributes.selectedHero === 'personalizado' && (
+                              <div className={`p-4 border-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728] bg-[#EAD8B8]/20' : 'border-[#4a5568] bg-[#1a202c]/40'}`}>
+                                <div>
+                                  <h4 className="text-sm font-bold uppercase tracking-wider">Arquétipo do Herói Personalizado</h4>
+                                  <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'}`}>
+                                    Selecione o arquétipo para carregar suas vantagens, desvantagens e magias:
+                                  </p>
+                                </div>
+                                <select
+                                  value={attributes.customArchetype || 'anvar'}
+                                  onChange={(e) => {
+                                    useSheetStore.getState().setCustomArchetype(e.target.value as any);
+                                    useSheetStore.getState().saveToSupabase();
+                                  }}
+                                  className={`px-3 py-2 text-xs font-bold uppercase tracking-wider border focus:ring-1 focus:ring-current ${
+                                    isPapyrus 
+                                      ? 'border-[#5C4033] bg-[#FDF6E3] text-[#2D1D16]' 
+                                      : 'border-slate-700 bg-slate-900 text-slate-200 focus:ring-cyan-500 rounded'
+                                  }`}
+                                >
+                                  <option value="anvar">Bárbaro (Anvar)</option>
+                                  <option value="braxus">Guerreiro (Braxus)</option>
+                                  <option value="restolho">Anão (Restolho)</option>
+                                  <option value="sallazar">Mago (Sallazar)</option>
+                                </select>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <section
+                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
+                              >
+                                <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-green-400'}`}>
+                                  🟢 Vantagem
+                                </h3>
+                                <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                  {getHeroAdvantage(effectiveHero)}
+                                </p>
+                              </section>
+                              
+                              <section
+                                className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
+                              >
+                                <h3 className={`text-md font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-red-400'}`}>
+                                  🔴 Desvantagem
+                                </h3>
+                                <p className={`text-xs leading-relaxed font-sans ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-350'}`}>
+                                  {getHeroDisadvantage(effectiveHero)}
+                                </p>
+                              </section>
+                            </div>
+                          </div>
+                        )}
 
                         {/* BLOCO INFERIOR (Desktop) */}
                         <section>

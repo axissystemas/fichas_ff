@@ -23,15 +23,20 @@ export const CharacterCreation = () => {
     provisions,
     updateGold,
     updateProvisions,
+    setSelectedHero,
   } = useSheetStore();
   
   const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
   const isCidadela = gamebook === 'A Cidadela do Caos';
   const isVampiro = gamebook === 'A Cripta do Vampiro';
   const isMansao = gamebook === 'A Mansão do Inferno';
+  const isZagor = gamebook === 'A Lenda de Zagor';
   
   // Selected superpower for MEDO
   const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
+
+  // Selected hero for A Lenda de Zagor
+  const [selectedHeroLocal, setSelectedHeroLocal] = useState<'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null>(null);
 
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
@@ -40,6 +45,7 @@ export const CharacterCreation = () => {
   const [rolledMagic, setRolledMagic] = useState<number | null>(null);
   const [rolledFaith, setRolledFaith] = useState<number | null>(null);
   const [rolledFear, setRolledFear] = useState<number | null>(null);
+  const [rolledWillpower, setRolledWillpower] = useState<number | null>(null);
 
   // Rolling states
   const [rollingSkill, setRollingSkill] = useState(false);
@@ -48,6 +54,7 @@ export const CharacterCreation = () => {
   const [rollingMagic, setRollingMagic] = useState(false);
   const [rollingFaith, setRollingFaith] = useState(false);
   const [rollingFear, setRollingFear] = useState(false);
+  const [rollingWillpower, setRollingWillpower] = useState(false);
 
   // Display values during rolling animation
   const [displaySkill, setDisplaySkill] = useState(0);
@@ -56,6 +63,57 @@ export const CharacterCreation = () => {
   const [displayMagic, setDisplayMagic] = useState(0);
   const [displayFaith, setDisplayFaith] = useState(0);
   const [displayFear, setDisplayFear] = useState(0);
+  const [displayWillpower, setDisplayWillpower] = useState(0);
+
+  const rollWillpower = () => {
+    if (rollingWillpower || rolledWillpower !== null) return;
+    setRollingWillpower(true);
+    audio.playDiceRoll();
+
+    const interval = setInterval(() => {
+      setDisplayWillpower(Math.floor(Math.random() * 6) + 1 + 6);
+    }, 60);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+      setRolledWillpower(finalVal);
+      setDisplayWillpower(finalVal);
+      setRollingWillpower(false);
+      audio.playCoin();
+    }, 600);
+  };
+
+  const handleSelectHero = (hero: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado') => {
+    setSelectedHeroLocal(hero);
+    if (hero === 'anvar') {
+      setRolledSkill(10);
+      setRolledEnergy(22);
+      setRolledLuck(10);
+      setRolledWillpower(10);
+    } else if (hero === 'braxus') {
+      setRolledSkill(11);
+      setRolledEnergy(20);
+      setRolledLuck(9);
+      setRolledWillpower(11);
+    } else if (hero === 'restolho') {
+      setRolledSkill(9);
+      setRolledEnergy(24);
+      setRolledLuck(11);
+      setRolledWillpower(10);
+    } else if (hero === 'sallazar') {
+      setRolledSkill(7);
+      setRolledEnergy(16);
+      setRolledLuck(8);
+      setRolledWillpower(14);
+    } else {
+      // reset rolled values for personalizado so they can roll
+      setRolledSkill(null);
+      setRolledEnergy(null);
+      setRolledLuck(null);
+      setRolledWillpower(null);
+    }
+  };
 
   // Selected spells for Cidadela
   const [selectedSpells, setSelectedSpells] = useState<Record<string, number>>({});
@@ -226,10 +284,15 @@ export const CharacterCreation = () => {
       alert('Por favor, escolha um superpoder primeiro!');
       return;
     }
+    if (isZagor && !selectedHeroLocal) {
+      alert('Por favor, escolha um herói primeiro!');
+      return;
+    }
     if (rolledSkill === null || rolledEnergy === null || rolledLuck === null) return;
     if (isCidadela && rolledMagic === null) return;
     if (isVampiro && rolledFaith === null) return;
     if (isMansao && rolledFear === null) return;
+    if (isZagor && rolledWillpower === null) return;
 
     // Play retro victory fanfare
     audio.playVictory();
@@ -258,6 +321,12 @@ export const CharacterCreation = () => {
       setAttribute('fear', 0, false); // Começa com 0 pontos de medo atual
     }
 
+    if (isZagor && rolledWillpower !== null) {
+      setSelectedHero(selectedHeroLocal);
+      setAttribute('willpower', rolledWillpower, true);
+      setAttribute('willpower', rolledWillpower, false);
+    }
+
     if (isMedo && selectedPower) {
       setSuperpower(selectedPower);
       updateHeroPoints(0);
@@ -275,9 +344,17 @@ export const CharacterCreation = () => {
     const magicStr = isCidadela ? ` | Mágica: ${rolledMagic}` : '';
     const faithStr = isVampiro ? ` | Fé: ${rolledFaith}` : '';
     const fearStr = isMansao ? ` | Medo Máx: ${rolledFear}` : '';
+    const heroNameMap = {
+      anvar: 'Anvar',
+      braxus: 'Braxus',
+      restolho: 'Restolho',
+      sallazar: 'Sallazar',
+      personalizado: 'Personalizado',
+    };
+    const heroStr = isZagor && selectedHeroLocal ? ` | Herói: ${heroNameMap[selectedHeroLocal]} | ${selectedHeroLocal === 'sallazar' ? 'PM' : 'Força de Vontade'}: ${rolledWillpower}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}${heroStr}`,
     });
 
     // Log telemetry
@@ -290,6 +367,8 @@ export const CharacterCreation = () => {
       superpower: isMedo ? selectedPower : undefined,
       faith: isVampiro ? rolledFaith : undefined,
       fear: isMansao ? rolledFear : undefined,
+      selectedHero: isZagor ? selectedHeroLocal : undefined,
+      willpower: isZagor ? rolledWillpower : undefined,
     });
 
     // Save state to Supabase
@@ -303,7 +382,8 @@ export const CharacterCreation = () => {
     (!isMedo || selectedPower !== null) &&
     (!isCidadela || rolledMagic !== null) &&
     (!isVampiro || rolledFaith !== null) &&
-    (!isMansao || rolledFear !== null);
+    (!isMansao || rolledFear !== null) &&
+    (!isZagor || rolledWillpower !== null);
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -431,17 +511,101 @@ export const CharacterCreation = () => {
         </div>
       )}
 
-      {/* Attribute Rolling Setup */}
-      <div className="text-center mb-8">
-        <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-          Determine Seus Atributos Iniciais
-        </h3>
-        <p className={`text-xs mt-1 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400 font-sans'}`}>
-          Role os dados para determinar seus valores de partida.
-        </p>
-      </div>
+      {/* Hero Selection for A Lenda de Zagor */}
+      {isZagor && (
+        <div className="mb-8">
+          <div className="text-center mb-6">
+            <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+              Escolha seu Herói
+            </h3>
+            <p className={`text-xs mt-1 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400 font-sans'}`}>
+              Escolha um dos quatro heróis clássicos ou crie um Herói Personalizado.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {[
+              {
+                id: 'anvar',
+                name: 'Anvar',
+                subtitle: 'Bárbaro',
+                desc: 'Hab: 10 | Ener: 22\nSorte: 10 | Vontade: 10',
+              },
+              {
+                id: 'braxus',
+                name: 'Braxus',
+                subtitle: 'Guerreiro',
+                desc: 'Hab: 11 | Ener: 20\nSorte: 9 | Vontade: 11',
+              },
+              {
+                id: 'restolho',
+                name: 'Restolho',
+                subtitle: 'Anão',
+                desc: 'Hab: 9 | Ener: 24\nSorte: 11 | Vontade: 10',
+              },
+              {
+                id: 'sallazar',
+                name: 'Sallazar',
+                subtitle: 'Mago',
+                desc: 'Hab: 7 | Ener: 16\nSorte: 8 | Magia: 14',
+              },
+              {
+                id: 'personalizado',
+                name: 'Personalizado',
+                subtitle: 'Sua Criação',
+                desc: 'Determine seus atributos rolando os dados.',
+              },
+            ].map((h) => {
+              const isSelected = selectedHeroLocal === h.id;
+              const cardClass = isSelected
+                ? isPapyrus
+                  ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/40 shadow-md scale-[1.02]'
+                  : 'border-2 border-cyan-400 bg-cyan-950/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-xl scale-[1.02]'
+                : isPapyrus
+                  ? 'border border-[#5C4033]/30 bg-transparent hover:border-[#5C4033]/70 hover:bg-[#EAD8B8]/10'
+                  : 'border border-slate-800 bg-transparent hover:border-slate-600 rounded-xl hover:bg-slate-900/30';
+              
+              return (
+                <div
+                  key={h.id}
+                  onClick={() => handleSelectHero(h.id as any)}
+                  className={`p-3 cursor-pointer transition-all duration-200 flex flex-col justify-between text-center ${cardClass}`}
+                >
+                  <div>
+                    <h4 className="font-bold text-sm uppercase tracking-wider mb-0.5">
+                      {h.name}
+                    </h4>
+                    <div className={`text-[10px] font-semibold mb-1 uppercase tracking-wider ${isPapyrus ? 'text-[#8B5A2B]' : 'text-cyan-400'}`}>
+                      {h.subtitle}
+                    </div>
+                    <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/85' : 'text-slate-300 font-mono'} leading-tight whitespace-pre-line`}>
+                      {h.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="w-full h-[1px] bg-current opacity-10 mt-8 mb-4"></div>
+        </div>
+      )}
 
-      <div className={`grid grid-cols-1 ${(isCidadela || isVampiro || isMansao) ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6 mb-8`}>
+      {/* Attribute Rolling Setup */}
+      {(!isZagor || selectedHeroLocal) && (
+        <>
+          <div className="text-center mb-8">
+            <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+              {isZagor && selectedHeroLocal !== 'personalizado' ? 'Atributos do Herói' : 'Determine Seus Atributos Iniciais'}
+            </h3>
+            <p className={`text-xs mt-1 ${isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400 font-sans'}`}>
+              {isZagor && selectedHeroLocal !== 'personalizado' 
+                ? 'Os atributos do seu herói escolhido são fixados por regras oficiais.'
+                : 'Role os dados para determinar seus valores de partida.'}
+            </p>
+          </div>
+
+          <div className={`grid grid-cols-1 ${(isCidadela || isVampiro || isMansao || isZagor) ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6 mb-8`}>
         {/* SKILL (Habilidade) Card */}
         <div 
           onClick={
@@ -477,7 +641,9 @@ export const CharacterCreation = () => {
           {isMedo && selectedPower === 'superforca' ? (
             <div className="text-[10px] uppercase font-bold tracking-wider text-green-600 dark:text-cyan-400">Superforça active</div>
           ) : rolledSkill !== null ? (
-            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
+            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+              {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : 'Dado + 6'}
+            </div>
           ) : (
             <button 
               onClick={(e) => { e.stopPropagation(); rollSkill(); }}
@@ -517,7 +683,7 @@ export const CharacterCreation = () => {
 
           {rolledEnergy !== null ? (
             <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">
-              2 Dados + 12
+              {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : '2 Dados + 12'}
             </div>
           ) : (
             <button 
@@ -557,7 +723,9 @@ export const CharacterCreation = () => {
           </div>
 
           {rolledLuck !== null ? (
-            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
+            <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+              {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : 'Dado + 6'}
+            </div>
           ) : (
             <button 
               onClick={(e) => { e.stopPropagation(); rollLuck(); }}
@@ -691,7 +859,54 @@ export const CharacterCreation = () => {
             )}
           </div>
         )}
+
+        {/* WILLPOWER / PONTOS DE MAGIA Card */}
+        {isZagor && selectedHeroLocal && (
+          <div 
+            onClick={rolledWillpower === null ? rollWillpower : undefined}
+            className={attributeCardStyle(rolledWillpower !== null, rollingWillpower)}
+          >
+            <div className="flex items-center gap-1.5 justify-center mb-1">
+              <Sparkles size={16} className={isPapyrus ? 'text-[#8B008B]' : 'text-purple-400'} />
+              <span className="text-xs uppercase font-extrabold tracking-wider">
+                {selectedHeroLocal === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'}
+              </span>
+            </div>
+
+            <div className="my-4 h-16 flex items-center justify-center">
+              {rollingWillpower ? (
+                <span className="text-4xl font-extrabold animate-bounce">{displayWillpower}</span>
+              ) : rolledWillpower !== null ? (
+                <motion.span 
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-5xl font-extrabold"
+                >
+                  {rolledWillpower}
+                </motion.span>
+              ) : (
+                <Dices size={36} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
+              )}
+            </div>
+
+            {rolledWillpower !== null ? (
+              <div className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+                {selectedHeroLocal === 'personalizado' ? 'Dado + 6' : 'Fixo'}
+              </div>
+            ) : (
+              <button 
+                onClick={(e) => { e.stopPropagation(); rollWillpower(); }}
+                className={buttonStyle}
+                disabled={rollingWillpower}
+              >
+                Role 1d6+6
+              </button>
+            )}
+          </div>
+        )}
       </div>
+    </>
+  )}
 
       {/* Grimório (Spell Selection) for Cidadela */}
       {isCidadela && allRolled && (

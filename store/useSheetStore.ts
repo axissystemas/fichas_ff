@@ -102,6 +102,7 @@ export interface AttributeModifiers {
   magic?: number;
   faith?: number;
   fear?: number;
+  willpower?: number;
   damageReduction?: number;
 }
 
@@ -159,6 +160,9 @@ export interface DbSheet {
       knights: number;
       others: number;
     };
+    willpower?: Attribute;
+    selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
+    customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
   };
   gold?: number;
   provisions?: number;
@@ -209,6 +213,9 @@ interface SheetState {
       others: number;
     };
     fear?: Attribute;
+    willpower?: Attribute;
+    selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
+    customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
   };
   gold: number;
   provisions: number;
@@ -266,6 +273,8 @@ interface SheetState {
         others: number;
       };
       fear?: Attribute;
+      willpower?: Attribute;
+      selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
     };
     gold?: number;
     provisions?: number;
@@ -291,7 +300,7 @@ interface SheetState {
   clearLocalState: () => void;
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear', value: number, isInitial: boolean) => void;
+  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower', value: number, isInitial: boolean) => void;
   setSpells: (spells: Record<string, number>) => void;
   toggleDisease: (disease: string) => void;
   updateCoffinsDestroyed: (delta: number) => void;
@@ -307,7 +316,7 @@ interface SheetState {
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, delta: number) => void;
   toggleEquipItem: (id: string) => void;
-  getModifiedAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear') => number;
+  getModifiedAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower') => number;
   setTheme: (theme: 'papyrus' | 'night') => void;
   toggleSound: () => void;
   toggleMusic: () => void;
@@ -325,6 +334,8 @@ interface SheetState {
   loadActiveSheetLogs: () => Promise<void>;
   updateHeroPoints: (amount: number) => void;
   setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
+  setSelectedHero: (hero: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null) => void;
+  setCustomArchetype: (archetype: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null) => void;
   advanceTime: () => void;
   updateClues: (clues: { local?: string; dia?: string; horario?: string; lider?: string; outras?: string }) => void;
   loadAchievements: () => Promise<void>;
@@ -538,6 +549,7 @@ export const useSheetStore = create<SheetState>()(
           const isVampiro = gamebook === 'A Cripta do Vampiro';
           const isExercitos = gamebook === 'Exércitos da Morte';
           const isMansao = gamebook === 'A Mansão do Inferno';
+          const isZagor = gamebook === 'A Lenda de Zagor';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -555,11 +567,21 @@ export const useSheetStore = create<SheetState>()(
               magic: { initial: 0, current: 0 },
               spells: {},
             } : {}),
+            ...(isVampiro ? {
+              faith: { initial: 0, current: 0 },
+              diseases: [],
+              coffinsDestroyed: 0,
+            } : {}),
             ...(isExercitos ? {
               army: { warriors: 100, dwarfs: 50, elves: 50, knights: 50, others: 0 },
             } : {}),
             ...(isMansao ? {
               fear: { initial: 0, current: 0 },
+            } : {}),
+            ...(isZagor ? {
+              willpower: { initial: 0, current: 0 },
+              selectedHero: null,
+              customArchetype: null,
             } : {})
           };
           const payload = {
@@ -810,6 +832,24 @@ export const useSheetStore = create<SheetState>()(
           attributes: {
             ...state.attributes,
             spells,
+          },
+        }));
+        scheduleSave(get());
+      },
+      setSelectedHero: (hero) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            selectedHero: hero,
+          },
+        }));
+        scheduleSave(get());
+      },
+      setCustomArchetype: (archetype) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            customArchetype: archetype,
           },
         }));
         scheduleSave(get());
@@ -1396,6 +1436,7 @@ export const useSheetStore = create<SheetState>()(
         const isCidadela = get().gamebook === 'A Cidadela do Caos';
         const isVampiro = get().gamebook === 'A Cripta do Vampiro';
         const isExercitos = get().gamebook === 'Exércitos da Morte';
+        const isZagor = get().gamebook === 'A Lenda de Zagor';
         set((state) => ({
           attributes: {
             skill: { initial: 0, current: 0 },
@@ -1422,6 +1463,11 @@ export const useSheetStore = create<SheetState>()(
             } : {}),
             ...(isExercitos ? {
               army: { warriors: 100, dwarfs: 50, elves: 50, knights: 50, others: 0 },
+            } : {}),
+            ...(isZagor ? {
+              willpower: { initial: 0, current: 0 },
+              selectedHero: null,
+              customArchetype: null,
             } : {})
           },
           gold: isExercitos ? 20000 : 0,

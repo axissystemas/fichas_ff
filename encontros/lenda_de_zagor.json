@@ -1,0 +1,138 @@
+{
+  "livro": "A Lenda de Zagor",
+  "codigoLivro": "FF54",
+  "monstros": [
+    {
+      "id": "ff54-goblin-001",
+      "nome": "Goblin",
+      "tipo": "Humanoide",
+      "habilidade": 5,
+      "energiaMaxima": 4,
+      "boss": false,
+      "descricao": "Pequena criatura verde maliciosa e covarde.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Corredor", "Masmorra"]
+    },
+    {
+      "id": "ff54-orca-001",
+      "nome": "Orc",
+      "tipo": "Humanoide",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Soldado de infantaria brutal de Zagor.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Corredor", "Câmara"]
+    },
+    {
+      "id": "ff54-troll-001",
+      "nome": "Troll",
+      "tipo": "Gigante",
+      "habilidade": 8,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Monstro massivo com poderes regenerativos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Caverna", "Ponte"]
+    },
+    {
+      "id": "ff54-esqueleto-001",
+      "nome": "Esqueleto",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energiaMaxima": 5,
+      "boss": false,
+      "descricao": "Ossos reanimados que empunham espadas enferrujadas.",
+      "habilidadesEspeciais": ["Morto-vivo"],
+      "ambientes": ["Cripta", "Túmulo"]
+    },
+    {
+      "id": "ff54-zumbi-001",
+      "nome": "Zumbi",
+      "tipo": "Morto-vivo",
+      "habilidade": 6,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Cadáver ambulante lento, mas implacável.",
+      "habilidadesEspeciais": ["Morto-vivo"],
+      "ambientes": ["Cripta", "Corredor"]
+    },
+    {
+      "id": "ff54-gargula-001",
+      "nome": "Gárgula de Pedra",
+      "tipo": "Constructo",
+      "habilidade": 9,
+      "energiaMaxima": 10,
+      "boss": false,
+      "descricao": "Estátua alada viva de pedra maciça.",
+      "habilidadesEspeciais": ["Pele de Pedra"],
+      "ambientes": ["Saguão", "Telhado"]
+    },
+    {
+      "id": "ff54-cavaleiro-negro-001",
+      "nome": "Cavaleiro Negro",
+      "tipo": "Humanoide",
+      "habilidade": 9,
+      "energiaMaxima": 9,
+      "boss": false,
+      "descricao": "Guerreiro caído com armadura sombria e espada de duas mãos.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Salão", "Portão"]
+    },
+    {
+      "id": "ff54-cao-inferno-001",
+      "nome": "Cão do Inferno",
+      "tipo": "Besta",
+      "habilidade": 7,
+      "energiaMaxima": 6,
+      "boss": false,
+      "descricao": "Canino monstruoso que exala enxofre e chamas.",
+      "habilidadesEspeciais": ["Ataque de Fogo"],
+      "ambientes": ["Pátio", "Corredor"]
+    },
+    {
+      "id": "ff54-aranha-gigante-001",
+      "nome": "Aranha Gigante",
+      "tipo": "Inseto",
+      "habilidade": 7,
+      "energiaMaxima": 8,
+      "boss": false,
+      "descricao": "Aranha de tamanho humano com veneno paralisante.",
+      "habilidadesEspeciais": ["Veneno"],
+      "ambientes": ["Túnel", "Teia"]
+    },
+    {
+      "id": "ff54-dragao-001",
+      "nome": "Dragão de Fogo",
+      "tipo": "Dragão",
+      "habilidade": 11,
+      "energiaMaxima": 14,
+      "boss": false,
+      "descricao": "Réptil alado colossal capaz de incinerar com seu sopro.",
+      "habilidadesEspeciais": ["Sopro de Fogo"],
+      "ambientes": ["Câmara do Dragão", "Abismo"]
+    },
+    {
+      "id": "ff54-guardiao-portal-001",
+      "nome": "Guardião do Portal",
+      "tipo": "Constructo",
+      "habilidade": 10,
+      "energiaMaxima": 12,
+      "boss": false,
+      "descricao": "Estátua gigante animada para barrar o avanço dos heróis.",
+      "habilidadesEspeciais": [],
+      "ambientes": ["Portal", "Salão do Trono"]
+    },
+    {
+      "id": "ff54-zagor-001",
+      "nome": "Feiticeiro Zagor",
+      "tipo": "Boss",
+      "habilidade": 12,
+      "energiaMaxima": 18,
+      "boss": true,
+      "descricao": "O terrível Feiticeiro cuja alma reside no castelo de Zagor.",
+      "habilidadesEspeciais": ["Magia Negra", "Imunidade"],
+      "ambientes": ["Câmara de Zagor", "Sala Final"]
+    }
+  ]
+}
