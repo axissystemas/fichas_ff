@@ -24,7 +24,8 @@ import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
   Volume2, VolumeX, Music, Skull, Trophy, Award, ShieldAlert,
-  Instagram, Youtube
+  Instagram, Youtube, Shield, Swords, Backpack, Settings, Compass,
+  Heart, Home as HomeIcon, ChevronLeft, MoreVertical
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 import { audio, music } from '@/lib/audio';
@@ -380,10 +381,16 @@ export default function Home() {
     loadYoutubeSettings,
     getModifiedAttribute,
     inventory,
+    unlockedAchievements,
+    setAttribute,
   } = useSheetStore();
 
   const [inspectMode, setInspectMode] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 
   // Load achievements on mount or user changes
   const loadAchievements = useSheetStore(state => state.loadAchievements);
@@ -437,6 +444,10 @@ export default function Home() {
   ].filter(Boolean).length;
 
   const canCompleteBook = isVictoryParagraph && evidenceScore >= 2;
+
+  const unlockedCount = ACHIEVEMENTS.filter((a) => (unlockedAchievements || []).some(u => u.achievement_id === a.id)).length;
+  const totalCount = ACHIEVEMENTS.length;
+  const progressPercent = Math.round((unlockedCount / totalCount) * 100) || 0;
 
   // Load user session on initial render (AuthStatus also handles it)
   useEffect(() => {
@@ -809,21 +820,141 @@ export default function Home() {
     };
   }, [user, gamebook, attributes.currentSection, showSheet, sheetStatus, isNewSheet]);
 
+  const renderMobileAttributeCard = (label: string, attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear', desc: string) => {
+    const attr = attributes[attrKey] || { initial: 0, current: 0 };
+    const modifiedCurrent = getModifiedAttribute(attrKey);
+    const modifier = modifiedCurrent - attr.current;
+    const isEnergyLow = attrKey === 'energy' && modifiedCurrent > 0 && modifiedCurrent <= 4;
+    const isFearHigh = attrKey === 'fear' && attr.initial > 0 && modifiedCurrent > 0 && modifiedCurrent >= attr.initial - 2;
+    const isAlert = isEnergyLow || isFearHigh;
+    const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
+    const superpower = attributes.superpower;
+
+    const rollInitialMobile = () => {
+      if (isMedo && attrKey === 'skill' && superpower === 'superforca') {
+        setAttribute('skill', 13, true);
+        setAttribute('skill', 13, false);
+        return;
+      }
+      audio.playDiceRoll();
+      let roll = 0;
+      if (attrKey === 'energy') {
+        roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12;
+      } else if (gamebook === 'A Cidadela do Caos' && attrKey === 'magic') {
+        roll = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 6;
+      } else if (gamebook === 'A Cripta do Vampiro' && attrKey === 'faith') {
+        roll = (Math.floor(Math.random() * 6) + 1) + 3;
+      } else if (gamebook === 'A Mansão do Inferno' && attrKey === 'fear') {
+        roll = Math.floor(Math.random() * 6) + 1 + 6;
+      } else {
+        roll = Math.floor(Math.random() * 6) + 1 + 6;
+      }
+
+      if (attrKey === 'fear') {
+        setAttribute(attrKey, roll, true);
+        setAttribute(attrKey, 0, false);
+      } else {
+        setAttribute(attrKey, roll, true);
+        setAttribute(attrKey, roll, false);
+      }
+    };
+
+    const dec = () => {
+      audio.playBlip();
+      setAttribute(attrKey, attr.current - 1, false);
+    };
+
+    const inc = () => {
+      audio.playBlip();
+      setAttribute(attrKey, attr.current + 1, false);
+    };
+
+    return (
+      <div className={`p-4 border rounded-2xl flex flex-col gap-2 transition-all relative ${
+        isAlert
+          ? 'animate-pulse ring-2 ring-red-500/80 border-red-500 bg-red-950/20'
+          : (isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30 text-[#2D1D16]' : 'bg-[#1a202c]/50 border-slate-700/60 text-slate-200')
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 pr-2">
+            <h4 className="text-xs font-extrabold uppercase tracking-wide flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              {label}
+              <span className={`text-[9px] font-normal lowercase tracking-normal opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+                (inicial: {attr.initial})
+              </span>
+            </h4>
+            <p className={`text-[10px] font-sans opacity-75 mt-0.5 leading-tight ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
+              {desc}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={dec}
+              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${
+                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
+              }`}
+            >
+              -
+            </button>
+            <div className="text-lg font-extrabold flex items-baseline gap-0.5 min-w-[24px] justify-center">
+              <span>{modifiedCurrent}</span>
+              {modifier !== 0 && (
+                <span className={`text-[9px] font-extrabold ${
+                  (attrKey === 'fear' ? modifier < 0 : modifier > 0)
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                }`}>
+                  {modifier > 0 ? `+${modifier}` : modifier}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={inc}
+              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${
+                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
+              }`}
+            >
+              +
+            </button>
+            
+            {/* Roll initial button */}
+            {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && (
+              <button
+                onClick={rollInitialMobile}
+                className={`p-1 rounded-full border border-transparent hover:border-current active:scale-90 transition-all ${
+                  isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'
+                }`}
+                title="Rolar Inicial"
+              >
+                <RotateCcw size={12} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <main
       className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 font-serif ${isPapyrus ? 'theme-papyrus' : 'theme-night'
         }`}
     >
       <div
-        className={`w-full p-4 sm:p-8 shadow-2xl border mx-auto transition-all duration-300 ${showSheet || showLogin
-          ? 'max-w-[1280px] xl:max-w-[1400px]'
-          : 'max-w-[1024px]'
-          } ${isPapyrus ? 'theme-papyrus-card' : 'theme-night-card'
-          }`}
+        className={`w-full mx-auto transition-all duration-300 ${
+          showSheet || showLogin
+            ? 'max-w-[1280px] xl:max-w-[1400px]'
+            : 'max-w-[1024px]'
+        } ${
+          showSheet
+            ? 'p-0 md:p-8 border-0 md:border ' + (isPapyrus ? 'md:bg-[#EAD8B8] md:border-[#C5A059] md:shadow-2xl' : 'md:bg-[#1a202c] md:border-[#4a5568] md:shadow-2xl')
+            : 'p-4 sm:p-8 border shadow-2xl ' + (isPapyrus ? 'theme-papyrus-card' : 'theme-night-card')
+        }`}
       >
-        {/* ── Cabeçalho ── */}
+        {/* ── Cabeçalho Desktop ── */}
         <header
-          className={`flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b-2 ${isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-[#4a5568] text-[#cbd5e0]'
+          className={`hidden md:flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b-2 ${isPapyrus ? 'border-[#5C4033] text-[#2D1D16]' : 'border-[#4a5568] text-[#cbd5e0]'
             }`}
         >
           <div className="text-center sm:text-left">
@@ -1508,23 +1639,552 @@ export default function Home() {
               ) : (
                 /* ── Ficha de Personagem Normal ── */
                 <>
-                  {/* ── Menu de Abas (Apenas Mobile) ── */}
-                  <div className={`md:hidden flex overflow-x-auto gap-2 mb-6 pb-2 border-b ${isPapyrus ? 'border-[#5C4033]/30' : 'border-[#4a5568]/50'}`}>
-                    {['Status', 'Combate', 'Inventário', 'Notas'].map(tab => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded ${activeTab === tab
-                          ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8]' : 'bg-[#cbd5e0] text-[#1a202c]')
-                          : (isPapyrus ? 'bg-[#EAD8B8]/50 text-[#5C4033] border border-[#5C4033]/30' : 'bg-slate-800 text-[#cbd5e0] border border-[#4a5568]/50')
+                  {/* ──────────────────────────────────────────────────────── */}
+                  {/* ── VISUALIZAÇÃO MOBILE (block md:hidden) ── */}
+                  {/* ──────────────────────────────────────────────────────── */}
+                  <div className="block md:hidden space-y-4 pb-24 text-left">
+                    {/* Cabeçalho Mobile Premium */}
+                    <div className={`rounded-b-[2rem] shadow-lg p-5 pt-6 pb-6 relative flex flex-col gap-4 border-b transition-all duration-300 ${
+                      isPapyrus 
+                        ? 'bg-gradient-to-b from-[#2D1D16] to-[#1C120D] text-[#EAD8B8] border-[#5C4033]/45' 
+                        : 'bg-gradient-to-b from-[#1a202c] to-[#0f172a] text-slate-100 border-slate-800'
+                    }`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={handleBackToDashboard}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer ${
+                              isPapyrus ? 'bg-[#5C4033]/25 hover:bg-[#5C4033]/40 text-[#EAD8B8]' : 'bg-slate-800 hover:bg-slate-750 text-slate-200'
+                            }`}
+                          >
+                            <ChevronLeft size={20} />
+                          </button>
+                          <div className="min-w-0">
+                            <h2 className="text-base font-extrabold uppercase tracking-wide truncate max-w-[160px] sm:max-w-[240px] font-serif">
+                              {activeSheetTitle || 'Aventureiro'}
+                            </h2>
+                            <p className={`text-[10px] font-sans truncate opacity-80 max-w-[160px] sm:max-w-[240px] font-bold ${isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'}`}>
+                              📚 {gamebook || 'O Feiticeiro da Montanha de Fogo'}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 relative">
+                          {/* Botão de Coração (Favorito) */}
+                          <button
+                            onClick={() => {
+                              setIsFavorite(!isFavorite);
+                              audio.playBlip();
+                            }}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+                              isFavorite
+                                ? 'text-red-500'
+                                : (isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200')
+                            }`}
+                            title="Favoritar Ficha"
+                          >
+                            <Heart size={20} className={isFavorite ? 'fill-current' : ''} />
+                          </button>
+                          
+                          {/* Botão de Opções */}
+                          <button
+                            onClick={() => setShowMoreMenu(!showMoreMenu)}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+                              isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                          >
+                            <MoreVertical size={20} />
+                          </button>
+
+                          {/* Menu Suspenso */}
+                          {showMoreMenu && (
+                            <div className={`absolute right-0 top-11 z-[110] flex flex-col gap-1 w-40 rounded-lg shadow-2xl p-1.5 border animate-fade-in ${
+                              isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-300'
+                            }`}>
+                              <button
+                                onClick={() => { handleExport(); setShowMoreMenu(false); }}
+                                className="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded hover:bg-current/5 text-[11px] font-bold uppercase transition cursor-pointer"
+                              >
+                                <Upload size={12} /> Exportar Ficha
+                              </button>
+                              <button
+                                onClick={() => { handleImport(); setShowMoreMenu(false); }}
+                                className="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded hover:bg-current/5 text-[11px] font-bold uppercase transition cursor-pointer"
+                              >
+                                <Download size={12} /> Importar Ficha
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowMoreMenu(false);
+                                  if (window.confirm('Você realmente completou com sucesso este livro-jogo?')) {
+                                    useSheetStore.getState().setStatus('victory');
+                                  }
+                                }}
+                                disabled={!canCompleteBook}
+                                className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-[11px] font-bold uppercase transition cursor-pointer ${
+                                  canCompleteBook ? 'text-emerald-600 hover:bg-emerald-500/10' : 'opacity-40 cursor-not-allowed'
+                                }`}
+                              >
+                                <Trophy size={12} /> Concluir Livro
+                              </button>
+                              <div className="h-px bg-current opacity-10 my-0.5" />
+                              <button
+                                onClick={() => {
+                                  setShowMoreMenu(false);
+                                  if (window.confirm('Deseja realmente resetar sua ficha? Essa ação é irreversível.')) {
+                                    resetSheet();
+                                  }
+                                }}
+                                className="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-red-500 hover:bg-red-500/10 text-[11px] font-bold uppercase transition cursor-pointer"
+                              >
+                                <RotateCcw size={12} /> Resetar Ficha
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Linha de Baixo do Cabeçalho */}
+                      <div className="flex items-center justify-between border-t border-current/10 pt-3">
+                        <button
+                          onClick={() => {
+                            const sec = window.prompt("Digite o número do parágrafo atual:", attributes.currentSection || "");
+                            if (sec !== null) {
+                              useSheetStore.getState().setCurrentSection(sec);
+                              useSheetStore.getState().saveToSupabase();
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer ${
+                            isPapyrus ? 'bg-[#C5A059]/20 text-[#8B4513] border border-[#C5A059]/30' : 'bg-blue-500/15 text-cyan-350 border border-blue-500/25'
                           }`}
+                        >
+                          <span>Parágrafo:</span>
+                          <span className="font-extrabold">{attributes.currentSection || '-'}</span>
+                        </button>
+                        <span className="text-[10px] font-sans opacity-70 flex items-center gap-1">
+                          <Bookmark size={11} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
+                          Tempo: {playTimeMinutes} min
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Menu de Abas Circulares Mobile ("Included") */}
+                    <div className="px-4 pt-3 pb-1">
+                      <div className="text-left mb-3">
+                        <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-slate-400'}`}>
+                          Seções da Ficha
+                        </h3>
+                        <p className={`text-[9px] font-sans ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-500'}`}>
+                          Toque nos ícones para alternar as abas
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-around gap-2 max-w-sm mx-auto">
+                        {/* Aba: Status */}
+                        <div className="flex flex-col items-center">
+                          <button
+                            onClick={() => { setActiveTab('Status'); audio.playBlip(); }}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                              activeTab === 'Status'
+                                ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
+                                : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
+                            }`}
+                          >
+                            <Shield size={18} />
+                          </button>
+                          <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Status' ? 'text-current font-extrabold' : 'opacity-65'}`}>Status</span>
+                        </div>
+
+                        {/* Aba: Combate */}
+                        <div className="flex flex-col items-center">
+                          <button
+                            onClick={() => { setActiveTab('Combate'); audio.playBlip(); }}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                              activeTab === 'Combate'
+                                ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
+                                : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
+                            }`}
+                          >
+                            <Swords size={18} />
+                          </button>
+                          <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Combate' ? 'text-current font-extrabold' : 'opacity-65'}`}>Combate</span>
+                        </div>
+
+                        {/* Aba: Mochila */}
+                        <div className="flex flex-col items-center">
+                          <button
+                            onClick={() => { setActiveTab('Inventário'); audio.playBlip(); }}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                              activeTab === 'Inventário'
+                                ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
+                                : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
+                            }`}
+                          >
+                            <Backpack size={18} />
+                          </button>
+                          <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Inventário' ? 'text-current font-extrabold' : 'opacity-65'}`}>Mochila</span>
+                        </div>
+
+                        {/* Aba: Diário */}
+                        <div className="flex flex-col items-center">
+                          <button
+                            onClick={() => { setActiveTab('Notas'); audio.playBlip(); }}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                              activeTab === 'Notas'
+                                ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
+                                : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
+                            }`}
+                          >
+                            <BookOpen size={18} />
+                          </button>
+                          <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Notas' ? 'text-current font-extrabold' : 'opacity-65'}`}>Diário</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CONTEÚDO DAS ABAS (MOBILE) */}
+                    
+                    {/* Aba Status */}
+                    {activeTab === 'Status' && (
+                      <div className="px-4 space-y-4 animate-fade-in">
+                        <div className="flex items-center justify-between mt-2">
+                          <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                            Atributos & Status
+                          </h3>
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-500">
+                            <span>★</span>
+                            <span>{progressPercent}% Completado</span>
+                          </div>
+                        </div>
+
+                        {/* Lista de Atributos (Estilo Reviews) */}
+                        <div className="space-y-3">
+                          {renderMobileAttributeCard('Habilidade', 'skill', 'Determina sua competência em combates e testes físicos.')}
+                          {renderMobileAttributeCard('Energia', 'energy', 'Sua força vital. Se chegar a 0, sua jornada termina.')}
+                          {renderMobileAttributeCard('Sorte', 'luck', 'Sua fortuna. Essencial para testar sua sorte ao longo do jogo.')}
+                          
+                          {/* Atributos específicos de Livros */}
+                          {gamebook === 'A Cidadela do Caos' && renderMobileAttributeCard('Mágica', 'magic', 'Sua reserva de poder mágico para lançar feitiços.')}
+                          {gamebook === 'A Cripta do Vampiro' && renderMobileAttributeCard('Fé', 'faith', 'Sua proteção e força espiritual contra as trevas.')}
+                          {gamebook === 'A Mansão do Inferno' && renderMobileAttributeCard('Medo', 'fear', 'Seu controle de estresse. Não deixe atingir o máximo.')}
+                        </div>
+
+                        {/* Seções complementares de Status */}
+                        <div className="space-y-4">
+                          <CurrentSectionCard />
+                          <CompletionChecklist />
+                        </div>
+
+                        {/* Galeria de Conquistas (Estilo Gallery) */}
+                        <div className="space-y-2 mt-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-slate-350'}`}>
+                              Galeria de Troféus
+                            </h4>
+                            <span className={`text-[10px] uppercase font-bold tracking-wider ${isPapyrus ? 'text-[#5C4033]/60' : 'text-slate-400'}`}>
+                              Recentes
+                            </span>
+                          </div>
+                          
+                          <div className="flex overflow-x-auto gap-3 pb-3 snap-x scrollbar-none">
+                            {unlockedAchievements && unlockedAchievements.length > 0 ? (
+                              unlockedAchievements.slice(0, 8).map((u) => {
+                                const def = ACHIEVEMENTS.find(a => a.id === u.achievement_id);
+                                if (!def) return null;
+                                return (
+                                  <div
+                                    key={u.achievement_id}
+                                    className={`flex-shrink-0 w-36 p-3 rounded-xl border flex flex-col gap-1 items-center text-center snap-center ${
+                                      isPapyrus
+                                        ? 'bg-[#FDF6E3] border-[#5C4033]/30 text-[#2D1D16]'
+                                        : 'bg-slate-900/80 border-slate-800 text-slate-200 shadow-sm'
+                                    }`}
+                                  >
+                                    <span className="text-xl select-none">{def.icon}</span>
+                                    <span className="text-[10px] font-bold truncate w-full">{def.title}</span>
+                                    <span className="text-[8px] font-sans opacity-60 leading-none truncate w-full">{def.code}</span>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className={`w-full py-6 text-center text-[10px] italic border border-dashed rounded-xl opacity-60 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800/60'}`}>
+                                Nenhuma conquista desbloqueada nesta aventura.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Aba Combate */}
+                    {activeTab === 'Combate' && (
+                      <div className="px-4 space-y-4 animate-fade-in">
+                        <div className="flex items-center justify-between mt-2">
+                          <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                            Combate & Inimigos
+                          </h3>
+                        </div>
+
+                        {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
+                          <p className="text-[9px] uppercase font-bold tracking-wider text-center p-2 border border-red-500/25 bg-red-950/10 rounded-xl text-red-400 animate-pulse">
+                            ⚠️ Derrotar criminosos permanentemente custa 1 Ponto de Herói. Prefira apenas capturá-los!
+                          </p>
+                        )}
+
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <MonsterManager />
+                        </div>
+
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <DamageCard />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <AttackCard key={`attack-mobile-${resetKey}`} />
+                          </div>
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <DiceRoller key={`roller-mobile-${resetKey}`} />
+                          </div>
+                        </div>
+
+                        {gamebook === 'A Cidadela do Caos' && (
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <CidadelaTracker />
+                          </div>
+                        )}
+                        {gamebook === 'A Cripta do Vampiro' && (
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <VampiroTracker />
+                          </div>
+                        )}
+                        {gamebook === 'Exércitos da Morte' && (
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <ExercitosTracker />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Aba Mochila (Inventário) */}
+                    {activeTab === 'Inventário' && (
+                      <div className="px-4 space-y-4 animate-fade-in">
+                        <div className="flex items-center justify-between mt-2">
+                          <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                            Mochila de Equipamentos
+                          </h3>
+                        </div>
+
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <GoldAndProvisions />
+                        </div>
+
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <InventoryManager />
+                        </div>
+
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <CombatHistory />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Aba Diário (Notas) */}
+                    {activeTab === 'Notas' && (
+                      <div className="px-4 space-y-4 animate-fade-in">
+                        <div className="flex items-center justify-between mt-2">
+                          <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
+                            Diário & Anotações
+                          </h3>
+                        </div>
+
+                        <div className={`p-4 border rounded-2xl min-h-[300px] flex flex-col ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <NotesCard />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Barra de Navegação Inferior Fixa */}
+                    <div className={`fixed bottom-0 left-0 right-0 z-[100] border-t backdrop-blur-md safe-bottom flex items-center justify-around py-2.5 shadow-2xl transition-colors duration-300 ${
+                      isPapyrus ? 'bg-[#1C120D]/95 border-[#4A3728] text-[#EAD8B8]' : 'bg-slate-950/95 border-slate-850 text-slate-300'
+                    }`}>
+                      <button
+                        onClick={handleBackToDashboard}
+                        className="flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer"
                       >
-                        {tab}
+                        <HomeIcon size={18} />
+                        <span className="text-[9px] font-sans mt-0.5">Painel</span>
                       </button>
-                    ))}
+                      
+                      <button
+                        onClick={() => { setShowAchievementsModal(true); audio.playBlip(); }}
+                        className="flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer"
+                      >
+                        <Compass size={18} />
+                        <span className="text-[9px] font-sans mt-0.5">Conquistas</span>
+                      </button>
+
+                      <button
+                        onClick={() => { setActiveTab('Status'); audio.playBlip(); }}
+                        className={`flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer ${
+                          activeTab === 'Status' ? (isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400') : ''
+                        }`}
+                      >
+                        <Heart size={18} className={activeTab === 'Status' ? 'fill-current' : ''} />
+                        <span className="text-[9px] font-sans mt-0.5">Status</span>
+                      </button>
+
+                      <button
+                        onClick={() => { setShowSettingsModal(true); audio.playBlip(); }}
+                        className="flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer"
+                      >
+                        <Settings size={18} />
+                        <span className="text-[9px] font-sans mt-0.5 font-bold">Ajustes</span>
+                      </button>
+                    </div>
+
+                    {/* Modal de Configurações Mobile */}
+                    {showSettingsModal && (
+                      <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowSettingsModal(false)}>
+                        <div
+                          className={`w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 border-t sm:border shadow-2xl flex flex-col gap-4 text-left transform translate-y-0 transition-transform ${
+                            isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
+                            <h3 className="font-extrabold uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+                              <Settings size={13} /> Ajustes da Ficha
+                            </h3>
+                            <button onClick={() => setShowSettingsModal(false)} className="text-xs font-extrabold border px-2 py-0.5 rounded border-current/30 hover:bg-current/5 cursor-pointer">
+                              Fechar
+                            </button>
+                          </div>
+
+                          <div className="space-y-3.5">
+                            {/* Tema */}
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span className="opacity-80 uppercase tracking-wide">Tema Visual</span>
+                              <button
+                                onClick={() => setTheme(isPapyrus ? 'night' : 'papyrus')}
+                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
+                                  isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                }`}
+                              >
+                                {isPapyrus ? <><Moon size={11} /> Escuro</> : <><Sun size={11} /> Claro</>}
+                              </button>
+                            </div>
+
+                            {/* SFX */}
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span className="opacity-80 uppercase tracking-wide">Efeitos Sonoros</span>
+                              <button
+                                onClick={toggleSound}
+                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
+                                  isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                }`}
+                              >
+                                {soundEnabled ? <><Volume2 size={11} /> Ativos</> : <><VolumeX size={11} /> Mudo</>}
+                              </button>
+                            </div>
+
+                            {/* BGM */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-xs font-bold">
+                                <span className="opacity-80 uppercase tracking-wide">Música de Fundo</span>
+                                <button
+                                  onClick={toggleMusic}
+                                  className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
+                                    isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                  }`}
+                                >
+                                  {musicEnabled ? <><Music size={11} /> Ativa</> : <><VolumeX size={11} /> Mudo</>}
+                                </button>
+                              </div>
+                              {musicEnabled && (
+                                <div className="flex items-center gap-3">
+                                  <span className="text-[9px] opacity-60">Volume</span>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.05"
+                                    value={musicVolume}
+                                    onChange={(e) => setMusicVolume(parseFloat(e.target.value))}
+                                    className="flex-1 h-1.5 cursor-pointer accent-current opacity-70 bg-current/20 rounded-lg appearance-none"
+                                  />
+                                  <span className="text-[9px] font-bold font-mono">{Math.round(musicVolume * 100)}%</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-current opacity-10 my-1" />
+
+                          {/* Ações de Backup */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => { handleExport(); setShowSettingsModal(false); }}
+                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${
+                                isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                              }`}
+                            >
+                              <Upload size={11} /> Exportar
+                            </button>
+                            <button
+                              onClick={() => { handleImport(); setShowSettingsModal(false); }}
+                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${
+                                isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                              }`}
+                            >
+                              <Download size={11} /> Importar
+                            </button>
+                          </div>
+
+                          {/* Zona de Perigo */}
+                          <button
+                            onClick={() => {
+                              setShowSettingsModal(false);
+                              if (window.confirm('Deseja realmente resetar sua ficha? Essa ação é irreversível.')) {
+                                resetSheet();
+                              }
+                            }}
+                            className="w-full py-2 text-[9px] uppercase font-bold tracking-wider bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 rounded text-center transition cursor-pointer"
+                          >
+                            Resetar Ficha de Aventura
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Modal de Conquistas Mobile */}
+                    {showAchievementsModal && (
+                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setShowAchievementsModal(false)}>
+                        <div
+                          className={`w-full max-w-lg rounded-2xl max-h-[80vh] overflow-y-auto p-4 border shadow-2xl flex flex-col gap-4 text-left ${
+                            isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-between border-b pb-2 border-current/10">
+                            <h3 className="font-extrabold uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+                              🏆 Galeria Geral de Conquistas
+                            </h3>
+                            <button onClick={() => setShowAchievementsModal(false)} className="text-xs font-bold border border-current/25 hover:bg-current/5 px-2 py-0.5 rounded cursor-pointer">
+                              Fechar
+                            </button>
+                          </div>
+                          <div className="text-sm font-sans">
+                            <AchievementsGallery />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="space-y-8">
+                  {/* ──────────────────────────────────────────────────────── */}
+                  {/* ── VISUALIZAÇÃO DESKTOP (hidden md:block) ── */}
+                  {/* ──────────────────────────────────────────────────────── */}
+                  <div className="hidden md:block space-y-8 text-left">
                     {/* Painel do Super-Herói (exclusivo para o livro do M.E.D.O.) */}
                     {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
                       <MedoTracker />
@@ -1533,7 +2193,7 @@ export default function Home() {
                     {/* Main Layout Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start animate-fade-in">
                       {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
-                      <div className={`md:col-span-1 flex-col gap-6 ${activeTab === 'Status' ? 'flex' : 'hidden md:flex'}`}>
+                      <div className="flex flex-col gap-6">
                         <AttributeCard label="Habilidade" attrKey="skill" />
                         <AttributeCard label="Energia" attrKey="energy" />
                         <AttributeCard label="Sorte" attrKey="luck" />
@@ -1548,17 +2208,12 @@ export default function Home() {
                         )}
                         <CurrentSectionCard />
                         <CompletionChecklist />
-
-                        {/* Ouro e Provisões vão para cá no Mobile também */}
-                        <div className="md:hidden">
-                          <GoldAndProvisions />
-                        </div>
                       </div>
 
                       {/* Right Main Content Column (Desktop) */}
-                      <div className={`md:col-span-3 flex-col gap-6 ${activeTab === 'Status' ? 'hidden md:flex' : 'flex'}`}>
-                        {/* COMBATE TAB (Mobile) / Seção de Combate (Desktop) */}
-                        <div className={`flex-col gap-6 ${activeTab === 'Combate' ? 'flex' : 'hidden md:flex'}`}>
+                      <div className="md:col-span-3 flex flex-col gap-6">
+                        {/* Seção de Combate (Desktop) */}
+                        <div className="flex flex-col gap-6">
                           {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                               <div className="lg:col-span-3 flex flex-col gap-6">
@@ -1604,8 +2259,8 @@ export default function Home() {
                           )}
                         </div>
 
-                        {/* INVENTÁRIO TAB (Mobile) / Seção do Inventário (Desktop) */}
-                        <div className={`grid-cols-1 md:grid-cols-2 gap-6 ${activeTab === 'Inventário' ? 'grid' : 'hidden md:grid'}`}>
+                        {/* Seção do Inventário (Desktop) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <section
                             className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                               }`}
@@ -1620,13 +2275,13 @@ export default function Home() {
                           </section>
                         </div>
 
-                        {/* STATUS TAB extras (Mobile) / BLOCO INFERIOR (Desktop) */}
-                        <section className="hidden md:block">
+                        {/* BLOCO INFERIOR (Desktop) */}
+                        <section>
                           <GoldAndProvisions />
                         </section>
 
-                        {/* NOTAS TAB (Mobile) / BLOCO INFERIOR (Desktop) */}
-                        <section className={`flex-col min-h-[300px] md:min-h-[350px] ${activeTab === 'Notas' ? 'flex' : 'hidden md:flex'}`}>
+                        {/* BLOCO INFERIOR (Desktop) */}
+                        <section className="flex flex-col min-h-[350px]">
                           <NotesCard />
                         </section>
                       </div>
