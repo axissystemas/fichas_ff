@@ -1176,7 +1176,7 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
                       {onlineUsers.length > 0 && (
-                        <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
+                        <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
                           {onlineUsers.length}
                         </span>
                       )}
