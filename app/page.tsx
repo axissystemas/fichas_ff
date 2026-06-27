@@ -2304,9 +2304,9 @@ export default function Home() {
                     )}
 
                     {/* Main Layout Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start animate-fade-in">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-fade-in">
                       {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
-                      <div className="flex flex-col gap-6">
+                      <div className="lg:col-span-1 flex flex-col gap-6">
                         <AttributeCard label="Habilidade" attrKey="skill" />
                         <AttributeCard label="Energia" attrKey="energy" />
                         <AttributeCard label="Sorte" attrKey="luck" />
@@ -2330,12 +2330,12 @@ export default function Home() {
                       </div>
 
                       {/* Right Main Content Column (Desktop) */}
-                      <div className="md:col-span-3 flex flex-col gap-6">
+                      <div className="lg:col-span-4 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
                           {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' || gamebook === 'Nave Espacial Traveller' ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-                              <div className="lg:col-span-3 flex flex-col gap-6">
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                              <div className="xl:col-span-2 flex flex-col gap-6">
                                 <section
                                   className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                                     }`}
@@ -2349,7 +2349,7 @@ export default function Home() {
                                   <DiceRoller key={`roller-${resetKey}`} />
                                 </div>
                               </div>
-                              <div className="lg:col-span-1">
+                              <div className="xl:col-span-1">
                                 {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
