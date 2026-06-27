@@ -209,7 +209,7 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
   const [imageSrc, setImageSrc] = useState('/mapa_allansia.png');
   const [imageError, setImageError] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
-  const [showAllLocations, setShowAllLocations] = useState(true);
+  const [showAllLocations, setShowAllLocations] = useState(false);
 
   // Estados de Zoom, Panning e Helper de Coordenadas
   const [zoom, setZoom] = useState(1);
@@ -219,6 +219,7 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
   const [copied, setCopied] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const prevZoomRef = useRef(1);
 
   // Encontra a localização correspondente ao livro-jogo atual
   const activeLocation = ALLANSIA_LOCATIONS.find((loc) =>
@@ -226,6 +227,30 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
   );
 
   const outsideSetting = OTHER_SETTINGS[activeBook];
+
+  // Centraliza o pino ativo no primeiro clique de zoom in (transição de 1x para >1x)
+  useEffect(() => {
+    if (zoom > 1 && prevZoomRef.current === 1 && activeLocation && containerRef.current) {
+      const container = containerRef.current;
+      const timer = setTimeout(() => {
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+        const scaledWidth = containerWidth * zoom;
+        const scaledHeight = scaledWidth * (3 / 5); // aspect-[5/3]
+
+        const targetX = (activeLocation.coords.x / 100) * scaledWidth;
+        const targetY = (activeLocation.coords.y / 100) * scaledHeight;
+
+        container.scrollTo({
+          left: targetX - containerWidth / 2,
+          top: targetY - containerHeight / 2,
+          behavior: 'smooth',
+        });
+      }, 150); // timer curto para esperar a transição de escala CSS iniciar
+      return () => clearTimeout(timer);
+    }
+    prevZoomRef.current = zoom;
+  }, [zoom, activeLocation]);
 
   // Define a localização selecionada por padrão
   useEffect(() => {
