@@ -611,23 +611,31 @@ export const useSheetStore = create<SheetState>()(
               selectedHero: null,
               customArchetype: null,
             } : {}),
-            ...(isTraveller ? {
-              traveller: {
-                ship: {
-                  firepower: { initial: 0, current: 0 },
-                  shields: { initial: 0, current: 0 }
-                },
-                crew: {
-                  captain: { id: 'captain', role: 'Capitão', name: 'Capitão', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  science: { id: 'science', role: 'Oficial de Ciências', name: 'Oficial de Ciências', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  engineering: { id: 'engineering', role: 'Oficial de Engenharia', name: 'Oficial de Engenharia', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  medical: { id: 'medical', role: 'Oficial de Medicina', name: 'Oficial de Medicina', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  security: { id: 'security', role: 'Oficial de Segurança', name: 'Oficial de Segurança', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  guard1: { id: 'guard1', role: 'Guarda de Segurança 1', name: 'Guarda 1', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
-                  guard2: { id: 'guard2', role: 'Guarda de Segurança 2', name: 'Guarda 2', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } }
+            ...(isTraveller ? (() => {
+              const roll1d6_6 = () => Math.floor(Math.random() * 6) + 7;
+              const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 14;
+              const createCrew = (id: string, role: string, name: string) => {
+                const sk = roll1d6_6();
+                const en = roll2d6_12();
+                return { id, role, name, skill: { initial: sk, current: sk }, energy: { initial: en, current: en } };
+              };
+              const fp = roll1d6_6();
+              const sh = roll2d6_12();
+              return {
+                traveller: {
+                  ship: { firepower: { initial: fp, current: fp }, shields: { initial: sh, current: sh } },
+                  crew: {
+                    captain: createCrew('captain', 'Capitão', 'Capitão'),
+                    science: createCrew('science', 'Oficial de Ciências', 'Oficial de Ciências'),
+                    engineering: createCrew('engineering', 'Oficial de Engenharia', 'Oficial de Engenharia'),
+                    medical: createCrew('medical', 'Oficial de Medicina', 'Oficial de Medicina'),
+                    security: createCrew('security', 'Oficial de Segurança', 'Oficial de Segurança'),
+                    guard1: createCrew('guard1', 'Guarda de Segurança 1', 'Guarda 1'),
+                    guard2: createCrew('guard2', 'Guarda de Segurança 2', 'Guarda 2')
+                  }
                 }
-              }
-            } : {})
+              };
+            })() : {})
           };
           const payload = {
             id: newSheetId,

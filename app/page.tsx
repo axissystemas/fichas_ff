@@ -20,6 +20,7 @@ import { CidadelaTracker } from '@/components/CidadelaTracker';
 import { VampiroTracker } from '@/components/VampiroTracker';
 import { ExercitosTracker } from '@/components/ExercitosTracker';
 import { TravellerTracker } from '@/components/TravellerTracker';
+import { TravellerOfficialSheet } from '@/components/TravellerOfficialSheet';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
 import MapAllansia from '@/components/MapAllansia';
@@ -1944,23 +1945,27 @@ export default function Home() {
                         </div>
 
                         {/* Lista de Atributos (Estilo Reviews) */}
-                        <div className="space-y-3">
-                          {renderMobileAttributeCard('Habilidade', 'skill', 'Determina sua competência em combates e testes físicos.')}
-                          {renderMobileAttributeCard('Energia', 'energy', 'Sua força vital. Se chegar a 0, sua jornada termina.')}
-                          {renderMobileAttributeCard('Sorte', 'luck', 'Sua fortuna. Essencial para testar sua sorte ao longo do jogo.')}
+                        {gamebook === 'Nave Espacial Traveller' ? (
+                          <TravellerOfficialSheet />
+                        ) : (
+                          <div className="space-y-3">
+                            {renderMobileAttributeCard('Habilidade', 'skill', 'Determina sua competência em combates e testes físicos.')}
+                            {renderMobileAttributeCard('Energia', 'energy', 'Sua força vital. Se chegar a 0, sua jornada termina.')}
+                            {renderMobileAttributeCard('Sorte', 'luck', 'Sua fortuna. Essencial para testar sua sorte ao longo do jogo.')}
 
-                          {/* Atributos específicos de Livros */}
-                          {gamebook === 'A Cidadela do Caos' && renderMobileAttributeCard('Mágica', 'magic', 'Sua reserva de poder mágico para lançar feitiços.')}
-                          {gamebook === 'A Cripta do Vampiro' && renderMobileAttributeCard('Fé', 'faith', 'Sua proteção e força espiritual contra as trevas.')}
-                          {gamebook === 'A Mansão do Inferno' && renderMobileAttributeCard('Medo', 'fear', 'Seu controle de estresse. Não deixe atingir o máximo.')}
-                          {gamebook === 'A Lenda de Zagor' && renderMobileAttributeCard(
-                            effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade',
-                            'willpower',
-                            attributes.selectedHero === 'sallazar'
-                              ? 'Sua reserva de magia para conjurar feitiços do Grimório Amarílleo.'
-                              : 'Sua determinação e resistência psicológica.'
-                          )}
-                        </div>
+                            {/* Atributos específicos de Livros */}
+                            {gamebook === 'A Cidadela do Caos' && renderMobileAttributeCard('Mágica', 'magic', 'Sua reserva de poder mágico para lançar feitiços.')}
+                            {gamebook === 'A Cripta do Vampiro' && renderMobileAttributeCard('Fé', 'faith', 'Sua proteção e força espiritual contra as trevas.')}
+                            {gamebook === 'A Mansão do Inferno' && renderMobileAttributeCard('Medo', 'fear', 'Seu controle de estresse. Não deixe atingir o máximo.')}
+                            {gamebook === 'A Lenda de Zagor' && renderMobileAttributeCard(
+                              effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade',
+                              'willpower',
+                              attributes.selectedHero === 'sallazar'
+                                ? 'Sua reserva de magia para conjurar feitiços do Grimório Amarílleo.'
+                                : 'Sua determinação e resistência psicológica.'
+                            )}
+                          </div>
+                        )}
 
                         {/* Seções complementares de Status */}
                         <div className="space-y-4">
@@ -2303,13 +2308,22 @@ export default function Home() {
                       <MedoTracker />
                     )}
 
+                    {/* Ficha Oficial de A Nave Espacial Traveller */}
+                    {gamebook === 'Nave Espacial Traveller' && (
+                      <TravellerOfficialSheet />
+                    )}
+
                     {/* Main Layout Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-fade-in">
                       {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
                       <div className="lg:col-span-1 flex flex-col gap-6">
-                        <AttributeCard label="Habilidade" attrKey="skill" />
-                        <AttributeCard label="Energia" attrKey="energy" />
-                        <AttributeCard label="Sorte" attrKey="luck" />
+                        {gamebook !== 'Nave Espacial Traveller' && (
+                          <>
+                            <AttributeCard label="Habilidade" attrKey="skill" />
+                            <AttributeCard label="Energia" attrKey="energy" />
+                            <AttributeCard label="Sorte" attrKey="luck" />
+                          </>
+                        )}
                         {gamebook === 'A Cidadela do Caos' && (
                           <AttributeCard label="Mágica" attrKey="magic" />
                         )}
@@ -2353,7 +2367,6 @@ export default function Home() {
                                 {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
-                                {gamebook === 'Nave Espacial Traveller' && <TravellerTracker />}
                               </div>
                             </div>
                           ) : (

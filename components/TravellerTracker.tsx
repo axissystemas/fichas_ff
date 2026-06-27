@@ -24,21 +24,29 @@ export const TravellerTracker = () => {
     toggleCrewMemberDead 
   } = useSheetStore();
 
-  const traveller = attributes.traveller || {
-    ship: {
-      firepower: { initial: 10, current: 10 },
-      shields: { initial: 16, current: 16 }
-    },
-    crew: {
-      captain: { id: 'captain', role: 'Capitão', name: 'Capitão', skill: { initial: 10, current: 10 }, energy: { initial: 18, current: 18 } },
-      science: { id: 'science', role: 'Oficial de Ciências', name: 'Oficial de Ciências', skill: { initial: 9, current: 9 }, energy: { initial: 18, current: 18 } },
-      engineering: { id: 'engineering', role: 'Oficial de Engenharia', name: 'Oficial de Engenharia', skill: { initial: 9, current: 9 }, energy: { initial: 18, current: 18 } },
-      medical: { id: 'medical', role: 'Oficial de Medicina', name: 'Oficial de Medicina', skill: { initial: 9, current: 9 }, energy: { initial: 18, current: 18 } },
-      security: { id: 'security', role: 'Oficial de Segurança', name: 'Oficial de Segurança', skill: { initial: 10, current: 10 }, energy: { initial: 20, current: 20 } },
-      guard1: { id: 'guard1', role: 'Guarda de Segurança 1', name: 'Guarda 1', skill: { initial: 9, current: 9 }, energy: { initial: 18, current: 18 } },
-      guard2: { id: 'guard2', role: 'Guarda de Segurança 2', name: 'Guarda 2', skill: { initial: 9, current: 9 }, energy: { initial: 18, current: 18 } }
-    }
-  };
+  const traveller = attributes.traveller || (() => {
+    const roll1d6_6 = () => Math.floor(Math.random() * 6) + 7;
+    const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 14;
+    const createCrew = (id: string, role: string, name: string) => {
+      const sk = roll1d6_6();
+      const en = roll2d6_12();
+      return { id, role, name, skill: { initial: sk, current: sk }, energy: { initial: en, current: en } };
+    };
+    const fp = roll1d6_6();
+    const sh = roll2d6_12();
+    return {
+      ship: { firepower: { initial: fp, current: fp }, shields: { initial: sh, current: sh } },
+      crew: {
+        captain: createCrew('captain', 'Capitão', 'Capitão'),
+        science: createCrew('science', 'Oficial de Ciências', 'Oficial de Ciências'),
+        engineering: createCrew('engineering', 'Oficial de Engenharia', 'Oficial de Engenharia'),
+        medical: createCrew('medical', 'Oficial de Medicina', 'Oficial de Medicina'),
+        security: createCrew('security', 'Oficial de Segurança', 'Oficial de Segurança'),
+        guard1: createCrew('guard1', 'Guarda de Segurança 1', 'Guarda 1'),
+        guard2: createCrew('guard2', 'Guarda de Segurança 2', 'Guarda 2')
+      }
+    };
+  })();
 
   const isPapyrus = theme === 'papyrus';
   const [promotingId, setPromotingId] = useState<string | null>(null);
@@ -56,7 +64,7 @@ export const TravellerTracker = () => {
   };
 
   const handleCrewChange = (memberId: string, attrKey: 'skill' | 'energy', delta: number) => {
-    const member = crew[memberId];
+    const member = (crew as Record<string, any>)[memberId];
     if (!member) return;
     const current = member[attrKey]?.current ?? 0;
     const nextVal = Math.max(0, current + delta);
@@ -183,7 +191,7 @@ export const TravellerTracker = () => {
 
         <div className="flex flex-col gap-3">
           {crewKeys.map((key) => {
-            const member = crew[key];
+            const member = (crew as Record<string, any>)[key];
             if (!member) return null;
 
             const isDead = member.isDead || member.energy?.current === 0;
