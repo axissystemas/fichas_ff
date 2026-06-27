@@ -365,6 +365,7 @@ interface SheetState {
   clearJustUnlocked: () => void;
   loadUserStats: () => Promise<void>;
   saveUserStats: () => Promise<void>;
+  incrementStat: (key: keyof UserStats | string, amount?: number, extraData?: any) => Promise<void>;
   registerLuckTest: (success: boolean) => void;
 
   // Traveller actions
