@@ -909,11 +909,10 @@ export default function Home() {
     };
 
     return (
-      <div className={`p-4 border rounded-2xl flex flex-col gap-2 transition-all relative ${
-        isAlert
+      <div className={`p-4 border rounded-2xl flex flex-col gap-2 transition-all relative ${isAlert
           ? 'animate-pulse ring-2 ring-red-500/80 border-red-500 bg-red-950/20'
           : (isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30 text-[#2D1D16]' : 'bg-[#1a202c]/50 border-slate-700/60 text-slate-200')
-      }`}>
+        }`}>
         <div className="flex items-center justify-between">
           <div className="flex-1 pr-2">
             <h4 className="text-xs font-extrabold uppercase tracking-wide flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
@@ -926,50 +925,46 @@ export default function Home() {
               {desc}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button
               onClick={dec}
-              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${
-                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
-              }`}
+              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
+                }`}
             >
               -
             </button>
             <div className="text-lg font-extrabold flex items-baseline gap-0.5 min-w-[24px] justify-center">
               <span>{modifiedCurrent}</span>
               {modifier !== 0 && (
-                <span className={`text-[9px] font-extrabold ${
-                  (attrKey === 'fear' ? modifier < 0 : modifier > 0)
+                <span className={`text-[9px] font-extrabold ${(attrKey === 'fear' ? modifier < 0 : modifier > 0)
                     ? 'text-green-500'
                     : 'text-red-500'
-                }`}>
+                  }`}>
                   {modifier > 0 ? `+${modifier}` : modifier}
                 </span>
               )}
             </div>
             <button
               onClick={inc}
-              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${
-                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
-              }`}
+              className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-bold cursor-pointer active:scale-90 transition-all ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-slate-350 bg-slate-900/50'
+                }`}
             >
               +
             </button>
-            
+
             {/* Roll initial button */}
-            {!(isMedo && attrKey === 'skill' && superpower === 'superforca') && 
-             !(gamebook === 'A Lenda de Zagor' && attributes.selectedHero && attributes.selectedHero !== 'personalizado') && (
-              <button
-                onClick={rollInitialMobile}
-                className={`p-1 rounded-full border border-transparent hover:border-current active:scale-90 transition-all ${
-                  isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'
-                }`}
-                title="Rolar Inicial"
-              >
-                <RotateCcw size={12} />
-              </button>
-            )}
+            {!(isMedo && attrKey === 'skill' && superpower === 'superforca') &&
+              !(gamebook === 'A Lenda de Zagor' && attributes.selectedHero && attributes.selectedHero !== 'personalizado') && (
+                <button
+                  onClick={rollInitialMobile}
+                  className={`p-1 rounded-full border border-transparent hover:border-current active:scale-90 transition-all ${isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'
+                    }`}
+                  title="Rolar Inicial"
+                >
+                  <RotateCcw size={12} />
+                </button>
+              )}
           </div>
         </div>
       </div>
@@ -982,15 +977,13 @@ export default function Home() {
         }`}
     >
       <div
-        className={`w-full mx-auto transition-all duration-300 ${
-          showSheet || showLogin
+        className={`w-full mx-auto transition-all duration-300 ${showSheet || showLogin
             ? 'max-w-[1280px] xl:max-w-[1400px]'
             : 'max-w-[1024px]'
-        } ${
-          showSheet
+          } ${showSheet
             ? 'p-0 md:p-8 border-0 md:border ' + (isPapyrus ? 'md:bg-[#EAD8B8] md:border-[#C5A059] md:shadow-2xl' : 'md:bg-[#1a202c] md:border-[#4a5568] md:shadow-2xl')
             : 'p-4 sm:p-8 border shadow-2xl ' + (isPapyrus ? 'theme-papyrus-card' : 'theme-night-card')
-        }`}
+          }`}
       >
         {/* ── Cabeçalho Desktop ── */}
         <header
@@ -1045,7 +1038,7 @@ export default function Home() {
                     <>
                       {/* Separator */}
                       <span className={`hidden sm:block text-xs opacity-30 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-500'}`}>|</span>
-                      
+
                       <div className="flex items-center gap-1.5">
                         <span className={`text-xs uppercase tracking-widest font-semibold opacity-60 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`}>
                           Herói
@@ -1637,7 +1630,7 @@ export default function Home() {
                               {isMorteDeMedo ? 'Você Morreu de Medo!' : 'Sua Jornada Terminou'}
                             </h2>
                             <p className="text-sm font-sans max-w-md mx-auto opacity-90">
-                              {isMorteDeMedo 
+                              {isMorteDeMedo
                                 ? 'O pavor absoluto paralisou seu coração nos corredores sombrios de A Mansão do Inferno.'
                                 : `A morte o encontrou nas profundezas e mistérios de `}
                               {!isMorteDeMedo && <strong className="italic">{gamebook || 'O Feiticeiro da Montanha de Fogo'}</strong>}
@@ -1722,18 +1715,16 @@ export default function Home() {
                   {/* ──────────────────────────────────────────────────────── */}
                   <div className="block md:hidden space-y-4 pb-24 text-left">
                     {/* Cabeçalho Mobile Premium */}
-                    <div className={`rounded-b-[2rem] shadow-lg p-5 pt-6 pb-6 relative flex flex-col gap-4 border-b transition-all duration-300 ${
-                      isPapyrus 
-                        ? 'bg-gradient-to-b from-[#2D1D16] to-[#1C120D] text-[#EAD8B8] border-[#5C4033]/45' 
+                    <div className={`rounded-b-[2rem] shadow-lg p-5 pt-6 pb-6 relative flex flex-col gap-4 border-b transition-all duration-300 ${isPapyrus
+                        ? 'bg-gradient-to-b from-[#2D1D16] to-[#1C120D] text-[#EAD8B8] border-[#5C4033]/45'
                         : 'bg-gradient-to-b from-[#1a202c] to-[#0f172a] text-slate-100 border-slate-800'
-                    }`}>
+                      }`}>
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <button
                             onClick={handleBackToDashboard}
-                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer ${
-                              isPapyrus ? 'bg-[#5C4033]/25 hover:bg-[#5C4033]/40 text-[#EAD8B8]' : 'bg-slate-800 hover:bg-slate-750 text-slate-200'
-                            }`}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer ${isPapyrus ? 'bg-[#5C4033]/25 hover:bg-[#5C4033]/40 text-[#EAD8B8]' : 'bg-slate-800 hover:bg-slate-750 text-slate-200'
+                              }`}
                           >
                             <ChevronLeft size={20} />
                           </button>
@@ -1759,7 +1750,7 @@ export default function Home() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 relative">
                           {/* Botão de Coração (Favorito) */}
                           <button
@@ -1767,11 +1758,10 @@ export default function Home() {
                               setIsFavorite(!isFavorite);
                               audio.playBlip();
                             }}
-                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                              isFavorite
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${isFavorite
                                 ? 'text-red-500'
                                 : (isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200')
-                            }`}
+                              }`}
                             title="Favoritar Ficha"
                           >
                             <Heart size={20} className={isFavorite ? 'fill-current' : ''} />
@@ -1783,29 +1773,26 @@ export default function Home() {
                               setShowMapModal(true);
                               audio.playBlip();
                             }}
-                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                              isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
-                            }`}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
+                              }`}
                             title="Ver Mapa de Allansia"
                           >
                             <MapIcon size={20} />
                           </button>
-                          
+
                           {/* Botão de Opções */}
                           <button
                             onClick={() => setShowMoreMenu(!showMoreMenu)}
-                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                              isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
-                            }`}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
+                              }`}
                           >
                             <MoreVertical size={20} />
                           </button>
 
                           {/* Menu Suspenso */}
                           {showMoreMenu && (
-                            <div className={`absolute right-0 top-11 z-[110] flex flex-col gap-1 w-40 rounded-lg shadow-2xl p-1.5 border animate-fade-in ${
-                              isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-300'
-                            }`}>
+                            <div className={`absolute right-0 top-11 z-[110] flex flex-col gap-1 w-40 rounded-lg shadow-2xl p-1.5 border animate-fade-in ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-300'
+                              }`}>
                               <button
                                 onClick={() => { handleExport(); setShowMoreMenu(false); }}
                                 className="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded hover:bg-current/5 text-[11px] font-bold uppercase transition cursor-pointer"
@@ -1826,9 +1813,8 @@ export default function Home() {
                                   }
                                 }}
                                 disabled={!canCompleteBook}
-                                className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-[11px] font-bold uppercase transition cursor-pointer ${
-                                  canCompleteBook ? 'text-emerald-600 hover:bg-emerald-500/10' : 'opacity-40 cursor-not-allowed'
-                                }`}
+                                className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-[11px] font-bold uppercase transition cursor-pointer ${canCompleteBook ? 'text-emerald-600 hover:bg-emerald-500/10' : 'opacity-40 cursor-not-allowed'
+                                  }`}
                               >
                                 <Trophy size={12} /> Concluir Livro
                               </button>
@@ -1859,9 +1845,8 @@ export default function Home() {
                               useSheetStore.getState().saveToSupabase();
                             }
                           }}
-                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer ${
-                            isPapyrus ? 'bg-[#C5A059]/20 text-[#8B4513] border border-[#C5A059]/30' : 'bg-blue-500/15 text-cyan-350 border border-blue-500/25'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer ${isPapyrus ? 'bg-[#C5A059]/20 text-[#8B4513] border border-[#C5A059]/30' : 'bg-blue-500/15 text-cyan-350 border border-blue-500/25'
+                            }`}
                         >
                           <span>Parágrafo:</span>
                           <span className="font-extrabold">{attributes.currentSection || '-'}</span>
@@ -1888,11 +1873,10 @@ export default function Home() {
                         <div className="flex flex-col items-center">
                           <button
                             onClick={() => { setActiveTab('Status'); audio.playBlip(); }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                              activeTab === 'Status'
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Status'
                                 ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
                                 : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
-                            }`}
+                              }`}
                           >
                             <Shield size={18} />
                           </button>
@@ -1903,11 +1887,10 @@ export default function Home() {
                         <div className="flex flex-col items-center">
                           <button
                             onClick={() => { setActiveTab('Combate'); audio.playBlip(); }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                              activeTab === 'Combate'
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Combate'
                                 ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
                                 : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
-                            }`}
+                              }`}
                           >
                             <Swords size={18} />
                           </button>
@@ -1918,11 +1901,10 @@ export default function Home() {
                         <div className="flex flex-col items-center">
                           <button
                             onClick={() => { setActiveTab('Inventário'); audio.playBlip(); }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                              activeTab === 'Inventário'
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Inventário'
                                 ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
                                 : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
-                            }`}
+                              }`}
                           >
                             <Backpack size={18} />
                           </button>
@@ -1933,11 +1915,10 @@ export default function Home() {
                         <div className="flex flex-col items-center">
                           <button
                             onClick={() => { setActiveTab('Notas'); audio.playBlip(); }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                              activeTab === 'Notas'
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Notas'
                                 ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
                                 : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
-                            }`}
+                              }`}
                           >
                             <BookOpen size={18} />
                           </button>
@@ -1947,7 +1928,7 @@ export default function Home() {
                     </div>
 
                     {/* CONTEÚDO DAS ABAS (MOBILE) */}
-                    
+
                     {/* Aba Status */}
                     {activeTab === 'Status' && (
                       <div className="px-4 space-y-4 animate-fade-in">
@@ -1966,7 +1947,7 @@ export default function Home() {
                           {renderMobileAttributeCard('Habilidade', 'skill', 'Determina sua competência em combates e testes físicos.')}
                           {renderMobileAttributeCard('Energia', 'energy', 'Sua força vital. Se chegar a 0, sua jornada termina.')}
                           {renderMobileAttributeCard('Sorte', 'luck', 'Sua fortuna. Essencial para testar sua sorte ao longo do jogo.')}
-                          
+
                           {/* Atributos específicos de Livros */}
                           {gamebook === 'A Cidadela do Caos' && renderMobileAttributeCard('Mágica', 'magic', 'Sua reserva de poder mágico para lançar feitiços.')}
                           {gamebook === 'A Cripta do Vampiro' && renderMobileAttributeCard('Fé', 'faith', 'Sua proteção e força espiritual contra as trevas.')}
@@ -1974,7 +1955,7 @@ export default function Home() {
                           {gamebook === 'A Lenda de Zagor' && renderMobileAttributeCard(
                             effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade',
                             'willpower',
-                            attributes.selectedHero === 'sallazar' 
+                            attributes.selectedHero === 'sallazar'
                               ? 'Sua reserva de magia para conjurar feitiços do Grimório Amarílleo.'
                               : 'Sua determinação e resistência psicológica.'
                           )}
@@ -1996,7 +1977,7 @@ export default function Home() {
                               Recentes
                             </span>
                           </div>
-                          
+
                           <div className="flex overflow-x-auto gap-3 pb-3 snap-x scrollbar-none">
                             {unlockedAchievements && unlockedAchievements.length > 0 ? (
                               unlockedAchievements.slice(0, 8).map((u) => {
@@ -2005,11 +1986,10 @@ export default function Home() {
                                 return (
                                   <div
                                     key={u.achievement_id}
-                                    className={`flex-shrink-0 w-36 p-3 rounded-xl border flex flex-col gap-1 items-center text-center snap-center ${
-                                      isPapyrus
+                                    className={`flex-shrink-0 w-36 p-3 rounded-xl border flex flex-col gap-1 items-center text-center snap-center ${isPapyrus
                                         ? 'bg-[#FDF6E3] border-[#5C4033]/30 text-[#2D1D16]'
                                         : 'bg-slate-900/80 border-slate-800 text-slate-200 shadow-sm'
-                                    }`}
+                                      }`}
                                   >
                                     <span className="text-xl select-none">{def.icon}</span>
                                     <span className="text-[10px] font-bold truncate w-full">{def.title}</span>
@@ -2032,7 +2012,7 @@ export default function Home() {
                                 {getHeroAdvantage(effectiveHero)}
                               </p>
                             </div>
-                            
+
                             <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                               <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isPapyrus ? 'text-[#5C4033]' : 'text-red-400'}`}>
                                 🔴 Desvantagem
@@ -2140,9 +2120,8 @@ export default function Home() {
                     )}
 
                     {/* Barra de Navegação Inferior Fixa */}
-                    <div className={`fixed bottom-0 left-0 right-0 z-[100] border-t backdrop-blur-md safe-bottom flex items-center justify-around py-2.5 shadow-2xl transition-colors duration-300 ${
-                      isPapyrus ? 'bg-[#1C120D]/95 border-[#4A3728] text-[#EAD8B8]' : 'bg-slate-950/95 border-slate-850 text-slate-300'
-                    }`}>
+                    <div className={`fixed bottom-0 left-0 right-0 z-[100] border-t backdrop-blur-md safe-bottom flex items-center justify-around py-2.5 shadow-2xl transition-colors duration-300 ${isPapyrus ? 'bg-[#1C120D]/95 border-[#4A3728] text-[#EAD8B8]' : 'bg-slate-950/95 border-slate-850 text-slate-300'
+                      }`}>
                       <button
                         onClick={handleBackToDashboard}
                         className="flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer"
@@ -2150,7 +2129,7 @@ export default function Home() {
                         <HomeIcon size={18} />
                         <span className="text-[9px] font-sans mt-0.5">Painel</span>
                       </button>
-                      
+
                       <button
                         onClick={() => { setShowAchievementsModal(true); audio.playBlip(); }}
                         className="flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer"
@@ -2161,9 +2140,8 @@ export default function Home() {
 
                       <button
                         onClick={() => { setActiveTab('Status'); audio.playBlip(); }}
-                        className={`flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer ${
-                          activeTab === 'Status' ? (isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400') : ''
-                        }`}
+                        className={`flex flex-col items-center justify-center p-1.5 hover:opacity-85 active:scale-90 transition-all cursor-pointer ${activeTab === 'Status' ? (isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400') : ''
+                          }`}
                       >
                         <Heart size={18} className={activeTab === 'Status' ? 'fill-current' : ''} />
                         <span className="text-[9px] font-sans mt-0.5">Status</span>
@@ -2182,9 +2160,8 @@ export default function Home() {
                     {showSettingsModal && (
                       <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowSettingsModal(false)}>
                         <div
-                          className={`w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 border-t sm:border shadow-2xl flex flex-col gap-4 text-left transform translate-y-0 transition-transform ${
-                            isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
-                          }`}
+                          className={`w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 border-t sm:border shadow-2xl flex flex-col gap-4 text-left transform translate-y-0 transition-transform ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+                            }`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
@@ -2202,9 +2179,8 @@ export default function Home() {
                               <span className="opacity-80 uppercase tracking-wide">Tema Visual</span>
                               <button
                                 onClick={() => setTheme(isPapyrus ? 'night' : 'papyrus')}
-                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
-                                  isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
-                                }`}
+                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                  }`}
                               >
                                 {isPapyrus ? <><Moon size={11} /> Escuro</> : <><Sun size={11} /> Claro</>}
                               </button>
@@ -2215,9 +2191,8 @@ export default function Home() {
                               <span className="opacity-80 uppercase tracking-wide">Efeitos Sonoros</span>
                               <button
                                 onClick={toggleSound}
-                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
-                                  isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
-                                }`}
+                                className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                  }`}
                               >
                                 {soundEnabled ? <><Volume2 size={11} /> Ativos</> : <><VolumeX size={11} /> Mudo</>}
                               </button>
@@ -2229,9 +2204,8 @@ export default function Home() {
                                 <span className="opacity-80 uppercase tracking-wide">Música de Fundo</span>
                                 <button
                                   onClick={toggleMusic}
-                                  className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${
-                                    isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
-                                  }`}
+                                  className={`px-3 py-1.5 border rounded flex items-center gap-1.5 uppercase font-extrabold hover:bg-current/5 transition-all text-[9px] cursor-pointer ${isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                    }`}
                                 >
                                   {musicEnabled ? <><Music size={11} /> Ativa</> : <><VolumeX size={11} /> Mudo</>}
                                 </button>
@@ -2260,17 +2234,15 @@ export default function Home() {
                           <div className="grid grid-cols-2 gap-2">
                             <button
                               onClick={() => { handleExport(); setShowSettingsModal(false); }}
-                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${
-                                isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
-                              }`}
+                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                }`}
                             >
                               <Upload size={11} /> Exportar
                             </button>
                             <button
                               onClick={() => { handleImport(); setShowSettingsModal(false); }}
-                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${
-                                isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
-                              }`}
+                              className={`py-2 text-[9px] uppercase font-bold tracking-wider border rounded flex items-center justify-center gap-1 hover:bg-current/5 cursor-pointer ${isPapyrus ? 'border-[#5C4033]/40' : 'border-slate-700'
+                                }`}
                             >
                               <Download size={11} /> Importar
                             </button>
@@ -2296,9 +2268,8 @@ export default function Home() {
                     {showAchievementsModal && (
                       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setShowAchievementsModal(false)}>
                         <div
-                          className={`w-full max-w-lg rounded-2xl max-h-[80vh] overflow-y-auto p-4 border shadow-2xl flex flex-col gap-4 text-left ${
-                            isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
-                          }`}
+                          className={`w-full max-w-lg rounded-2xl max-h-[80vh] overflow-y-auto p-4 border shadow-2xl flex flex-col gap-4 text-left ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/40 text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+                            }`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-between border-b pb-2 border-current/10">
@@ -2343,9 +2314,9 @@ export default function Home() {
                           <AttributeCard label="Medo" attrKey="fear" />
                         )}
                         {gamebook === 'A Lenda de Zagor' && (
-                          <AttributeCard 
-                            label={effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'} 
-                            attrKey="willpower" 
+                          <AttributeCard
+                            label={effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'}
+                            attrKey="willpower"
                           />
                         )}
                         <CurrentSectionCard />
@@ -2434,7 +2405,7 @@ export default function Home() {
                                 {getHeroAdvantage(effectiveHero)}
                               </p>
                             </section>
-                            
+
                             <section
                               className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'}`}
                             >
@@ -2467,18 +2438,17 @@ export default function Home() {
         )}
 
         {/* Footer / Rodapé */}
-        <footer className={`mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans tracking-wide ${
-          isPapyrus 
-            ? 'border-[#5C4033]/20 text-[#5C4033]/70' 
+        <footer className={`mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans tracking-wide ${isPapyrus
+            ? 'border-[#5C4033]/20 text-[#5C4033]/70'
             : 'border-[#4a5568]/30 text-slate-400'
-        }`}>
+          }`}>
           <div className="max-w-xl text-balance">
-            © {new Date().getFullYear()} Fichas FF • Projeto independente de fãs, sem fins lucrativos.
+            © {new Date().getFullYear()} Fichas FF • É um Projeto independente criado por fãs para fãs.
             <span className="block mt-0.5 text-[11px] opacity-75">
               "Aventuras Fantásticas" (Fighting Fantasy) e marcas relacionadas são propriedade de seus respectivos autores e editoras.
             </span>
           </div>
-          
+
           {/* Social Media Links */}
           {(youtubeSettings.instagramUrl || youtubeSettings.youtubeUrl || youtubeSettings.discordUrl) && (
             <div className="flex items-center gap-4">
@@ -2487,9 +2457,8 @@ export default function Home() {
                   href={youtubeSettings.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
-                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                  }`}
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                    }`}
                   title="Instagram"
                   aria-label="Instagram"
                 >
@@ -2501,9 +2470,8 @@ export default function Home() {
                   href={youtubeSettings.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
-                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                  }`}
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                    }`}
                   title="YouTube"
                   aria-label="YouTube"
                 >
@@ -2515,9 +2483,8 @@ export default function Home() {
                   href={youtubeSettings.discordUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${
-                    isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                  }`}
+                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
+                    }`}
                   title="Discord"
                   aria-label="Discord"
                 >
@@ -2563,14 +2530,13 @@ export default function Home() {
 
       {/* Modal do Mapa de Allansia */}
       {showMapModal && (
-        <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in" 
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in"
           onClick={() => setShowMapModal(false)}
         >
           <div
-            className={`w-full max-w-4xl rounded-2xl overflow-hidden p-6 border shadow-2xl flex flex-col gap-4 text-left ${
-              isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
-            }`}
+            className={`w-full max-w-4xl rounded-2xl overflow-hidden p-6 border shadow-2xl flex flex-col gap-4 text-left ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+              }`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
