@@ -2450,49 +2450,41 @@ export default function Home() {
           </div>
 
           {/* Social Media Links */}
-          {(youtubeSettings.instagramUrl || youtubeSettings.youtubeUrl || youtubeSettings.discordUrl) && (
-            <div className="flex items-center gap-4">
-              {youtubeSettings.instagramUrl && (
-                <a
-                  href={youtubeSettings.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                    }`}
-                  title="Instagram"
-                  aria-label="Instagram"
-                >
-                  <Instagram size={18} />
-                </a>
-              )}
-              {youtubeSettings.youtubeUrl && (
-                <a
-                  href={youtubeSettings.youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                    }`}
-                  title="YouTube"
-                  aria-label="YouTube"
-                >
-                  <Youtube size={18} />
-                </a>
-              )}
-              {youtubeSettings.discordUrl && (
-                <a
-                  href={youtubeSettings.discordUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/5' : 'hover:text-cyan-400 hover:bg-slate-700/30'
-                    }`}
-                  title="Discord"
-                  aria-label="Discord"
-                >
-                  <DiscordIcon className="w-[18px] h-[18px]" />
-                </a>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            <a
+              href={youtubeSettings.instagramUrl || 'https://instagram.com'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/10 text-[#5C4033]' : 'hover:text-cyan-400 hover:bg-slate-700/30 text-slate-300'
+                }`}
+              title="Instagram"
+              aria-label="Instagram"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href={youtubeSettings.youtubeUrl || 'https://youtube.com'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/10 text-[#5C4033]' : 'hover:text-cyan-400 hover:bg-slate-700/30 text-slate-300'
+                }`}
+              title="YouTube"
+              aria-label="YouTube"
+            >
+              <Youtube size={18} />
+            </a>
+            <a
+              href={youtubeSettings.discordUrl || 'https://discord.gg'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-1 rounded-sm ${isPapyrus ? 'hover:text-[#2D1D16] hover:bg-[#5C4033]/10 text-[#5C4033]' : 'hover:text-cyan-400 hover:bg-slate-700/30 text-slate-300'
+                }`}
+              title="Discord"
+              aria-label="Discord"
+            >
+              <DiscordIcon className="w-[18px] h-[18px]" />
+            </a>
+          </div>
         </footer>
       </div>
 
