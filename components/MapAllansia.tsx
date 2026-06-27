@@ -22,7 +22,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'firetop_mountain',
     name: 'Montanha do Fogo (Firetop Mountain)',
-    coords: { x: 71.5, y: 25.0 },
+    coords: { x: 74.6, y: 30.7 },
     books: ['O Feiticeiro da Montanha de Fogo', 'Retorno à Montanha de Fogo'],
     description: 'O pico duplo marcante de Allansia, lar do feiticeiro Zagor.',
     lore: 'Situada no norte de Allansia, esta montanha de picos duplos abriga veios de pedra vermelha brilhante. Sob suas fundações ergue-se o mortal labirinto subterrâneo de Zagor, repleto de monstros e tesouros lendários.',
@@ -38,7 +38,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'darkwood_forest',
     name: 'Floresta de Darkwood (Darkwood Forest)',
-    coords: { x: 78.0, y: 70.0 },
+    coords: { x: 66.9, y: 47.5 },
     books: ['A Floresta da Destruição', 'Criatura Selvagem'],
     description: 'Uma floresta ancestral e impenetrável, lar do mago bondoso Yaztromo.',
     lore: 'Esta vasta área florestal é evitada por mercadores comuns devido às suas criaturas perigosas. No entanto, na sua fronteira sul ergue-se a torre do mago Yaztromo, um farol de esperança e sabedoria que vende itens mágicos a heróis em jornadas importantes.',
@@ -46,7 +46,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'port_blacksand',
     name: 'Porto Areia Negra (Port Blacksand)',
-    coords: { x: 41.0, y: 53.0 },
+    coords: { x: 35.6, y: 57.4 },
     books: ['A Cidade dos Ladrões', 'Ladrão da Meia-Noite', 'O Porto do Perigo'],
     description: 'A infame Cidade dos Ladrões, governada pelo cruel Lorde Azul.',
     lore: 'Porto Areia Negra é o porto mais corrupto de Titan. Famosa por seus contrabandistas, piratas e guildas clandestinas de assassinos, a cidade é uma teia perigosa onde qualquer passo em falso nas vielas sombrias pode ser o último.',
@@ -54,7 +54,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'citadel_of_chaos',
     name: 'Cidadela da Garganta Negra (Citadel of Chaos)',
-    coords: { x: 88.0, y: 90.0 },
+    coords: { x: 79.7, y: 94.2 },
     books: ['A Cidadela do Caos'],
     description: 'A fortaleza mágica do sombrio bruxo Balthus Dire.',
     lore: 'No topo de Craggen Rock, no sul de Allansia, ergue-se esta cidadela fortificada de pedra negra. Balthus Dire reuniu aqui uma hoste de criaturas mutantes e monstros na esperança de conquistar as terras humanas da planície.',
@@ -78,7 +78,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'temple_of_terror',
     name: 'Templo de Vatos (Temple of Terror)',
-    coords: { x: 54.0, y: 91.0 },
+    coords: { x: 48.2, y: 97.9 },
     books: ['O Templo do Terror'],
     description: 'A cidade sagrada perdida no Deserto dos Crânios.',
     lore: 'Protegida por miragens mágicas e dunas de calor assassino, a cidade subterrânea de Vatos abriga o Templo do Terror, onde o arquimago Malbordus busca cinco runas de poder deixadas por demônios antigos.',
@@ -86,7 +86,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'salamonis',
     name: 'Reino de Salamonis',
-    coords: { x: 80.0, y: 75.0 },
+    coords: { x: 83.3, y: 76.7 },
     books: ['Segredos de Salamonis'],
     description: 'A prestigiada cidade-estado humana, rica em cultura e glória militar.',
     lore: 'Uma das civilizações humanas mais antigas e prósperas de Allansia Central. É governada pelo bondoso Rei Salamon e serve como refúgio comercial, além de ser famosa por suas imponentes guildas de cavaleiros.',
@@ -305,9 +305,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
           </span>
           <button
             onClick={() => setShowAllLocations(!showAllLocations)}
-            className={`px-2.5 py-1 border transition-all rounded text-[10px] uppercase font-bold cursor-pointer hover:bg-current/5 ${
-              isPapyrus ? 'border-[#5C4033] text-[#5C4033]' : 'border-slate-700 text-slate-300'
-            }`}
+            className={`px-2.5 py-1 border transition-all rounded text-[10px] uppercase font-bold cursor-pointer hover:bg-current/5 ${isPapyrus ? 'border-[#5C4033] text-[#5C4033]' : 'border-slate-700 text-slate-300'
+              }`}
           >
             {showAllLocations ? 'Mostrar Apenas Atual' : 'Mostrar Todos os Livros'}
           </button>
@@ -320,24 +319,21 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
           onMouseLeave={handleMouseUpOrLeave}
-          className={`relative w-full aspect-[5/3] overflow-auto border-2 scrollbar-none transition-colors duration-300 ${
-            zoom > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
-          } ${
-            isPapyrus
+          className={`relative w-full aspect-[5/3] overflow-auto border-2 scrollbar-none transition-colors duration-300 ${zoom > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+            } ${isPapyrus
               ? 'border-[#5C4033] bg-[#EAD8B8]/30 shadow-md'
               : 'border-slate-800 bg-slate-950/40 rounded-xl shadow-inner'
-          }`}
+            }`}
         >
           {/* Controles Flutuantes de Zoom (Canto Superior Esquerdo) */}
           <div className="absolute top-2.5 left-2.5 z-20 flex gap-1 pointer-events-auto">
             <button
               onClick={() => handleZoomChange(0.5)}
               disabled={zoom >= 3}
-              className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                isPapyrus 
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40' 
+              className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
+                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
                   : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
-              }`}
+                }`}
               title="Aumentar Zoom (+)"
             >
               +
@@ -345,11 +341,10 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
             <button
               onClick={() => handleZoomChange(-0.5)}
               disabled={zoom <= 1}
-              className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                isPapyrus 
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40' 
+              className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
+                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
                   : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
-              }`}
+                }`}
               title="Diminuir Zoom (-)"
             >
               −
@@ -357,11 +352,10 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
             <button
               onClick={() => { setZoom(1); }}
               disabled={zoom === 1}
-              className={`px-2 h-7 flex items-center justify-center font-bold text-[9px] uppercase border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                isPapyrus 
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40' 
+              className={`px-2 h-7 flex items-center justify-center font-bold text-[9px] uppercase border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
+                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
                   : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
-              }`}
+                }`}
               title="Resetar Zoom"
             >
               1x
@@ -398,7 +392,7 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                   <line x1="500" y1="0" x2="500" y2="600" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
                   <line x1="700" y1="0" x2="700" y2="600" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
                   <line x1="900" y1="0" x2="900" y2="600" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
-                  
+
                   <line x1="0" y1="100" x2="1000" y2="100" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
                   <line x1="0" y1="250" x2="1000" y2="250" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
                   <line x1="0" y1="400" x2="1000" y2="400" stroke="currentColor" strokeOpacity="0.04" strokeDasharray="5,5" />
@@ -527,22 +521,20 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                     /* Pin Inativo (Outros pontos do atlas) */
                     <div className="relative flex items-center justify-center">
                       <div
-                        className={`h-2.5 w-2.5 rounded-full border shadow-sm transition-colors ${
-                          selectedLocation?.id === loc.id
+                        className={`h-2.5 w-2.5 rounded-full border shadow-sm transition-colors ${selectedLocation?.id === loc.id
                             ? 'bg-cyan-500 border-white scale-110 shadow-cyan-500/50'
                             : 'bg-slate-500/70 border-slate-300 group-hover:bg-slate-400 group-hover:border-white'
-                        }`}
+                          }`}
                       />
                     </div>
                   )}
 
                   {/* Tooltip de Hover */}
                   <div
-                    className={`absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-[10px] font-bold shadow-lg transition-all duration-200 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none border ${
-                      isPapyrus
+                    className={`absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-[10px] font-bold shadow-lg transition-all duration-200 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none border ${isPapyrus
                         ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]'
                         : 'bg-slate-900 border-slate-800 text-slate-100'
-                    }`}
+                      }`}
                   >
                     {loc.name}
                     {isActive && <span className="ml-1 text-amber-500 font-extrabold">(Atual)</span>}
@@ -556,16 +548,14 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
 
       {/* ── Painel de Detalhes à Direita ── */}
       <div
-        className={`w-full md:w-80 flex-shrink-0 p-4 border rounded-xl flex flex-col justify-between gap-4 font-sans ${
-          isPapyrus ? 'bg-[#FDF6E3]/70 border-[#5C4033]/45' : 'bg-slate-900/50 border-slate-800'
-        }`}
+        className={`w-full md:w-80 flex-shrink-0 p-4 border rounded-xl flex flex-col justify-between gap-4 font-sans ${isPapyrus ? 'bg-[#FDF6E3]/70 border-[#5C4033]/45' : 'bg-slate-900/50 border-slate-800'
+          }`}
       >
         {/* Caso a aventura seja jogada fora de Allansia */}
         {outsideSetting ? (
           <div className="flex-1 flex flex-col gap-3">
-            <div className={`p-3 border-l-4 rounded flex gap-2.5 ${
-              isPapyrus ? 'bg-amber-800/5 border-amber-800 text-[#2D1D16]' : 'bg-cyan-950/20 border-cyan-500 text-slate-300'
-            }`}>
+            <div className={`p-3 border-l-4 rounded flex gap-2.5 ${isPapyrus ? 'bg-amber-800/5 border-amber-800 text-[#2D1D16]' : 'bg-cyan-950/20 border-cyan-500 text-slate-300'
+              }`}>
               <Info size={16} className="shrink-0 mt-0.5" />
               <div className="text-left">
                 <p className="text-[10px] uppercase tracking-wider font-extrabold opacity-75">Configuração Diferente</p>
@@ -591,11 +581,10 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                   {selectedLocation.name}
                 </h3>
                 {activeLocation?.id === selectedLocation.id && (
-                  <span className={`px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded border animate-pulse ${
-                    isPapyrus
+                  <span className={`px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded border animate-pulse ${isPapyrus
                       ? 'bg-red-800/10 text-red-955 border-red-800/30'
                       : 'bg-emerald-950/40 text-emerald-400 border-emerald-700/50'
-                  }`}>
+                    }`}>
                     Aventura Atual
                   </span>
                 )}
@@ -613,11 +602,10 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                 {selectedLocation.books.map((book, idx) => (
                   <span
                     key={idx}
-                    className={`text-[9px] font-bold px-2 py-0.5 border rounded ${
-                      book.toLowerCase() === activeBook.toLowerCase()
+                    className={`text-[9px] font-bold px-2 py-0.5 border rounded ${book.toLowerCase() === activeBook.toLowerCase()
                         ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-[#5C4033]' : 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold')
                         : (isPapyrus ? 'bg-[#EAD8B8]/30 text-[#2D1D16] border-[#C5A059]/40' : 'bg-slate-800/60 text-slate-350 border-slate-700')
-                    }`}
+                      }`}
                   >
                     📚 {book}
                   </span>
