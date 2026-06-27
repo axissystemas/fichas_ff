@@ -160,15 +160,35 @@ export interface DbSheet {
       knights: number;
       others: number;
     };
+    fear?: Attribute;
     willpower?: Attribute;
     selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
+    traveller?: TravellerData;
   };
   gold?: number;
   provisions?: number;
   inventory?: Item[];
   monsters?: Monster[];
   updated_at: string;
+}
+
+export interface CrewMember {
+  id: string;
+  role: string;
+  name: string;
+  skill: Attribute;
+  energy: Attribute;
+  isAssistant?: boolean;
+  isDead?: boolean;
+}
+
+export interface TravellerData {
+  ship: {
+    firepower: Attribute;
+    shields: Attribute;
+  };
+  crew: Record<string, CrewMember>;
 }
 
 export interface AuthUser {
@@ -216,6 +236,7 @@ interface SheetState {
     willpower?: Attribute;
     selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
+    traveller?: TravellerData;
   };
   gold: number;
   provisions: number;
@@ -344,8 +365,13 @@ interface SheetState {
   clearJustUnlocked: () => void;
   loadUserStats: () => Promise<void>;
   saveUserStats: () => Promise<void>;
-  incrementStat: (key: keyof UserStats | string, amount?: number, extraData?: any) => Promise<void>;
   registerLuckTest: (success: boolean) => void;
+
+  // Traveller actions
+  updateTravellerShipAttribute: (key: 'firepower' | 'shields', value: number, isInitial: boolean) => void;
+  updateTravellerCrewAttribute: (memberId: string, attr: 'skill' | 'energy', value: number, isInitial: boolean) => void;
+  promoteCrewAssistant: (memberId: string, newSkillInitial: number, newEnergyInitial: number) => void;
+  toggleCrewMemberDead: (memberId: string) => void;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -550,6 +576,7 @@ export const useSheetStore = create<SheetState>()(
           const isExercitos = gamebook === 'Exércitos da Morte';
           const isMansao = gamebook === 'A Mansão do Inferno';
           const isZagor = gamebook === 'A Lenda de Zagor';
+          const isTraveller = gamebook === 'Nave Espacial Traveller';
           const customAttributes = {
             skill: { initial: 0, current: 0 },
             energy: { initial: 0, current: 0 },
@@ -582,6 +609,23 @@ export const useSheetStore = create<SheetState>()(
               willpower: { initial: 0, current: 0 },
               selectedHero: null,
               customArchetype: null,
+            } : {}),
+            ...(isTraveller ? {
+              traveller: {
+                ship: {
+                  firepower: { initial: 0, current: 0 },
+                  shields: { initial: 0, current: 0 }
+                },
+                crew: {
+                  captain: { id: 'captain', role: 'Capitão', name: 'Capitão', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  science: { id: 'science', role: 'Oficial de Ciências', name: 'Oficial de Ciências', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  engineering: { id: 'engineering', role: 'Oficial de Engenharia', name: 'Oficial de Engenharia', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  medical: { id: 'medical', role: 'Oficial de Medicina', name: 'Oficial de Medicina', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  security: { id: 'security', role: 'Oficial de Segurança', name: 'Oficial de Segurança', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  guard1: { id: 'guard1', role: 'Guarda de Segurança 1', name: 'Guarda 1', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } },
+                  guard2: { id: 'guard2', role: 'Guarda de Segurança 2', name: 'Guarda 2', skill: { initial: 0, current: 0 }, energy: { initial: 0, current: 0 } }
+                }
+              }
             } : {})
           };
           const payload = {
@@ -852,6 +896,116 @@ export const useSheetStore = create<SheetState>()(
             customArchetype: archetype,
           },
         }));
+        scheduleSave(get());
+      },
+      updateTravellerShipAttribute: (key, value, isInitial) => {
+        set((state) => {
+          const traveller = state.attributes.traveller || { ship: { firepower: { initial: 0, current: 0 }, shields: { initial: 0, current: 0 } }, crew: {} };
+          const ship = { ...traveller.ship };
+          const attr = { ...(ship[key] || { initial: 0, current: 0 }) };
+
+          if (isInitial) {
+            attr.initial = Math.max(0, value);
+            attr.current = Math.max(0, value);
+          } else {
+            attr.current = Math.max(0, value);
+          }
+
+          ship[key] = attr;
+
+          return {
+            attributes: {
+              ...state.attributes,
+              traveller: {
+                ...traveller,
+                ship,
+              },
+            },
+          };
+        });
+        scheduleSave(get());
+      },
+      updateTravellerCrewAttribute: (memberId, attrKey, value, isInitial) => {
+        set((state) => {
+          const traveller = state.attributes.traveller;
+          if (!traveller || !traveller.crew || !traveller.crew[memberId]) return {};
+
+          const crew = { ...traveller.crew };
+          const member = { ...crew[memberId] };
+          const attr = { ...(member[attrKey] || { initial: 0, current: 0 }) };
+
+          if (isInitial) {
+            attr.initial = Math.max(0, value);
+            attr.current = Math.max(0, value);
+          } else {
+            attr.current = Math.max(0, value);
+          }
+
+          member[attrKey] = attr;
+          crew[memberId] = member;
+
+          const updatedAttributes: any = {
+            ...state.attributes,
+            traveller: {
+              ...traveller,
+              crew,
+            },
+          };
+
+          if (memberId === 'captain') {
+            if (attrKey === 'skill') updatedAttributes.skill = attr;
+            if (attrKey === 'energy') updatedAttributes.energy = attr;
+          }
+
+          return { attributes: updatedAttributes };
+        });
+        scheduleSave(get());
+      },
+      promoteCrewAssistant: (memberId, newSkillInitial, newEnergyInitial) => {
+        set((state) => {
+          const traveller = state.attributes.traveller;
+          if (!traveller || !traveller.crew || !traveller.crew[memberId]) return {};
+
+          const crew = { ...traveller.crew };
+          const member = { ...crew[memberId] };
+
+          member.isAssistant = true;
+          member.isDead = false;
+          member.name = `${member.role} (Assistente)`;
+          member.skill = { initial: newSkillInitial, current: newSkillInitial };
+          member.energy = { initial: newEnergyInitial, current: newEnergyInitial };
+
+          crew[memberId] = member;
+
+          return {
+            attributes: {
+              ...state.attributes,
+              traveller: { ...traveller, crew },
+            },
+          };
+        });
+        scheduleSave(get());
+      },
+      toggleCrewMemberDead: (memberId) => {
+        set((state) => {
+          const traveller = state.attributes.traveller;
+          if (!traveller || !traveller.crew || !traveller.crew[memberId]) return {};
+
+          const crew = { ...traveller.crew };
+          const member = { ...crew[memberId] };
+          member.isDead = !member.isDead;
+          if (member.isDead) {
+            member.energy = { ...member.energy, current: 0 };
+          }
+          crew[memberId] = member;
+
+          return {
+            attributes: {
+              ...state.attributes,
+              traveller: { ...traveller, crew },
+            },
+          };
+        });
         scheduleSave(get());
       },
       castSpell: (spellKey) => {

@@ -19,6 +19,7 @@ import { MedoTracker } from '@/components/MedoTracker';
 import { CidadelaTracker } from '@/components/CidadelaTracker';
 import { VampiroTracker } from '@/components/VampiroTracker';
 import { ExercitosTracker } from '@/components/ExercitosTracker';
+import { TravellerTracker } from '@/components/TravellerTracker';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
 import MapAllansia from '@/components/MapAllansia';
@@ -2073,6 +2074,11 @@ export default function Home() {
                             <ExercitosTracker />
                           </div>
                         )}
+                        {gamebook === 'Nave Espacial Traveller' && (
+                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                            <TravellerTracker />
+                          </div>
+                        )}
                         {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
                           <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                             <GrimorioAmarilleo />
@@ -2327,7 +2333,7 @@ export default function Home() {
                       <div className="md:col-span-3 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
-                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
+                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' || gamebook === 'Nave Espacial Traveller' ? (
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                               <div className="lg:col-span-3 flex flex-col gap-6">
                                 <section
@@ -2347,6 +2353,7 @@ export default function Home() {
                                 {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
+                                {gamebook === 'Nave Espacial Traveller' && <TravellerTracker />}
                               </div>
                             </div>
                           ) : (

@@ -344,9 +344,53 @@ export const CharacterCreation = () => {
     }
 
     const isExercitos = gamebook === 'Exércitos da Morte';
+    const isTraveller = gamebook === 'Nave Espacial Traveller';
     if (isExercitos) {
       updateGold(20000 - gold);
       updateProvisions(0 - provisions);
+    }
+
+    if (isTraveller) {
+      const roll1d6_6 = () => Math.floor(Math.random() * 6) + 1 + 6;
+      const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2 + 12;
+
+      const firepower = roll1d6_6();
+      const shields = roll2d6_12();
+
+      const createCrew = (id: string, role: string, name: string, sk: number, en: number) => ({
+        id, role, name,
+        skill: { initial: sk, current: sk },
+        energy: { initial: en, current: en }
+      });
+
+      const travellerData = {
+        ship: {
+          firepower: { initial: firepower, current: firepower },
+          shields: { initial: shields, current: shields }
+        },
+        crew: {
+          captain: createCrew('captain', 'Capitão', 'Capitão', rolledSkill, rolledEnergy),
+          science: createCrew('science', 'Oficial de Ciências', 'Oficial de Ciências', roll1d6_6(), roll2d6_12()),
+          engineering: createCrew('engineering', 'Oficial de Engenharia', 'Oficial de Engenharia', roll1d6_6(), roll2d6_12()),
+          medical: createCrew('medical', 'Oficial de Medicina', 'Oficial de Medicina', roll1d6_6(), roll2d6_12()),
+          security: createCrew('security', 'Oficial de Segurança', 'Oficial de Segurança', roll1d6_6(), roll2d6_12()),
+          guard1: createCrew('guard1', 'Guarda de Segurança 1', 'Guarda 1', roll1d6_6(), roll2d6_12()),
+          guard2: createCrew('guard2', 'Guarda de Segurança 2', 'Guarda 2', roll1d6_6(), roll2d6_12()),
+        }
+      };
+
+      useSheetStore.setState((state) => ({
+        attributes: {
+          ...state.attributes,
+          traveller: travellerData
+        }
+      }));
+
+      // Adiciona Faseador ao inventário
+      const inv = useSheetStore.getState().inventory;
+      if (!inv.some(i => i.name.includes('Faseador'))) {
+        useSheetStore.getState().addItem({ id: crypto.randomUUID(), name: 'Faseador (Pistola Laser)', quantity: 1, equipped: true });
+      }
     }
 
     // Add log
