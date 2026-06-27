@@ -138,38 +138,51 @@ export default function PainelAdmin() {
 
   // Monitora a sessão e valida administrador
   useEffect(() => {
+    let isMounted = true;
+
     const runVerification = async () => {
-      setCheckingAdmin(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const activeUser = session?.user ?? null;
-      
-      if (activeUser) {
-        setUser({
-          id: activeUser.id,
-          email: activeUser.email,
-          provider: activeUser.app_metadata.provider,
-          user_metadata: activeUser.user_metadata,
-        });
-        
-        // Verifica na tabela public.admin_users
-        const hasAccess = await checkAdminStatus();
-        if (hasAccess) {
-          await loadSheetsList(true);
-          await loadStatsData();
-          await loadNewsList();
-          await loadYoutubeSettings();
-          await loadAchievements();
-          await loadUserStats();
+      try {
+        setCheckingAdmin(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        const activeUser = session?.user ?? null;
+
+        if (activeUser) {
+          setUser({
+            id: activeUser.id,
+            email: activeUser.email,
+            provider: activeUser.app_metadata.provider,
+            user_metadata: activeUser.user_metadata,
+          });
+
+          const hasAccess = await checkAdminStatus();
+          if (isMounted) setCheckingAdmin(false);
+
+          if (hasAccess && isMounted) {
+            // Carrega os dados de estatística e telemetria em segundo plano sem travar a interface
+            Promise.allSettled([
+              loadSheetsList(true),
+              loadStatsData(),
+              loadNewsList(),
+              loadYoutubeSettings(),
+              loadAchievements(),
+              loadUserStats(),
+            ]);
+          }
+        } else {
+          clearLocalState();
+          if (isMounted) setCheckingAdmin(false);
         }
-      } else {
-        clearLocalState();
+      } catch (err) {
+        console.error('[Painel Admin] Erro na verificação de acesso:', err);
+        if (isMounted) setCheckingAdmin(false);
       }
-      setCheckingAdmin(false);
     };
 
     runVerification();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'INITIAL_SESSION') return; // Evita execução duplicada na inicialização
+      
       const activeUser = session?.user ?? null;
       if (activeUser) {
         setUser({
@@ -180,12 +193,14 @@ export default function PainelAdmin() {
         });
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
-          await loadSheetsList(true);
-          await loadStatsData();
-          await loadNewsList();
-          await loadYoutubeSettings();
-          await loadAchievements();
-          await loadUserStats();
+          Promise.allSettled([
+            loadSheetsList(true),
+            loadStatsData(),
+            loadNewsList(),
+            loadYoutubeSettings(),
+            loadAchievements(),
+            loadUserStats(),
+          ]);
         }
       } else {
         clearLocalState();
@@ -193,9 +208,10 @@ export default function PainelAdmin() {
     });
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Rastreamento de Presença em Tempo Real (Supabase Presence) para o painel admin
@@ -398,8 +414,14 @@ GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
         
         const hasAccess = await checkAdminStatus();
         if (hasAccess) {
-          await loadSheetsList(true);
-          await loadStatsData();
+          Promise.allSettled([
+            loadSheetsList(true),
+            loadStatsData(),
+            loadNewsList(),
+            loadYoutubeSettings(),
+            loadAchievements(),
+            loadUserStats(),
+          ]);
         }
       }
     } catch (err: any) {
