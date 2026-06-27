@@ -21,12 +21,13 @@ import { VampiroTracker } from '@/components/VampiroTracker';
 import { ExercitosTracker } from '@/components/ExercitosTracker';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
+import MapAllansia from '@/components/MapAllansia';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
   PlusCircle, Pencil, Trash2, BookOpen, ArrowLeft, Check, X, Bookmark,
   Volume2, VolumeX, Music, Skull, Trophy, Award, ShieldAlert,
   Instagram, Youtube, Shield, Swords, Backpack, Settings, Compass,
-  Heart, Home as HomeIcon, ChevronLeft, MoreVertical
+  Heart, Home as HomeIcon, ChevronLeft, MoreVertical, Map as MapIcon
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 import { audio, music } from '@/lib/audio';
@@ -422,6 +423,7 @@ export default function Home() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   // Load achievements on mount or user changes
   const loadAchievements = useSheetStore(state => state.loadAchievements);
@@ -1106,6 +1108,16 @@ export default function Home() {
               </>
             )}
 
+            {/* Mapa (só visível numa ficha aberta) */}
+            {showSheet && (
+              <button
+                onClick={() => setShowMapModal(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-xs uppercase font-bold tracking-wider cursor-pointer"
+              >
+                <MapIcon size={12} /> Mapa
+              </button>
+            )}
+
             {/* Música de Fundo */}
             <div className="flex items-center gap-2 border border-current px-2 py-1 rounded transition hover:bg-current/5">
               <button
@@ -1763,6 +1775,20 @@ export default function Home() {
                             title="Favoritar Ficha"
                           >
                             <Heart size={20} className={isFavorite ? 'fill-current' : ''} />
+                          </button>
+
+                          {/* Botão do Mapa */}
+                          <button
+                            onClick={() => {
+                              setShowMapModal(true);
+                              audio.playBlip();
+                            }}
+                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+                              isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                            title="Ver Mapa de Allansia"
+                          >
+                            <MapIcon size={20} />
                           </button>
                           
                           {/* Botão de Opções */}
@@ -2528,6 +2554,34 @@ export default function Home() {
             <p className={`text-xs ${isPapyrus ? 'text-[#EAD8B8]/80' : 'text-slate-400'} font-sans`}>
               Registrando sua vitória nas estatísticas...
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Modal do Mapa de Allansia */}
+      {showMapModal && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in" 
+          onClick={() => setShowMapModal(false)}
+        >
+          <div
+            className={`w-full max-w-4xl rounded-2xl overflow-hidden p-6 border shadow-2xl flex flex-col gap-4 text-left ${
+              isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]' : 'bg-slate-900 border-slate-800 text-slate-100'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
+              <h3 className="font-extrabold uppercase text-xs tracking-wider flex items-center gap-1.5 font-serif">
+                🗺️ Mapa de Allansia
+              </h3>
+              <button
+                onClick={() => setShowMapModal(false)}
+                className="text-xs font-bold border border-current/25 hover:bg-current/5 px-2.5 py-1 rounded cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
+            <MapAllansia activeBook={gamebook} isPapyrus={isPapyrus} />
           </div>
         </div>
       )}
