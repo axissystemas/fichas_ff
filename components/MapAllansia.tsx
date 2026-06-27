@@ -94,7 +94,7 @@ export const ALLANSIA_LOCATIONS: LocationData[] = [
   {
     id: 'fire_island',
     name: 'Ilha de Fogo (Fire Island / Lizard King)',
-    coords: { x: 20.0, y: 81.0 },
+    coords: { x: 18.3, y: 87.5 },
     books: ['A Ilha do Rei Lagarto'],
     description: 'A perigosa ilha tropical ao sul de Allansia, lar do Rei Lagarto.',
     lore: 'Uma ilha vulcânica habitada por perigosos homens-lagarto selvagens e monstros do período pré-histórico. Suas tribos assaltam navios mercantes e escravizam camponeses costeiros sob o jugo mental do tirânico Rei Lagarto.',
@@ -356,8 +356,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
               onClick={() => handleZoomChange(0.5)}
               disabled={zoom >= 3}
               className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
-                  : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
+                ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
+                : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
                 }`}
               title="Aumentar Zoom (+)"
             >
@@ -367,8 +367,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
               onClick={() => handleZoomChange(-0.5)}
               disabled={zoom <= 1}
               className={`w-7 h-7 flex items-center justify-center font-bold text-sm border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
-                  : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
+                ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
+                : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
                 }`}
               title="Diminuir Zoom (-)"
             >
@@ -378,8 +378,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
               onClick={() => { setZoom(1); }}
               disabled={zoom === 1}
               className={`px-2 h-7 flex items-center justify-center font-bold text-[9px] uppercase border rounded-lg transition active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isPapyrus
-                  ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
-                  : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
+                ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16] hover:bg-[#EAD8B8]/40'
+                : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'
                 }`}
               title="Resetar Zoom"
             >
@@ -547,8 +547,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                     <div className="relative flex items-center justify-center">
                       <div
                         className={`h-2.5 w-2.5 rounded-full border shadow-sm transition-colors ${selectedLocation?.id === loc.id
-                            ? 'bg-cyan-500 border-white scale-110 shadow-cyan-500/50'
-                            : 'bg-slate-500/70 border-slate-300 group-hover:bg-slate-400 group-hover:border-white'
+                          ? 'bg-cyan-500 border-white scale-110 shadow-cyan-500/50'
+                          : 'bg-slate-500/70 border-slate-300 group-hover:bg-slate-400 group-hover:border-white'
                           }`}
                       />
                     </div>
@@ -557,8 +557,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                   {/* Tooltip de Hover */}
                   <div
                     className={`absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-[10px] font-bold shadow-lg transition-all duration-200 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none border ${isPapyrus
-                        ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]'
-                        : 'bg-slate-900 border-slate-800 text-slate-100'
+                      ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]'
+                      : 'bg-slate-900 border-slate-800 text-slate-100'
                       }`}
                   >
                     {loc.name}
@@ -607,8 +607,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                 </h3>
                 {activeLocation?.id === selectedLocation.id && (
                   <span className={`px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded border animate-pulse ${isPapyrus
-                      ? 'bg-red-800/10 text-red-955 border-red-800/30'
-                      : 'bg-emerald-950/40 text-emerald-400 border-emerald-700/50'
+                    ? 'bg-red-800/10 text-red-955 border-red-800/30'
+                    : 'bg-emerald-950/40 text-emerald-400 border-emerald-700/50'
                     }`}>
                     Aventura Atual
                   </span>
@@ -628,8 +628,8 @@ export default function MapAllansia({ activeBook, isPapyrus }: MapProps) {
                   <span
                     key={idx}
                     className={`text-[9px] font-bold px-2 py-0.5 border rounded ${book.toLowerCase() === activeBook.toLowerCase()
-                        ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-[#5C4033]' : 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold')
-                        : (isPapyrus ? 'bg-[#EAD8B8]/30 text-[#2D1D16] border-[#C5A059]/40' : 'bg-slate-800/60 text-slate-350 border-slate-700')
+                      ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-[#5C4033]' : 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold')
+                      : (isPapyrus ? 'bg-[#EAD8B8]/30 text-[#2D1D16] border-[#C5A059]/40' : 'bg-slate-800/60 text-slate-350 border-slate-700')
                       }`}
                   >
                     📚 {book}
