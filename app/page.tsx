@@ -2472,8 +2472,11 @@ export default function Home() {
             ? 'border-[#5C4033]/20 text-[#5C4033]/70' 
             : 'border-[#4a5568]/30 text-slate-400'
         }`}>
-          <div>
-            © {new Date().getFullYear()} Aventuras Fantásticas. Todos os direitos reservados.
+          <div className="max-w-xl text-balance">
+            © {new Date().getFullYear()} Fichas FF • Projeto independente de fãs, sem fins lucrativos.
+            <span className="block mt-0.5 text-[11px] opacity-75">
+              "Aventuras Fantásticas" (Fighting Fantasy) e marcas relacionadas são propriedade de seus respectivos autores e editoras.
+            </span>
           </div>
           
           {/* Social Media Links */}
