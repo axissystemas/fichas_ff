@@ -3,13 +3,14 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
 
 export const DamageCard = () => {
-  const { theme, gamebook, attributes, setAttribute, inventory } = useSheetStore();
+  const { theme, gamebook, attributes, setAttribute, inventory, monsters } = useSheetStore();
   const cardClasses = theme === 'papyrus' 
     ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
   const isTraveller = gamebook === 'Nave Espacial Traveller';
   const activeId = attributes.activeCombatantId || 'captain';
+  const aliveMonster = monsters.find(m => m.status === 'alive');
 
   // Calculate damage reduction from equipped gear
   const maxReduction = inventory
@@ -54,16 +55,50 @@ export const DamageCard = () => {
     }
   };
 
+  const handleApplyMonsterDamage = () => {
+    const store = useSheetStore.getState();
+    const targetMonster = store.monsters.find(m => m.status === 'alive');
+    if (!targetMonster) return;
+
+    const nextEnergy = Math.max(0, targetMonster.energyCurrent - 2);
+    if (nextEnergy === 0 && targetMonster.energyCurrent > 0) {
+      audio.playSuccess();
+    } else {
+      audio.playHit();
+    }
+    store.updateMonsterEnergy(targetMonster.id, -2);
+    store.addCombatLog({ type: 'Dano', value: `-2 Ener (${targetMonster.name})` });
+  };
+
   return (
     <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] transition-colors flex flex-col items-center justify-between w-full h-full`}>
       <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Combate</h3>
-      <button 
-        onClick={handleApplyDamage}
-        className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${theme === 'papyrus' ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'}`}
-      >
-        Dano (-{finalDamage} {unitLabel}) {hasReduction && '🛡️'}
-        {isTraveller && <span className="block text-[10px] opacity-80 lowercase font-mono">({activeName})</span>}
-      </button>
+      
+      <div className="flex flex-col gap-2 w-full">
+        <button 
+          onClick={handleApplyMonsterDamage}
+          disabled={!aliveMonster}
+          className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${
+            !aliveMonster 
+              ? 'opacity-40 cursor-not-allowed bg-gray-600 text-gray-300' 
+              : theme === 'papyrus' 
+                ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' 
+                : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'
+          }`}
+        >
+          Dano no Monstro (-2 Ener)
+          {aliveMonster && <span className="block text-[10px] opacity-80 lowercase font-mono">({aliveMonster.name})</span>}
+        </button>
+
+        <button 
+          onClick={handleApplyDamage}
+          className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${theme === 'papyrus' ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'}`}
+        >
+          Dano no Herói (-{finalDamage} {unitLabel}) {hasReduction && '🛡️'}
+          {isTraveller && <span className="block text-[10px] opacity-80 lowercase font-mono">({activeName})</span>}
+        </button>
+      </div>
     </div>
   );
 };
+
