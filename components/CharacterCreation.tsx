@@ -5,7 +5,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { getBookIntro } from '@/lib/bookIntros';
 import { audio } from '@/lib/audio';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Dices, Shield, Heart, Clover, Flame } from 'lucide-react';
+import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users } from 'lucide-react';
 
 export const CharacterCreation = () => {
   const {
@@ -32,6 +32,7 @@ export const CharacterCreation = () => {
   const isVampiro = gamebook === 'A Cripta do Vampiro';
   const isMansao = gamebook === 'A Mansão do Inferno';
   const isZagor = gamebook === 'A Lenda de Zagor';
+  const isTraveller = gamebook === 'Nave Espacial Traveller';
   
   // Selected superpower for MEDO
   const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
@@ -48,6 +49,55 @@ export const CharacterCreation = () => {
   const [rolledFaith, setRolledFaith] = useState<number | null>(null);
   const [rolledFear, setRolledFear] = useState<number | null>(null);
   const [rolledWillpower, setRolledWillpower] = useState<number | null>(null);
+
+  // Traveller Crew & Ship state
+  const [travellerCrew, setTravellerCrew] = useState<{
+    ship: { firepower: number; shields: number };
+    science: { skill: number; energy: number };
+    engineering: { skill: number; energy: number };
+    medical: { skill: number; energy: number };
+    security: { skill: number; energy: number };
+    guard1: { skill: number; energy: number };
+    guard2: { skill: number; energy: number };
+  } | null>(null);
+  const [rollingCrew, setRollingCrew] = useState(false);
+
+  const rollTravellerCrew = () => {
+    if (rollingCrew) return;
+    setRollingCrew(true);
+    audio.playDiceRoll();
+
+    const roll1d6_6 = () => Math.floor(Math.random() * 6) + 7;
+    const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 14;
+
+    const interval = setInterval(() => {
+      setTravellerCrew({
+        ship: { firepower: roll1d6_6(), shields: roll2d6_12() },
+        science: { skill: roll1d6_6(), energy: roll2d6_12() },
+        engineering: { skill: roll1d6_6(), energy: roll2d6_12() },
+        medical: { skill: roll1d6_6(), energy: roll2d6_12() },
+        security: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard1: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard2: { skill: roll1d6_6(), energy: roll2d6_12() }
+      });
+    }, 60);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      const finalCrew = {
+        ship: { firepower: roll1d6_6(), shields: roll2d6_12() },
+        science: { skill: roll1d6_6(), energy: roll2d6_12() },
+        engineering: { skill: roll1d6_6(), energy: roll2d6_12() },
+        medical: { skill: roll1d6_6(), energy: roll2d6_12() },
+        security: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard1: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard2: { skill: roll1d6_6(), energy: roll2d6_12() }
+      };
+      setTravellerCrew(finalCrew);
+      setRollingCrew(false);
+      audio.playCoin();
+    }, 600);
+  };
 
   // Rolling states
   const [rollingSkill, setRollingSkill] = useState(false);
@@ -351,11 +401,18 @@ export const CharacterCreation = () => {
     }
 
     if (isTraveller) {
-      const roll1d6_6 = () => Math.floor(Math.random() * 6) + 1 + 6;
-      const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2 + 12;
+      const roll1d6_6 = () => Math.floor(Math.random() * 6) + 7;
+      const roll2d6_12 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 14;
 
-      const firepower = roll1d6_6();
-      const shields = roll2d6_12();
+      const crewData = travellerCrew || {
+        ship: { firepower: roll1d6_6(), shields: roll2d6_12() },
+        science: { skill: roll1d6_6(), energy: roll2d6_12() },
+        engineering: { skill: roll1d6_6(), energy: roll2d6_12() },
+        medical: { skill: roll1d6_6(), energy: roll2d6_12() },
+        security: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard1: { skill: roll1d6_6(), energy: roll2d6_12() },
+        guard2: { skill: roll1d6_6(), energy: roll2d6_12() }
+      };
 
       const createCrew = (id: string, role: string, name: string, sk: number, en: number) => ({
         id, role, name,
@@ -365,17 +422,17 @@ export const CharacterCreation = () => {
 
       const travellerData = {
         ship: {
-          firepower: { initial: firepower, current: firepower },
-          shields: { initial: shields, current: shields }
+          firepower: { initial: crewData.ship.firepower, current: crewData.ship.firepower },
+          shields: { initial: crewData.ship.shields, current: crewData.ship.shields }
         },
         crew: {
           captain: createCrew('captain', 'Capitão', 'Capitão', rolledSkill, rolledEnergy),
-          science: createCrew('science', 'Oficial de Ciências', 'Oficial de Ciências', roll1d6_6(), roll2d6_12()),
-          engineering: createCrew('engineering', 'Oficial de Engenharia', 'Oficial de Engenharia', roll1d6_6(), roll2d6_12()),
-          medical: createCrew('medical', 'Oficial de Medicina', 'Oficial de Medicina', roll1d6_6(), roll2d6_12()),
-          security: createCrew('security', 'Oficial de Segurança', 'Oficial de Segurança', roll1d6_6(), roll2d6_12()),
-          guard1: createCrew('guard1', 'Guarda de Segurança 1', 'Guarda 1', roll1d6_6(), roll2d6_12()),
-          guard2: createCrew('guard2', 'Guarda de Segurança 2', 'Guarda 2', roll1d6_6(), roll2d6_12()),
+          science: createCrew('science', 'Oficial de Ciências', 'Oficial de Ciências', crewData.science.skill, crewData.science.energy),
+          engineering: createCrew('engineering', 'Oficial de Engenharia', 'Oficial de Engenharia', crewData.engineering.skill, crewData.engineering.energy),
+          medical: createCrew('medical', 'Oficial de Medicina', 'Oficial de Medicina', crewData.medical.skill, crewData.medical.energy),
+          security: createCrew('security', 'Oficial de Segurança', 'Oficial de Segurança', crewData.security.skill, crewData.security.energy),
+          guard1: createCrew('guard1', 'Guarda de Segurança 1', 'Guarda 1', crewData.guard1.skill, crewData.guard1.energy),
+          guard2: createCrew('guard2', 'Guarda de Segurança 2', 'Guarda 2', crewData.guard2.skill, crewData.guard2.energy),
         }
       };
 
@@ -714,7 +771,9 @@ export const CharacterCreation = () => {
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
             <Shield size={16} className={isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'} />
-            <span className="text-xs uppercase font-extrabold tracking-wider">Habilidade</span>
+            <span className="text-xs uppercase font-extrabold tracking-wider">
+              {isTraveller ? 'Habilidade (Capitão)' : 'Habilidade'}
+            </span>
           </div>
 
           <div className="my-4 h-16 flex items-center justify-center">
@@ -757,7 +816,9 @@ export const CharacterCreation = () => {
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
             <Heart size={16} className={isPapyrus ? 'text-[#8B0000]' : 'text-red-400'} />
-            <span className="text-xs uppercase font-extrabold tracking-wider">Energia</span>
+            <span className="text-xs uppercase font-extrabold tracking-wider">
+              {isTraveller ? 'Energia (Capitão)' : 'Energia'}
+            </span>
           </div>
 
           <div className="my-4 h-16 flex items-center justify-center">
@@ -798,7 +859,9 @@ export const CharacterCreation = () => {
         >
           <div className="flex items-center gap-1.5 justify-center mb-1">
             <Clover size={16} className={isPapyrus ? 'text-[#006400]' : 'text-green-400'} />
-            <span className="text-xs uppercase font-extrabold tracking-wider">Sorte</span>
+            <span className="text-xs uppercase font-extrabold tracking-wider">
+              {isTraveller ? 'Sorte Global (Tripulação)' : 'Sorte'}
+            </span>
           </div>
 
           <div className="my-4 h-16 flex items-center justify-center">
@@ -1000,6 +1063,75 @@ export const CharacterCreation = () => {
           </div>
         )}
       </div>
+
+      {/* ROLAGEM DA TRIPULAÇÃO E ASTRONAVE PARA TRAVELLER */}
+      {isTraveller && (
+        <div className={`mt-8 p-6 border-2 border-dashed ${isPapyrus ? 'border-[#5C4033]/40 bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-2xl'} animate-fade-in mb-8`}>
+          <div className="text-center mb-6">
+            <h3 className={`text-xl font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-cyan-400'}`}>
+              <Rocket size={24} /> Tripulação de Ponte & Astronave Traveller
+            </h3>
+            <p className={`text-xs mt-1 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'}`}>
+              Role os dados para determinar os atributos da astronave (Poder de Fogo e Escudos) e dos oficiais.
+            </p>
+            <button
+              type="button"
+              onClick={rollTravellerCrew}
+              disabled={rollingCrew}
+              className="mt-4 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold uppercase tracking-wider rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 mx-auto cursor-pointer"
+            >
+              <Dices size={20} /> {travellerCrew ? 'Re-rolar Tripulação & Nave' : 'Rolar Toda a Tripulação & Nave'}
+            </button>
+          </div>
+
+          {travellerCrew && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+              {/* Astronave Traveller */}
+              <div className={`p-4 rounded-xl border flex flex-col gap-2 ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-slate-950/60 border-slate-700'}`}>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                  <Zap size={16} /> Astronave Traveller
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs mt-1 font-mono">
+                  <div className="p-2 rounded bg-current/5 border border-current/10">
+                    <span className="text-[9px] block opacity-70">Poder Fogo (1d6+6)</span>
+                    <span className="text-sm font-extrabold">{travellerCrew.ship.firepower}</span>
+                  </div>
+                  <div className="p-2 rounded bg-current/5 border border-current/10">
+                    <span className="text-[9px] block opacity-70">Escudos (2d6+12)</span>
+                    <span className="text-sm font-extrabold text-blue-400">{travellerCrew.ship.shields}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Oficiais */}
+              {[
+                { key: 'science', name: 'Oficial de Ciências*', data: travellerCrew.science },
+                { key: 'engineering', name: 'Oficial Engenheiro*', data: travellerCrew.engineering },
+                { key: 'medical', name: 'Oficial Médica*', data: travellerCrew.medical },
+                { key: 'security', name: 'Oficial de Segurança', data: travellerCrew.security },
+                { key: 'guard1', name: 'Guarda de Segurança 1', data: travellerCrew.guard1 },
+                { key: 'guard2', name: 'Guarda de Segurança 2', data: travellerCrew.guard2 },
+              ].map((off) => (
+                <div key={off.key} className={`p-4 rounded-xl border flex flex-col gap-2 ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-slate-950/60 border-slate-700'}`}>
+                  <span className="text-xs font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
+                    <Users size={14} className="opacity-70" /> {off.name}
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-center text-xs mt-1 font-mono">
+                    <div className="p-2 rounded bg-current/5 border border-current/10">
+                      <span className="text-[9px] block opacity-70">Hab (1d6+6)</span>
+                      <span className="text-sm font-extrabold">{off.data.skill}</span>
+                    </div>
+                    <div className="p-2 rounded bg-current/5 border border-current/10">
+                      <span className="text-[9px] block opacity-70">Energ (2d6+12)</span>
+                      <span className="text-sm font-extrabold text-red-500">{off.data.energy}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </>
   )}
 
