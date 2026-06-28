@@ -128,22 +128,22 @@ export const DamageCard = () => {
               Cancelar
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 text-xs mb-2 bg-[#EAD8B8]/60 p-2 rounded border border-[#5C4033]/20 text-center">
-            <div className="flex flex-col items-center justify-center p-1 bg-[#EAD8B8] rounded border border-[#5C4033]/20">
-              <span className="text-[9px] uppercase font-bold text-[#5C4033]">Dado</span>
-              <span className="text-base font-black text-amber-900">🎲 {wanderingResult.roll}</span>
+          <div className="grid grid-cols-2 gap-2 text-sm mb-3 bg-[#EAD8B8]/60 p-2.5 rounded border border-[#5C4033]/20 text-center">
+            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
+              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Dado</span>
+              <span className="text-xl sm:text-2xl font-black text-amber-900 mt-0.5">🎲 {wanderingResult.roll}</span>
             </div>
-            <div className="flex flex-col items-center justify-center p-1 bg-[#EAD8B8] rounded border border-[#5C4033]/20">
-              <span className="text-[9px] uppercase font-bold text-[#5C4033]">Monstro</span>
-              <span className="text-xs font-extrabold text-[#2C1E14]">{wanderingResult.monster.name}</span>
+            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
+              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Monstro</span>
+              <span className="text-sm sm:text-base font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.name}</span>
             </div>
-            <div className="flex flex-col items-center justify-center p-1 bg-[#EAD8B8] rounded border border-[#5C4033]/20">
-              <span className="text-[9px] uppercase font-bold text-[#5C4033]">Hab</span>
-              <span className="text-xs font-extrabold text-[#2C1E14]">{wanderingResult.monster.skill}</span>
+            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
+              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Habilidade</span>
+              <span className="text-base sm:text-lg font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.skill}</span>
             </div>
-            <div className="flex flex-col items-center justify-center p-1 bg-[#EAD8B8] rounded border border-[#5C4033]/20">
-              <span className="text-[9px] uppercase font-bold text-[#5C4033]">Energia</span>
-              <span className="text-xs font-extrabold text-[#2C1E14]">{wanderingResult.monster.energy}</span>
+            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
+              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Energia</span>
+              <span className="text-base sm:text-lg font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.energy}</span>
             </div>
           </div>
           <button
