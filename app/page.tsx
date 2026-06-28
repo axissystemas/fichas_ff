@@ -1103,8 +1103,8 @@ export default function Home() {
               </>
             )}
 
-            {/* Mapa (só visível numa ficha aberta) */}
-            {showSheet && (
+            {/* Mapa (só visível numa ficha aberta e se não for Traveller) */}
+            {showSheet && gamebook !== 'Nave Espacial Traveller' && (
               <button
                 onClick={() => setShowMapModal(true)}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 border border-current hover:bg-[#3D2B1F]/10 transition text-xs uppercase font-bold tracking-wider cursor-pointer"
@@ -1770,17 +1770,19 @@ export default function Home() {
                           </button>
 
                           {/* Botão do Mapa */}
-                          <button
-                            onClick={() => {
-                              setShowMapModal(true);
-                              audio.playBlip();
-                            }}
-                            className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
-                              }`}
-                            title="Ver Mapa de Allansia"
-                          >
-                            <MapIcon size={20} />
-                          </button>
+                          {gamebook !== 'Nave Espacial Traveller' && (
+                            <button
+                              onClick={() => {
+                                setShowMapModal(true);
+                                audio.playBlip();
+                              }}
+                              className={`p-2 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${isPapyrus ? 'text-[#EAD8B8]/50 hover:text-[#EAD8B8]' : 'text-slate-400 hover:text-slate-200'
+                                }`}
+                              title="Ver Mapa de Allansia"
+                            >
+                              <MapIcon size={20} />
+                            </button>
+                          )}
 
                           {/* Botão de Opções */}
                           <button
