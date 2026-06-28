@@ -156,7 +156,9 @@ export const MonsterManager = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold uppercase text-center border-b-2 border-[#2C1E14] pb-2 mb-4">Encontro com Monstros</h2>
+      <h2 className="text-xl font-bold uppercase text-center border-b-2 border-[#2C1E14] pb-2 mb-4">
+        {gamebook === 'Nave Espacial Traveller' ? 'Encontros' : 'Encontro com Monstros'}
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 max-h-80 overflow-y-auto pr-1">
         {monsters.map(monster => {
           const isLowEnergy = (monster.energyCurrent / monster.energyMax) < 0.25;
@@ -223,7 +225,7 @@ export const MonsterManager = () => {
                 setShowSuggestions(true);
               }} 
               onFocus={() => setShowSuggestions(true)}
-              placeholder="Nome do monstro" 
+              placeholder={gamebook === 'Nave Espacial Traveller' ? 'Nome do encontro' : 'Nome do monstro'} 
               className="p-3 pr-10 border border-[#5C4033] bg-[#EAD8B8] text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059] w-full" 
             />
             {bookMonsters && bookMonsters.length > 0 && attributes.suggestionsEnabled !== false && (
@@ -271,7 +273,7 @@ export const MonsterManager = () => {
         </label>
       </div>
       <button onClick={handleAddMonster} className="w-full bg-[#2C1E14] text-[#EAD8B8] py-3 uppercase font-bold text-sm tracking-widest hover:bg-[#4A3728] transition">
-        + Adicionar Novo Monstro
+        {gamebook === 'Nave Espacial Traveller' ? '+ Adicionar Novo Encontro' : '+ Adicionar Novo Monstro'}
       </button>
     </div>
   );

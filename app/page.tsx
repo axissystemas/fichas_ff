@@ -2049,11 +2049,9 @@ export default function Home() {
                           </p>
                         )}
 
-                        {gamebook !== 'Nave Espacial Traveller' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <MonsterManager />
-                          </div>
-                        )}
+                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                          <MonsterManager />
+                        </div>
 
                         <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                           <DamageCard />
@@ -2355,13 +2353,7 @@ export default function Home() {
                       <div className="lg:col-span-4 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
-                          {gamebook === 'Nave Espacial Traveller' ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                              <DamageCard />
-                              <AttackCard key={`attack-${resetKey}`} />
-                              <DiceRoller key={`roller-${resetKey}`} />
-                            </div>
-                          ) : gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
+                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                               <div className="xl:col-span-2 flex flex-col gap-6">
                                 <section
