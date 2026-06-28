@@ -2103,13 +2103,17 @@ export default function Home() {
                           </h3>
                         </div>
 
-                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                          <GoldAndProvisions />
-                        </div>
+                        {gamebook !== 'Nave Espacial Traveller' && (
+                          <>
+                            <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                              <GoldAndProvisions />
+                            </div>
 
-                        <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                          <InventoryManager />
-                        </div>
+                            <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
+                              <InventoryManager />
+                            </div>
+                          </>
+                        )}
 
                         <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                           <CombatHistory />
@@ -2405,20 +2409,29 @@ export default function Home() {
                         )}
 
                         {/* Seção do Inventário (Desktop) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <section
-                            className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
-                              }`}
-                          >
-                            <InventoryManager />
-                          </section>
+                        {gamebook === 'Nave Espacial Traveller' ? (
                           <section
                             className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                               }`}
                           >
                             <CombatHistory />
                           </section>
-                        </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <section
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                                }`}
+                            >
+                              <InventoryManager />
+                            </section>
+                            <section
+                              className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
+                                }`}
+                            >
+                              <CombatHistory />
+                            </section>
+                          </div>
+                        )}
 
                         {/* Vantagens & Desvantagens (Desktop - A Lenda de Zagor) */}
                         {gamebook === 'A Lenda de Zagor' && attributes.selectedHero && (
@@ -2448,14 +2461,17 @@ export default function Home() {
                         )}
 
                         {/* BLOCO INFERIOR (Desktop) */}
-                        <section>
-                          <GoldAndProvisions />
-                        </section>
+                        {gamebook !== 'Nave Espacial Traveller' && (
+                          <>
+                            <section>
+                              <GoldAndProvisions />
+                            </section>
 
-                        {/* BLOCO INFERIOR (Desktop) */}
-                        <section className="flex flex-col min-h-[350px]">
-                          <NotesCard />
-                        </section>
+                            <section className="flex flex-col min-h-[350px]">
+                              <NotesCard />
+                            </section>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
