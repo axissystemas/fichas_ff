@@ -39,11 +39,29 @@ export const DiceRoller = () => {
     ? 'border border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] focus:outline-none focus:ring-1 focus:ring-[#C5A059] px-2 py-1.5 text-xs font-serif'
     : 'border border-[#4a5568] bg-slate-900 text-[#cbd5e0] focus:outline-none focus:ring-1 focus:ring-cyan-500/50 px-2 py-1.5 text-xs font-sans rounded';
 
+  const isTraveller = gamebook === 'Nave Espacial Traveller';
+  const activeId = attributes.activeCombatantId || 'captain';
+
+  const getAttributeVal = (key: AttributeKey) => {
+    if (isTraveller) {
+      if (key === 'luck') return getModifiedAttribute('luck');
+      if (activeId === 'ship') {
+        if (key === 'skill') return attributes.traveller?.ship?.firepower?.current ?? 0;
+        if (key === 'energy') return attributes.traveller?.ship?.shields?.current ?? 0;
+      } else {
+        const member = attributes.traveller?.crew?.[activeId];
+        if (key === 'skill') return member?.skill?.current ?? 0;
+        if (key === 'energy') return member?.energy?.current ?? 0;
+      }
+    }
+    return getModifiedAttribute(key);
+  };
+
   // Compute available attributes dynamically based on the gamebook
   const availableAttributes: { key: AttributeKey; label: string }[] = [
-    { key: 'skill', label: 'Habilidade' },
-    { key: 'energy', label: 'Energia' },
-    { key: 'luck', label: 'Sorte' },
+    { key: 'skill', label: isTraveller && activeId === 'ship' ? 'Poder de Fogo' : 'Habilidade' },
+    { key: 'energy', label: isTraveller && activeId === 'ship' ? 'Escudos' : 'Energia' },
+    { key: 'luck', label: isTraveller ? 'Sorte Global' : 'Sorte' },
   ];
 
   if (gamebook === 'A Cidadela do Caos') {
@@ -54,7 +72,28 @@ export const DiceRoller = () => {
 
   const runAttributeTest = () => {
     audio.playDiceRoll();
-    const attrValue = getModifiedAttribute(selectedAttr);
+    const store = useSheetStore.getState();
+    const currentIsTrav = store.gamebook === 'Nave Espacial Traveller';
+    const currentActiveId = store.attributes.activeCombatantId || 'captain';
+
+    let attrValue = store.getModifiedAttribute(selectedAttr);
+    let combatantName = '';
+
+    if (currentIsTrav) {
+      if (selectedAttr === 'luck') {
+        attrValue = store.getModifiedAttribute('luck');
+        combatantName = 'Tripulação';
+      } else if (currentActiveId === 'ship') {
+        if (selectedAttr === 'skill') attrValue = store.attributes.traveller?.ship?.firepower?.current ?? 0;
+        if (selectedAttr === 'energy') attrValue = store.attributes.traveller?.ship?.shields?.current ?? 0;
+        combatantName = 'Astronave Traveller';
+      } else {
+        const member = store.attributes.traveller?.crew?.[currentActiveId];
+        if (selectedAttr === 'skill') attrValue = member?.skill?.current ?? 0;
+        if (selectedAttr === 'energy') attrValue = member?.energy?.current ?? 0;
+        combatantName = member?.name || 'Capitão';
+      }
+    }
 
     const d1 = Math.floor(Math.random() * 6) + 1;
     const d2 = Math.floor(Math.random() * 6) + 1;
@@ -75,13 +114,13 @@ export const DiceRoller = () => {
       dice: [d1, d2],
       total,
       success,
-      attributeLabel: attrLabel,
+      attributeLabel: currentIsTrav ? `${attrLabel} (${combatantName})` : attrLabel,
       targetValue: attrValue,
     });
 
     addCombatLog({
       type: 'Teste',
-      value: `Teste de ${attrLabel}: Rolou ${total} [🎲${d1} + 🎲${d2}] vs ${attrValue} (${success ? 'Sucesso' : 'Falha'})`
+      value: `Teste de ${attrLabel}${combatantName ? ` (${combatantName})` : ''}: Rolou ${total} [🎲${d1} + 🎲${d2}] vs ${attrValue} (${success ? 'Sucesso' : 'Falha'})`
     });
 
     // Play outcome sound with a slight delay
@@ -146,7 +185,7 @@ export const DiceRoller = () => {
                   value={attr.key}
                   className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}
                 >
-                  {attr.label} (atual: {getModifiedAttribute(attr.key)})
+                  {attr.label} (atual: {getAttributeVal(attr.key)})
                 </option>
               ))}
             </select>

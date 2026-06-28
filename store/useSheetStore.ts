@@ -237,6 +237,7 @@ interface SheetState {
     selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
     traveller?: TravellerData;
+    activeCombatantId?: string;
   };
   gold: number;
   provisions: number;
@@ -373,6 +374,7 @@ interface SheetState {
   updateTravellerCrewAttribute: (memberId: string, attr: 'skill' | 'energy', value: number, isInitial: boolean) => void;
   promoteCrewAssistant: (memberId: string, newSkillInitial: number, newEnergyInitial: number) => void;
   toggleCrewMemberDead: (memberId: string) => void;
+  setActiveCombatantId: (id: string) => void;
 
   // Supabase actions
   setSyncStatus: (status: SyncStatus) => void;
@@ -1015,6 +1017,15 @@ export const useSheetStore = create<SheetState>()(
             },
           };
         });
+        scheduleSave(get());
+      },
+      setActiveCombatantId: (id) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            activeCombatantId: id,
+          },
+        }));
         scheduleSave(get());
       },
       castSpell: (spellKey) => {

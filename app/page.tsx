@@ -23,6 +23,7 @@ import { TravellerTracker } from '@/components/TravellerTracker';
 import { TravellerOfficialSheet } from '@/components/TravellerOfficialSheet';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
+import { ActiveCombatantSelector } from '@/components/ActiveCombatantSelector';
 import MapAllansia from '@/components/MapAllansia';
 import {
   Sun, Moon, RotateCcw, Upload, Download, Loader2,
@@ -2043,6 +2044,8 @@ export default function Home() {
                           </h3>
                         </div>
 
+                        <ActiveCombatantSelector />
+
                         {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
                           <p className="text-[9px] uppercase font-bold tracking-wider text-center p-2 border border-red-500/25 bg-red-950/10 rounded-xl text-red-400 animate-pulse">
                             ⚠️ Derrotar criminosos permanentemente custa 1 Ponto de Herói. Prefira apenas capturá-los!
@@ -2353,6 +2356,7 @@ export default function Home() {
                       <div className="lg:col-span-4 flex flex-col gap-6">
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
+                          <ActiveCombatantSelector />
                           {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                               <div className="xl:col-span-2 flex flex-col gap-6">

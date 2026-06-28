@@ -7,23 +7,47 @@ import { audio } from '@/lib/audio';
 interface AttackResult {
   id: string;
   adventurer: number;
+  adventurerName: string;
   monster: number | null;
   monsterName: string | null;
 }
 
 export const AttackCard = () => {
   const [result, setResult] = useState<AttackResult | null>(null);
-  const { theme } = useSheetStore();
+  const { theme, gamebook, attributes } = useSheetStore();
   const cardClasses = theme === 'papyrus' 
     ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
+  const isTraveller = gamebook === 'Nave Espacial Traveller';
+  const activeId = attributes.activeCombatantId || 'captain';
+  const activeName = isTraveller
+    ? activeId === 'ship'
+      ? 'Traveller'
+      : attributes.traveller?.crew?.[activeId]?.name || 'Capitão'
+    : '';
+
   const rollAttack = () => {
     audio.playDiceRoll();
     const store = useSheetStore.getState();
-    const skill = store.getModifiedAttribute('skill');
+    const isTrav = store.gamebook === 'Nave Espacial Traveller';
+    const currentActiveId = store.attributes.activeCombatantId || 'captain';
+
+    let skill = store.getModifiedAttribute('skill');
+    let combatantName = 'Aventureiro';
+
+    if (isTrav) {
+      if (currentActiveId === 'ship') {
+        skill = store.attributes.traveller?.ship?.firepower?.current ?? 0;
+        combatantName = 'Astronave Traveller';
+      } else {
+        const member = store.attributes.traveller?.crew?.[currentActiveId];
+        skill = member?.skill?.current ?? 0;
+        combatantName = member?.name || 'Capitão';
+      }
+    }
     
-    // 2d6 para aventureiro
+    // 2d6 para aventureiro / combatente
     const advDice = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
     const advTotal = advDice + skill;
     
@@ -37,13 +61,14 @@ export const AttackCard = () => {
       setResult({
         id: crypto.randomUUID(),
         adventurer: advTotal,
+        adventurerName: combatantName,
         monster: monsterTotal,
         monsterName: aliveMonster.name
       });
       
       store.addCombatLog({ 
         type: 'Combate', 
-        value: `Aventureiro (${advTotal}) vs ${aliveMonster.name} (${monsterTotal})` 
+        value: `${combatantName} (${advTotal}) vs ${aliveMonster.name} (${monsterTotal})` 
       });
 
       // Play appropriate sound effect with delay to follow dice roll sound
@@ -60,23 +85,25 @@ export const AttackCard = () => {
       setResult({
         id: crypto.randomUUID(),
         adventurer: advTotal,
+        adventurerName: combatantName,
         monster: null,
         monsterName: null
       });
-      store.addCombatLog({ type: 'Ataque', value: advTotal.toString() });
+      store.addCombatLog({ type: 'Ataque', value: `${combatantName}: ${advTotal}` });
     }
   };
 
   const isPapyrus = theme === 'papyrus';
 
   return (
-    <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] gap-2 transition-colors flex flex-col items-center`}>
+    <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] gap-2 transition-colors flex flex-col items-center justify-between w-full h-full`}>
       <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${isPapyrus ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Ataque</h3>
       <button 
         onClick={rollAttack}
-        className={`w-full py-2 uppercase font-bold text-sm tracking-widest transition ${isPapyrus ? 'bg-[#2C1E14] text-[#C5A059] hover:bg-[#4A3728]' : 'bg-[#2d3748] text-[#cbd5e0] hover:bg-[#4a5568]'}`}
+        className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${isPapyrus ? 'bg-[#2C1E14] text-[#C5A059] hover:bg-[#4A3728]' : 'bg-[#2d3748] text-[#cbd5e0] hover:bg-[#4a5568]'}`}
       >
         Rolar Ataque
+        {isTraveller && <span className="block text-[10px] opacity-80 lowercase font-mono">({activeName})</span>}
       </button>
       
       {result !== null && (
@@ -88,7 +115,7 @@ export const AttackCard = () => {
           className="mt-4 w-full flex flex-col gap-2 text-sm"
         >
           <div className={`flex justify-between items-center p-2 border-b ${isPapyrus ? 'border-[#5C4033]/20' : 'border-[#4a5568]/50'} ${result.monster !== null && result.adventurer > result.monster ? (isPapyrus ? 'bg-green-800/10' : 'bg-green-500/20') : ''}`}>
-            <span className="font-bold">Aventureiro</span>
+            <span className="font-bold truncate max-w-[130px]">{result.adventurerName}</span>
             <span className="text-2xl font-extrabold">{result.adventurer}</span>
           </div>
 
