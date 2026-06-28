@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { motion } from 'motion/react';
 import { audio } from '@/lib/audio';
@@ -16,7 +17,9 @@ import {
   Zap, 
   UserX, 
   Copy,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 const CIDADELA_SPELLS = [
@@ -51,6 +54,7 @@ const spellMeta: Record<string, { icon: any; colorClass: string; effectBadge?: s
 
 export const CidadelaTracker = () => {
   const { attributes, castSpell, theme } = useSheetStore();
+  const [isOpen, setIsOpen] = useState(true);
   
   const spells = attributes.spells || {};
   const isPapyrus = theme === 'papyrus';
@@ -75,87 +79,110 @@ export const CidadelaTracker = () => {
     ? 'border-4 border-[#5C4033] bg-[#FDF6E3] p-6 shadow-[-8px_8px_0px_rgba(0,0,0,0.15)] font-serif mb-6'
     : 'border border-purple-500/30 bg-slate-950/60 backdrop-blur-md p-6 rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.1)] mb-6';
 
-  const titleClass = isPapyrus
-    ? 'text-xl font-extrabold uppercase tracking-widest text-[#5C4033] mb-4 flex items-center gap-2 border-b-2 border-[#5C4033]/20 pb-2'
-    : 'text-xl font-bold uppercase tracking-widest bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent mb-4 flex items-center gap-2 border-b border-slate-800 pb-2';
-
   return (
     <div className={wrapperClass}>
-      <h3 className={titleClass}>
-        <BookOpen size={20} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
-        <span>Grimório de Feitiços</span>
-      </h3>
+      <div className={`flex justify-between items-center border-b-2 pb-2 mb-4 ${isPapyrus ? 'border-[#5C4033]/20' : 'border-slate-800'}`}>
+        <h3 className={`text-xl font-extrabold uppercase tracking-widest flex items-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent'}`}>
+          <BookOpen size={20} className={isPapyrus ? 'text-[#5C4033]' : 'text-purple-400'} />
+          <span>Grimório de Feitiços</span>
+        </h3>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`flex items-center gap-1 text-xs font-bold uppercase px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            isPapyrus
+              ? 'bg-[#5C4033] text-[#EAD8B8] hover:bg-[#2C1E14]'
+              : 'bg-purple-900/60 text-purple-200 hover:bg-purple-800/80 border border-purple-500/30'
+          }`}
+        >
+          {isOpen ? (
+            <>
+              <ChevronUp size={16} /> Ocultar
+            </>
+          ) : (
+            <>
+              <ChevronDown size={16} /> Exibir Feitiços
+            </>
+          )}
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-3">
-        {activeSpells.map((spell) => {
-          const qty = spells[spell.key] || 0;
-          const meta = spellMeta[spell.key] || { icon: Wand2, colorClass: '' };
-          const Icon = meta.icon;
-          const isOut = qty === 0;
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+        >
+          {activeSpells.map((spell) => {
+            const qty = spells[spell.key] || 0;
+            const meta = spellMeta[spell.key] || { icon: Wand2, colorClass: '' };
+            const Icon = meta.icon;
+            const isOut = qty === 0;
 
-          const cardClass = isPapyrus
-            ? `border-2 p-2.5 flex flex-col justify-between transition-all duration-200 ${
-                isOut 
-                  ? 'border-[#5C4033]/20 bg-[#5C4033]/5 opacity-50' 
-                  : 'border-[#5C4033] bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/35'
-              }`
-            : `border bg-slate-900/40 p-2.5 flex flex-col justify-between transition-all duration-200 rounded-xl ${
-                isOut
-                  ? 'border-slate-800/40 opacity-40'
-                  : 'border-purple-500/25 bg-gradient-to-br ' + meta.colorClass + ' hover:border-purple-500/50'
-              }`;
+            const cardClass = isPapyrus
+              ? `border-2 p-2.5 flex flex-col justify-between transition-all duration-200 ${
+                  isOut 
+                    ? 'border-[#5C4033]/20 bg-[#5C4033]/5 opacity-50' 
+                    : 'border-[#5C4033] bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/35'
+                }`
+              : `border bg-slate-900/40 p-2.5 flex flex-col justify-between transition-all duration-200 rounded-xl ${
+                  isOut
+                    ? 'border-slate-800/40 opacity-40'
+                    : 'border-purple-500/25 bg-gradient-to-br ' + meta.colorClass + ' hover:border-purple-500/50'
+                }`;
 
-          const buttonClass = isPapyrus
-            ? 'w-full py-1 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
-            : 'w-full py-1 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
+            const buttonClass = isPapyrus
+              ? 'w-full py-1 px-3 bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#5C4033] disabled:bg-[#5C4033]/20 disabled:text-[#5C4033]/40 font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer'
+              : 'w-full py-1 px-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-100 font-bold text-[10px] uppercase tracking-wider transition-all rounded-lg cursor-pointer';
 
-          return (
-            <div key={spell.key} className={cardClass}>
-              <div>
-                <div className="flex justify-between items-start mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Icon size={14} className={isPapyrus ? 'text-[#5C4033]' : ''} />
-                    <h4 className={`font-bold text-[11px] uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                      {spell.name}
-                    </h4>
-                  </div>
-                  <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    isPapyrus 
-                      ? 'bg-[#5C4033]/15 text-[#5C4033]' 
-                      : 'bg-purple-950/40 text-purple-300'
-                  }`}>
-                    {qty} {qty === 1 ? 'c' : 'c'}
-                  </span>
-                </div>
-                
-                <p className={`text-[10px] leading-relaxed mb-2 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
-                  {spell.description}
-                </p>
-
-                {meta.effectBadge && !isOut && (
-                  <div className="mb-2">
-                    <span className={`text-[8px] uppercase font-bold tracking-wider px-1 py-0.5 rounded ${
+            return (
+              <div key={spell.key} className={cardClass}>
+                <div>
+                  <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <Icon size={14} className={isPapyrus ? 'text-[#5C4033]' : ''} />
+                      <h4 className={`font-bold text-[11px] uppercase tracking-wide ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                        {spell.name}
+                      </h4>
+                    </div>
+                    <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
                       isPapyrus 
-                        ? 'bg-[#8B4513]/10 text-[#8B4513]' 
-                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                        ? 'bg-[#5C4033]/15 text-[#5C4033]' 
+                        : 'bg-purple-950/40 text-purple-300'
                     }`}>
-                      ⚡ {meta.effectBadge}
+                      {qty} c
                     </span>
                   </div>
-                )}
-              </div>
+                  
+                  <p className={`text-[10px] leading-relaxed mb-2 ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400'} font-sans`}>
+                    {spell.description}
+                  </p>
 
-              <button
-                onClick={() => handleCast(spell.key, spell.name)}
-                disabled={isOut}
-                className={buttonClass}
-              >
-                {isOut ? 'Esgotado' : 'Conjurar'}
-              </button>
-            </div>
-          );
-        })}
-      </div>
+                  {meta.effectBadge && !isOut && (
+                    <div className="mb-2">
+                      <span className={`text-[8px] uppercase font-bold tracking-wider px-1 py-0.5 rounded ${
+                        isPapyrus 
+                          ? 'bg-[#8B4513]/10 text-[#8B4513]' 
+                          : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                      }`}>
+                        ⚡ {meta.effectBadge}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => handleCast(spell.key, spell.name)}
+                  disabled={isOut}
+                  className={buttonClass}
+                >
+                  {isOut ? 'Esgotado' : 'Conjurar'}
+                </button>
+              </div>
+            );
+          })}
+        </motion.div>
+      )}
     </div>
   );
 };
+

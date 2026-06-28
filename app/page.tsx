@@ -2357,7 +2357,7 @@ export default function Home() {
                         {/* Seção de Combate (Desktop) */}
                         <div className="flex flex-col gap-6">
                           <ActiveCombatantSelector />
-                          {gamebook === 'A Cidadela do Caos' || gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
+                          {gamebook === 'A Cripta do Vampiro' || gamebook === 'Exércitos da Morte' ? (
                             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                               <div className="xl:col-span-2 flex flex-col gap-6">
                                 <section
@@ -2374,7 +2374,6 @@ export default function Home() {
                                 </div>
                               </div>
                               <div className="xl:col-span-1">
-                                {gamebook === 'A Cidadela do Caos' && <CidadelaTracker />}
                                 {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
                                 {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
                               </div>
@@ -2401,6 +2400,10 @@ export default function Home() {
                             </>
                           )}
                         </div>
+
+                        {gamebook === 'A Cidadela do Caos' && (
+                          <CidadelaTracker />
+                        )}
 
                         {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
                           <GrimorioAmarilleo />
