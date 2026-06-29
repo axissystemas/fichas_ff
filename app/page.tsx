@@ -759,49 +759,53 @@ export default function Home() {
 
     const fetchRecentAchievements = async () => {
       try {
-        const { data, error } = await supabase.rpc('get_recent_achievements');
-        if (!error && data && data.length > 0) {
-          const mapped = data.map((item: any) => {
-            const def = ACHIEVEMENTS.find(a => a.id === item.achievement_id);
+        const { data: rawAchievements, error: tableError } = await supabase
+          .from('user_achievements')
+          .select('user_id, achievement_id, unlocked_at')
+          .order('unlocked_at', { ascending: false })
+          .limit(20);
+
+        if (!tableError && rawAchievements && rawAchievements.length > 0) {
+          const userIds = Array.from(new Set(rawAchievements.map(a => a.user_id)));
+
+          const { data: sheets } = await supabase
+            .from('adventure_sheets')
+            .select('user_id, title, updated_at')
+            .in('user_id', userIds)
+            .order('updated_at', { ascending: false });
+
+          const sheetMap = new Map<string, string>();
+          sheets?.forEach(s => {
+            if (!sheetMap.has(s.user_id) && s.title) {
+              sheetMap.set(s.user_id, s.title);
+            }
+          });
+
+          const { data: profiles } = await supabase
+            .from('user_profiles')
+            .select('id, display_name')
+            .in('id', userIds);
+
+          const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
+
+          // Filtra apenas conquistas de usuários que possuem fichas ativas no banco de dados
+          const validAchievements = rawAchievements.filter(a => sheetMap.has(a.user_id));
+
+          const mapped = validAchievements.slice(0, 5).map(a => {
+            const def = ACHIEVEMENTS.find(ach => ach.id === a.achievement_id);
+            const sheetTitle = sheetMap.get(a.user_id);
+            const profileName = profileMap.get(a.user_id) || 'Aventureiro';
+            const displayName = sheetTitle || (profileName.includes('@') ? profileName.split('@')[0] : profileName);
+
             return {
-              display_name: item.display_name,
+              display_name: displayName,
               achievement_title: def ? def.title : 'Nova Conquista',
               achievement_icon: def ? def.icon : '🏆',
-              unlocked_at: item.unlocked_at
+              unlocked_at: a.unlocked_at
             };
           });
+
           setRecentAchievements(mapped);
-        } else {
-          const { data: rawAchievements, error: tableError } = await supabase
-            .from('user_achievements')
-            .select('user_id, achievement_id, unlocked_at')
-            .order('unlocked_at', { ascending: false })
-            .limit(5);
-
-          if (!tableError && rawAchievements && rawAchievements.length > 0) {
-            const userIds = Array.from(new Set(rawAchievements.map(a => a.user_id)));
-
-            const { data: profiles } = await supabase
-              .from('user_profiles')
-              .select('id, display_name')
-              .in('id', userIds);
-
-            const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
-
-            const mapped = rawAchievements.map(a => {
-              const def = ACHIEVEMENTS.find(ach => ach.id === a.achievement_id);
-              const displayName = profileMap.get(a.user_id) || 'Aventureiro';
-              const cleanName = displayName.includes('@') ? displayName.split('@')[0] : displayName;
-
-              return {
-                display_name: cleanName,
-                achievement_title: def ? def.title : 'Nova Conquista',
-                achievement_icon: def ? def.icon : '🏆',
-                unlocked_at: a.unlocked_at
-              };
-            });
-            setRecentAchievements(mapped);
-          }
         }
       } catch (err) {
         console.warn('Erro ao carregar conquistas recentes:', err);
