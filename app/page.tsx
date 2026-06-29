@@ -759,13 +759,25 @@ export default function Home() {
 
     const fetchRecentAchievements = async () => {
       try {
-        const { data: rawAchievements, error: tableError } = await supabase
+        const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
+
+        let { data: rawAchievements, error: tableError } = await supabase
           .from('user_achievements')
           .select('user_id, achievement_id, unlocked_at')
+          .gte('unlocked_at', fifteenDaysAgo)
           .order('unlocked_at', { ascending: false })
-          .limit(20);
+          .limit(10);
 
-        if (!tableError && rawAchievements && rawAchievements.length > 0) {
+        if (!tableError && (!rawAchievements || rawAchievements.length < 3)) {
+          const { data: fallbackAchievements } = await supabase
+            .from('user_achievements')
+            .select('user_id, achievement_id, unlocked_at')
+            .order('unlocked_at', { ascending: false })
+            .limit(10);
+          rawAchievements = fallbackAchievements || [];
+        }
+
+        if (rawAchievements && rawAchievements.length > 0) {
           const userIds = Array.from(new Set(rawAchievements.map(a => a.user_id)));
 
           const { data: sheets } = await supabase
@@ -788,14 +800,21 @@ export default function Home() {
 
           const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
 
-          // Filtra apenas conquistas de usuários que possuem fichas ativas no banco de dados
-          const validAchievements = rawAchievements.filter(a => sheetMap.has(a.user_id));
-
-          const mapped = validAchievements.slice(0, 5).map(a => {
+          const mapped = rawAchievements.slice(0, 6).map(a => {
             const def = ACHIEVEMENTS.find(ach => ach.id === a.achievement_id);
             const sheetTitle = sheetMap.get(a.user_id);
-            const profileName = profileMap.get(a.user_id) || 'Aventureiro';
-            const displayName = sheetTitle || (profileName.includes('@') ? profileName.split('@')[0] : profileName);
+            const profileName = profileMap.get(a.user_id);
+
+            let displayName = 'Aventureiro';
+            if (sheetTitle && sheetTitle.trim()) {
+              displayName = sheetTitle.trim();
+            } else if (profileName) {
+              if (profileName.includes('@')) {
+                displayName = profileName.split('@')[0];
+              } else {
+                displayName = profileName.trim().split(' ')[0];
+              }
+            }
 
             return {
               display_name: displayName,
