@@ -28,19 +28,20 @@ export function YouTubeLiveStream() {
 
   // Determine the correct embed URL
   const videoId = extractYoutubeId(videoUrl);
+  const safeChannelId = channelId && /^[a-zA-Z0-9_-]+$/.test(channelId.trim()) ? encodeURIComponent(channelId.trim()) : '';
   let embedUrl = '';
 
   if (isLive) {
     if (videoId) {
       embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-    } else {
-      embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1`;
+    } else if (safeChannelId) {
+      embedUrl = `https://www.youtube.com/embed/live_stream?channel=${safeChannelId}&autoplay=1&mute=1`;
     }
   } else {
     if (videoId) {
       embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else {
-      embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}`;
+    } else if (safeChannelId) {
+      embedUrl = `https://www.youtube.com/embed/live_stream?channel=${safeChannelId}`;
     }
   }
 
