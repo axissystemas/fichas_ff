@@ -517,6 +517,7 @@ export const useSheetStore = create<SheetState>()(
           if (error) throw error;
 
           set({ sheetsList: data || [], syncStatus: 'idle' });
+          get().updateUserSession();
         } catch (err) {
           console.error('[Supabase] loadSheetsList error:', err);
           set({ syncStatus: 'idle', sheetsList: [] });
@@ -560,6 +561,7 @@ export const useSheetStore = create<SheetState>()(
               syncStatus: 'saved',
               lastSynced: new Date().toISOString(),
             });
+            get().updateUserSession();
           }
         } catch (err) {
           console.error('[Supabase] loadSheet error:', err);
@@ -1505,6 +1507,9 @@ export const useSheetStore = create<SheetState>()(
         const user = get().user;
         if (!user) return;
         try {
+          const activeSheet = get().sheetsList.find(s => s.id === get().activeSheetId);
+          const characterName = activeSheet?.title || (get().sheetsList.length > 0 ? get().sheetsList[0].title : 'Aventureiro');
+
           const { data: profile, error } = await supabase
             .from('user_profiles')
             .select('*')
@@ -1534,7 +1539,7 @@ export const useSheetStore = create<SheetState>()(
               .from('user_profiles')
               .update({
                 email: user.email,
-                display_name: user.user_metadata?.full_name || user.email,
+                display_name: characterName,
                 last_login: now.toISOString(),
                 login_streak: streak,
               })
@@ -1545,7 +1550,7 @@ export const useSheetStore = create<SheetState>()(
               .insert({
                 id: user.id,
                 email: user.email,
-                display_name: user.user_metadata?.full_name || user.email,
+                display_name: characterName,
                 last_login: now.toISOString(),
                 login_streak: 1,
                 total_play_time: 0,

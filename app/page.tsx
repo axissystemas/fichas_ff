@@ -827,7 +827,8 @@ export default function Home() {
 
     channel.subscribe(async (statusSubscription) => {
       if (statusSubscription === 'SUBSCRIBED') {
-        const name = user.user_metadata?.full_name || user.email || 'Jogador Anônimo';
+        const activeSheet = sheetsList.find(s => s.id === activeSheetId);
+        const name = activeSheet?.title || (sheetsList.length > 0 ? sheetsList[0].title : 'Aventureiro');
 
         let displayGamebook = 'Menu Principal';
         let displaySection = '-';
