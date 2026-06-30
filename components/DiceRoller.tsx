@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
+import { Die, getDiceStyle } from './Die';
 
 type AttributeKey = 'skill' | 'energy' | 'luck' | 'magic' | 'faith';
 
@@ -15,29 +16,6 @@ interface RollResult {
   attributeLabel?: string;
   targetValue?: number;
 }
-
-interface DieProps {
-  value: number;
-  rolling: boolean;
-  styleClass: string;
-}
-
-const Die = ({ value, rolling, styleClass }: DieProps) => {
-  return (
-    <motion.div
-      animate={rolling ? {
-        rotateX: [0, 360, 720, 1080],
-        rotateY: [0, 360, 720, 1080],
-        scale: [1, 1.2, 0.9, 1.1, 1],
-      } : { rotate: 0, scale: [0.8, 1.05, 1] }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-      className={`text-2xl font-black flex items-center justify-center w-10 h-10 border-2 rounded-xl select-none transition-all ${styleClass}`}
-      style={{ perspective: 400 }}
-    >
-      <span className="drop-shadow-sm">{value}</span>
-    </motion.div>
-  );
-};
 
 export const DiceRoller = () => {
   const [selectedAttr, setSelectedAttr] = useState<AttributeKey>('skill');
@@ -95,20 +73,7 @@ export const DiceRoller = () => {
     availableAttributes.push({ key: 'faith', label: 'Fé' });
   }
 
-  const getDiceStyle = () => {
-    if (gamebook === 'Nave Espacial Traveller') {
-      return 'border-cyan-500 bg-slate-950 text-cyan-400 font-mono shadow-[0_0_10px_rgba(6,182,212,0.55)]';
-    }
-    if (gamebook === 'Encontro Marcado com o M.E.D.O.') {
-      return 'border-yellow-400 bg-red-600 text-yellow-100 font-sans shadow-md transform rotate-3';
-    }
-    if (gamebook === 'A Floresta da Destruição') {
-      return 'border-emerald-500 bg-emerald-950 text-emerald-300 font-serif shadow-[inset_0_0_8px_rgba(0,0,0,0.6)]';
-    }
-    return isPapyrus
-      ? 'border-[#5C4033] bg-[#EAD8B8] text-[#2D1D16] font-serif shadow-inner'
-      : 'border-slate-650 bg-slate-800 text-slate-100 font-sans shadow-md';
-  };
+
 
   const runAttributeTest = () => {
     if (rolling) return;
@@ -300,7 +265,7 @@ export const DiceRoller = () => {
           <div className="flex flex-col items-center justify-center w-full animate-pulse gap-2">
             <div className="flex items-center gap-3">
               {rollingDice.map((d, idx) => (
-                <Die key={idx} value={d} rolling={true} styleClass={getDiceStyle()} />
+                <Die key={idx} value={d} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
               ))}
             </div>
             <span className="text-[9px] uppercase tracking-widest opacity-60 font-sans">Rolando dados...</span>
@@ -319,7 +284,7 @@ export const DiceRoller = () => {
                 {/* Visual representation of dice */}
                 <div className="flex items-center gap-3 mb-2">
                   {result.dice.map((d, index) => (
-                    <Die key={index} value={d} rolling={false} styleClass={getDiceStyle()} />
+                    <Die key={index} value={d} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
                   ))}
                   {result.dice.length > 1 && (
                     <span className="text-xl font-bold mx-1 opacity-70">=</span>

@@ -4,6 +4,7 @@ import { useSheetStore } from '@/store/useSheetStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { audio } from '@/lib/audio';
 import { useState } from 'react';
+import { Die, getDiceStyle } from './Die';
 import { 
   Swords, 
   Plus, 
@@ -229,14 +230,20 @@ export const ExercitosTracker = () => {
           {/* Caixa de dados rolados */}
           <div className={rollBoxClass}>
             {rolling ? (
-              <span className={`text-xs uppercase tracking-widest font-sans animate-pulse ${isPapyrus ? 'text-[#5C4033]' : 'text-amber-400'}`}>
-                Rolando Dados...
-              </span>
+              <div className="flex flex-col items-center justify-center animate-pulse">
+                <div className="flex gap-2.5">
+                  <Die value={dice1 || 1} rolling={true} styleClass={getDiceStyle(theme, 'A Lenda de Zagor')} />
+                  <Die value={dice2 || 1} rolling={true} styleClass={getDiceStyle(theme, 'A Lenda de Zagor')} />
+                </div>
+                <span className="text-[9px] uppercase tracking-widest font-sans mt-1 opacity-70">
+                  Rolando...
+                </span>
+              </div>
             ) : dice1 !== null && dice2 !== null ? (
               <div className="flex flex-col items-center justify-center">
-                <div className="flex gap-3 text-3xl mb-1">
-                  <span>{dice1 === 1 ? '⚀' : dice1 === 2 ? '⚁' : dice1 === 3 ? '⚂' : dice1 === 4 ? '⚃' : dice1 === 5 ? '⚄' : '⚅'}</span>
-                  <span>{dice2 === 1 ? '⚀' : dice2 === 2 ? '⚁' : dice2 === 3 ? '⚂' : dice2 === 4 ? '⚃' : dice2 === 5 ? '⚄' : '⚅'}</span>
+                <div className="flex gap-2.5 mb-1.5">
+                  <Die value={dice1} rolling={false} styleClass={getDiceStyle(theme, 'A Lenda de Zagor')} />
+                  <Die value={dice2} rolling={false} styleClass={getDiceStyle(theme, 'A Lenda de Zagor')} />
                 </div>
                 <div className="text-[10px] uppercase font-bold tracking-wider opacity-80">
                   Total Rolado: <span className="font-mono text-xs font-extrabold">{rollTotal}</span>

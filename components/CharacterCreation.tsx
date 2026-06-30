@@ -6,6 +6,7 @@ import { getBookIntro } from '@/lib/bookIntros';
 import { audio } from '@/lib/audio';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users } from 'lucide-react';
+import { Die, getDiceStyle } from './Die';
 
 export const CharacterCreation = () => {
   const {
@@ -117,18 +118,29 @@ export const CharacterCreation = () => {
   const [displayFear, setDisplayFear] = useState(0);
   const [displayWillpower, setDisplayWillpower] = useState(0);
 
+  // Dice states for attribute rolls
+  const [skillDice, setSkillDice] = useState<number[]>([1]);
+  const [energyDice, setEnergyDice] = useState<number[]>([1, 1]);
+  const [luckDice, setLuckDice] = useState<number[]>([1]);
+  const [faithDice, setFaithDice] = useState<number[]>([1]);
+  const [magicDice, setMagicDice] = useState<number[]>([1, 1]);
+  const [fearDice, setFearDice] = useState<number[]>([1]);
+  const [willpowerDice, setWillpowerDice] = useState<number[]>([1]);
+
   const rollWillpower = () => {
     if (rollingWillpower || rolledWillpower !== null) return;
     setRollingWillpower(true);
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      setDisplayWillpower(Math.floor(Math.random() * 6) + 1 + 6);
-    }, 60);
+      setWillpowerDice([Math.floor(Math.random() * 6) + 1]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      setWillpowerDice([d1]);
+      const finalVal = d1 + 6; // 1d6 + 6
       setRolledWillpower(finalVal);
       setDisplayWillpower(finalVal);
       setRollingWillpower(false);
@@ -184,12 +196,14 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      setDisplaySkill(Math.floor(Math.random() * 6) + 1 + 6);
-    }, 60);
+      setSkillDice([Math.floor(Math.random() * 6) + 1]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      setSkillDice([d1]);
+      const finalVal = d1 + 6; // 1d6 + 6
       setRolledSkill(finalVal);
       setDisplaySkill(finalVal);
       setRollingSkill(false);
@@ -204,13 +218,18 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      const displayVal = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12;
-      setDisplayEnergy(displayVal);
-    }, 60);
+      setEnergyDice([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1
+      ]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1) + 12; // 2d6 + 12 para todos os livros
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      setEnergyDice([d1, d2]);
+      const finalVal = d1 + d2 + 12; // 2d6 + 12 para todos os livros
       setRolledEnergy(finalVal);
       setDisplayEnergy(finalVal);
       setRollingEnergy(false);
@@ -225,12 +244,14 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      setDisplayFaith(Math.floor(Math.random() * 6) + 1 + 3);
-    }, 60);
+      setFaithDice([Math.floor(Math.random() * 6) + 1]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = Math.floor(Math.random() * 6) + 1 + 3; // 1d6 + 3
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      setFaithDice([d1]);
+      const finalVal = d1 + 3; // 1d6 + 3
       setRolledFaith(finalVal);
       setDisplayFaith(finalVal);
       setRollingFaith(false);
@@ -245,12 +266,14 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      setDisplayLuck(Math.floor(Math.random() * 6) + 1 + 6);
-    }, 60);
+      setLuckDice([Math.floor(Math.random() * 6) + 1]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
-      const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      setLuckDice([d1]);
+      const finalVal = d1 + 6; // 1d6 + 6
       setRolledLuck(finalVal);
       setDisplayLuck(finalVal);
       setRollingLuck(false);
@@ -265,15 +288,17 @@ export const CharacterCreation = () => {
     audio.playDiceRoll();
 
     const interval = setInterval(() => {
-      const d1 = Math.floor(Math.random() * 6) + 1;
-      const d2 = Math.floor(Math.random() * 6) + 1;
-      setDisplayMagic(d1 + d2 + 6);
-    }, 60);
+      setMagicDice([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1
+      ]);
+    }, 70);
 
     setTimeout(() => {
       clearInterval(interval);
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
+      setMagicDice([d1, d2]);
       const finalVal = d1 + d2 + 6; // 2d6 + 6
       setRolledMagic(finalVal);
       setDisplayMagic(finalVal);
@@ -288,12 +313,14 @@ export const CharacterCreation = () => {
       audio.playDiceRoll();
 
       const interval = setInterval(() => {
-        setDisplayFear(Math.floor(Math.random() * 6) + 1 + 6);
-      }, 60);
+        setFearDice([Math.floor(Math.random() * 6) + 1]);
+      }, 70);
 
       setTimeout(() => {
         clearInterval(interval);
-        const finalVal = Math.floor(Math.random() * 6) + 1 + 6; // 1d6 + 6
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        setFearDice([d1]);
+        const finalVal = d1 + 6; // 1d6 + 6
         setRolledFear(finalVal);
         setDisplayFear(finalVal);
         setRollingFear(false);
@@ -1102,19 +1129,27 @@ export const CharacterCreation = () => {
                 </div>
                 <div className="my-4 h-14 flex items-center justify-center">
                   {rollingSkill ? (
-                    <span className="text-3xl font-extrabold animate-bounce">{displaySkill}</span>
+                    <Die value={skillDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
                   ) : rolledSkill !== null ? (
-                    <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                      {rolledSkill}
-                    </motion.span>
+                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                      {!(selectedHeroLocal && selectedHeroLocal !== 'personalizado') && (
+                        <>
+                          <Die value={skillDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                          <span className="text-sm font-bold opacity-70">+</span>
+                          <span className="text-sm font-bold opacity-70">6</span>
+                          <span className="text-sm font-bold opacity-70">=</span>
+                        </>
+                      )}
+                      <span className="text-3xl font-extrabold">{rolledSkill}</span>
+                    </motion.div>
                   ) : (
                     <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                   )}
                 </div>
                 {isMedo && selectedPower === 'superforca' ? (
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-green-700 dark:text-cyan-400">Superforça 13</div>
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-green-700 dark:text-cyan-400 font-sans">Superforça 13</div>
                 ) : rolledSkill !== null ? (
-                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">
+                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">
                     {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : 'Dado + 6'}
                   </div>
                 ) : (
@@ -1137,17 +1172,30 @@ export const CharacterCreation = () => {
                 </div>
                 <div className="my-4 h-14 flex items-center justify-center">
                   {rollingEnergy ? (
-                    <span className="text-3xl font-extrabold animate-bounce">{displayEnergy}</span>
+                    <div className="flex gap-1.5">
+                      <Die value={energyDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                      <Die value={energyDice[1]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                    </div>
                   ) : rolledEnergy !== null ? (
-                    <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                      {rolledEnergy}
-                    </motion.span>
+                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                      {!(selectedHeroLocal && selectedHeroLocal !== 'personalizado') && (
+                        <>
+                          <Die value={energyDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                          <span className="text-xs font-bold opacity-70">+</span>
+                          <Die value={energyDice[1]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                          <span className="text-xs font-bold opacity-70">+</span>
+                          <span className="text-xs font-bold opacity-70">12</span>
+                          <span className="text-xs font-bold opacity-70">=</span>
+                        </>
+                      )}
+                      <span className="text-3xl font-extrabold text-red-500">{rolledEnergy}</span>
+                    </motion.div>
                   ) : (
                     <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                   )}
                 </div>
                 {rolledEnergy !== null ? (
-                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">
+                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">
                     {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : '2 Dados + 12'}
                   </div>
                 ) : (
@@ -1170,17 +1218,25 @@ export const CharacterCreation = () => {
                 </div>
                 <div className="my-4 h-14 flex items-center justify-center">
                   {rollingLuck ? (
-                    <span className="text-3xl font-extrabold animate-bounce">{displayLuck}</span>
+                    <Die value={luckDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
                   ) : rolledLuck !== null ? (
-                    <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                      {rolledLuck}
-                    </motion.span>
+                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                      {!(selectedHeroLocal && selectedHeroLocal !== 'personalizado') && (
+                        <>
+                          <Die value={luckDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                          <span className="text-sm font-bold opacity-70">+</span>
+                          <span className="text-sm font-bold opacity-70">6</span>
+                          <span className="text-sm font-bold opacity-70">=</span>
+                        </>
+                      )}
+                      <span className="text-3xl font-extrabold text-green-600 dark:text-green-400">{rolledLuck}</span>
+                    </motion.div>
                   ) : (
                     <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                   )}
                 </div>
                 {rolledLuck !== null ? (
-                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">
+                  <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">
                     {selectedHeroLocal && selectedHeroLocal !== 'personalizado' ? 'Fixo' : 'Dado + 6'}
                   </div>
                 ) : (
@@ -1202,17 +1258,21 @@ export const CharacterCreation = () => {
                   </div>
                   <div className="my-4 h-14 flex items-center justify-center">
                     {rollingFaith ? (
-                      <span className="text-3xl font-extrabold animate-bounce">{displayFaith}</span>
+                      <Die value={faithDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
                     ) : rolledFaith !== null ? (
-                      <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                        {rolledFaith}
-                      </motion.span>
+                      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                        <Die value={faithDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                        <span className="text-sm font-bold opacity-70">+</span>
+                        <span className="text-sm font-bold opacity-70">3</span>
+                        <span className="text-sm font-bold opacity-70">=</span>
+                        <span className="text-3xl font-extrabold text-orange-500">{rolledFaith}</span>
+                      </motion.div>
                     ) : (
                       <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                     )}
                   </div>
                   {rolledFaith !== null ? (
-                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">Dado + 3</div>
+                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Dado + 3</div>
                   ) : (
                     <button onClick={(e) => { e.stopPropagation(); rollFaith(); }} className={buttonStyle} disabled={rollingFaith}>
                       Role 1d6+3
@@ -1233,17 +1293,26 @@ export const CharacterCreation = () => {
                   </div>
                   <div className="my-4 h-14 flex items-center justify-center">
                     {rollingMagic ? (
-                      <span className="text-3xl font-extrabold animate-bounce">{displayMagic}</span>
+                      <div className="flex gap-1.5">
+                        <Die value={magicDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                        <Die value={magicDice[1]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                      </div>
                     ) : rolledMagic !== null ? (
-                      <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                        {rolledMagic}
-                      </motion.span>
+                      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                        <Die value={magicDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                        <span className="text-xs font-bold opacity-70">+</span>
+                        <Die value={magicDice[1]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                        <span className="text-xs font-bold opacity-70">+</span>
+                        <span className="text-xs font-bold opacity-70">6</span>
+                        <span className="text-xs font-bold opacity-70">=</span>
+                        <span className="text-3xl font-extrabold text-purple-500">{rolledMagic}</span>
+                      </motion.div>
                     ) : (
                       <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                     )}
                   </div>
                   {rolledMagic !== null ? (
-                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">2 Dados + 6</div>
+                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">2 Dados + 6</div>
                   ) : (
                     <button onClick={(e) => { e.stopPropagation(); rollMagic(); }} className={buttonStyle} disabled={rollingMagic}>
                       Role 2d6+6
@@ -1264,17 +1333,21 @@ export const CharacterCreation = () => {
                   </div>
                   <div className="my-4 h-14 flex items-center justify-center">
                     {rollingFear ? (
-                      <span className="text-3xl font-extrabold animate-bounce">{displayFear}</span>
+                      <Die value={fearDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
                     ) : rolledFear !== null ? (
-                      <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                        {rolledFear}
-                      </motion.span>
+                      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                        <Die value={fearDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                        <span className="text-sm font-bold opacity-70">+</span>
+                        <span className="text-sm font-bold opacity-70">6</span>
+                        <span className="text-sm font-bold opacity-70">=</span>
+                        <span className="text-3xl font-extrabold text-red-500">{rolledFear}</span>
+                      </motion.div>
                     ) : (
                       <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                     )}
                   </div>
                   {rolledFear !== null ? (
-                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">Dado + 6</div>
+                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Dado + 6</div>
                   ) : (
                     <button onClick={(e) => { e.stopPropagation(); rollFear(); }} className={buttonStyle} disabled={rollingFear}>
                       Role 1d6+6
@@ -1297,17 +1370,25 @@ export const CharacterCreation = () => {
                   </div>
                   <div className="my-4 h-14 flex items-center justify-center">
                     {rollingWillpower ? (
-                      <span className="text-3xl font-extrabold animate-bounce">{displayWillpower}</span>
+                      <Die value={willpowerDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
                     ) : rolledWillpower !== null ? (
-                      <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-4xl font-extrabold">
-                        {rolledWillpower}
-                      </motion.span>
+                      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                        {!(selectedHeroLocal && selectedHeroLocal !== 'personalizado') && (
+                          <>
+                            <Die value={willpowerDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                            <span className="text-sm font-bold opacity-70">+</span>
+                            <span className="text-sm font-bold opacity-70">6</span>
+                            <span className="text-sm font-bold opacity-70">=</span>
+                          </>
+                        )}
+                        <span className="text-3xl font-extrabold text-purple-500">{rolledWillpower}</span>
+                      </motion.div>
                     ) : (
                       <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
                     )}
                   </div>
                   {rolledWillpower !== null ? (
-                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60">
+                    <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">
                       {selectedHeroLocal === 'personalizado' ? 'Dado + 6' : 'Fixo'}
                     </div>
                   ) : (

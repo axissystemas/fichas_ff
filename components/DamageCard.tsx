@@ -1,8 +1,10 @@
 'use client';
+
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
+import { Die, getDiceStyle } from './Die';
 
 const WANDERING_MONSTERS: Record<number, { name: string; skill: number; energy: number }> = {
   1: { name: 'Goblin', skill: 5, energy: 3 },
@@ -15,7 +17,16 @@ const WANDERING_MONSTERS: Record<number, { name: string; skill: number; energy: 
 
 export const DamageCard = () => {
   const { theme, gamebook, attributes, setAttribute, inventory, monsters, addMonster } = useSheetStore();
-  const cardClasses = theme === 'papyrus' 
+  const [rollingWandering, setRollingWandering] = useState(false);
+  const [rollingDieVal, setRollingDieVal] = useState(1);
+  const [wanderingResult, setWanderingResult] = useState<{
+    roll: number;
+    monster: { name: string; skill: number; energy: number };
+  } | null>(null);
+
+  const isPapyrus = theme === 'papyrus';
+
+  const cardClasses = isPapyrus 
     ? 'bg-[#FDF6E3] border-[#4A3728] text-[#2C1E14]' 
     : 'bg-[#1a202c] border-[#4a5568] text-[#cbd5e0]';
 
@@ -23,16 +34,26 @@ export const DamageCard = () => {
   const activeId = attributes.activeCombatantId || 'captain';
   const aliveMonster = monsters.find(m => m.status === 'alive');
 
-  const [wanderingResult, setWanderingResult] = useState<{
-    roll: number;
-    monster: { name: string; skill: number; energy: number };
-  } | null>(null);
-
   const handleRollWanderingMonster = () => {
+    if (rollingWandering) return;
     audio.playDiceRoll();
-    const roll = Math.floor(Math.random() * 6) + 1;
-    const monster = WANDERING_MONSTERS[roll];
-    setWanderingResult({ roll, monster });
+    setRollingWandering(true);
+    setWanderingResult(null);
+
+    let rolls = 0;
+    const interval = setInterval(() => {
+      setRollingDieVal(Math.floor(Math.random() * 6) + 1);
+      rolls++;
+    }, 70);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      setRollingWandering(false);
+      const roll = Math.floor(Math.random() * 6) + 1;
+      const monster = WANDERING_MONSTERS[roll];
+      setWanderingResult({ roll, monster });
+      audio.playBlip();
+    }, 600);
   };
 
   const handleConfirmWanderingMonster = () => {
@@ -109,46 +130,55 @@ export const DamageCard = () => {
 
   return (
     <div className={`${cardClasses} border-2 p-4 shadow-[-5px_5px_0px_rgba(0,0,0,0.3)] transition-colors flex flex-col items-center justify-between w-full h-full`}>
-      <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${theme === 'papyrus' ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Combate</h3>
+      <h3 className={`text-md font-bold uppercase text-center mb-2 border-b pb-1 w-full ${isPapyrus ? 'border-[#2C1E14]' : 'border-[#cbd5e0]'}`}>Combate</h3>
       
+      {rollingWandering && (
+        <div className="w-full flex flex-col items-center justify-center p-3 mb-2 animate-pulse border-2 border-dashed border-current/25 bg-current/5 rounded-lg">
+          <Die value={rollingDieVal} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+          <span className="text-[9px] uppercase font-bold mt-1 tracking-wider opacity-75">Sorteando Monstro Errante...</span>
+        </div>
+      )}
+
       {wanderingResult && gamebook === 'O Feiticeiro da Montanha de Fogo' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full mb-3 p-3 bg-[#FDF6E3] border-2 border-[#5C4033] rounded-lg shadow-md text-[#2C1E14]"
+          className={`w-full mb-3 p-3 border-2 rounded-lg shadow-md ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2C1E14]' : 'bg-slate-900 border-slate-700 text-slate-200'}`}
         >
-          <div className="flex justify-between items-center border-b border-[#5C4033]/30 pb-1.5 mb-2">
-            <span className="font-extrabold uppercase text-xs tracking-wide text-[#5C4033] flex items-center gap-1">
+          <div className={`flex justify-between items-center border-b pb-1.5 mb-2 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
+            <span className={`font-extrabold uppercase text-xs tracking-wide flex items-center gap-1 ${isPapyrus ? 'text-[#5C4033]' : 'text-cyan-400'}`}>
               🎲 Monstro Errante!
             </span>
             <button 
               onClick={() => setWanderingResult(null)}
-              className="text-[10px] text-red-700 hover:underline font-bold uppercase"
+              className="text-[10px] text-red-500 hover:underline font-bold uppercase"
             >
               Cancelar
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-sm mb-3 bg-[#EAD8B8]/60 p-2.5 rounded border border-[#5C4033]/20 text-center">
-            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
-              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Dado</span>
-              <span className="text-xl sm:text-2xl font-black text-amber-900 mt-0.5">🎲 {wanderingResult.roll}</span>
+          <div className={`grid grid-cols-2 gap-2 text-sm mb-3 p-2.5 rounded border text-center ${isPapyrus ? 'bg-[#EAD8B8]/60 border-[#5C4033]/20' : 'bg-slate-950/60 border-slate-800'}`}>
+            <div className={`flex flex-col items-center justify-center p-2 rounded border ${isPapyrus ? 'bg-[#EAD8B8] border-[#5C4033]/30' : 'bg-slate-900/60 border-slate-800'}`}>
+              <span className="text-[10px] uppercase font-bold tracking-wider opacity-85">Dado</span>
+              <div className="mt-1">
+                <Die value={wanderingResult.roll} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+              </div>
             </div>
-            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
-              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Monstro</span>
-              <span className="text-sm sm:text-base font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.name}</span>
+            <div className={`flex flex-col items-center justify-center p-2 rounded border ${isPapyrus ? 'bg-[#EAD8B8] border-[#5C4033]/30' : 'bg-slate-900/60 border-slate-800'}`}>
+              <span className="text-[10px] uppercase font-bold tracking-wider opacity-85">Monstro</span>
+              <span className="text-sm font-black mt-1.5 truncate max-w-[80px]">{wanderingResult.monster.name}</span>
             </div>
-            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
-              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Habilidade</span>
-              <span className="text-base sm:text-lg font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.skill}</span>
+            <div className={`flex flex-col items-center justify-center p-2 rounded border ${isPapyrus ? 'bg-[#EAD8B8] border-[#5C4033]/30' : 'bg-slate-900/60 border-slate-800'}`}>
+              <span className="text-[10px] uppercase font-bold tracking-wider opacity-85">Hab</span>
+              <span className="text-base font-black mt-0.5">{wanderingResult.monster.skill}</span>
             </div>
-            <div className="flex flex-col items-center justify-center p-2 bg-[#EAD8B8] rounded border border-[#5C4033]/30">
-              <span className="text-xs uppercase font-extrabold text-[#5C4033] tracking-wider">Energia</span>
-              <span className="text-base sm:text-lg font-black text-[#2C1E14] mt-0.5">{wanderingResult.monster.energy}</span>
+            <div className={`flex flex-col items-center justify-center p-2 rounded border ${isPapyrus ? 'bg-[#EAD8B8] border-[#5C4033]/30' : 'bg-slate-900/60 border-slate-800'}`}>
+              <span className="text-[10px] uppercase font-bold tracking-wider opacity-85">Energia</span>
+              <span className="text-base font-black mt-0.5">{wanderingResult.monster.energy}</span>
             </div>
           </div>
           <button
             onClick={handleConfirmWanderingMonster}
-            className="w-full bg-[#2C1E14] text-[#EAD8B8] py-2 px-3 uppercase font-bold text-xs tracking-wider hover:bg-[#4A3728] transition-colors rounded shadow"
+            className={`w-full py-2 px-3 uppercase font-bold text-xs tracking-wider transition-colors rounded shadow ${isPapyrus ? 'bg-[#2C1E14] text-[#EAD8B8] hover:bg-[#4A3728]' : 'bg-[#2d3748] text-[#cbd5e0] hover:bg-[#4a5568]'}`}
           >
             ⚔️ Adicionar ao Combate
           </button>
@@ -159,8 +189,9 @@ export const DamageCard = () => {
         {gamebook === 'O Feiticeiro da Montanha de Fogo' && (
           <button
             onClick={handleRollWanderingMonster}
-            className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${
-              theme === 'papyrus'
+            disabled={rollingWandering}
+            className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer disabled:opacity-50 ${
+              isPapyrus
                 ? 'bg-[#5C4033] text-[#EAD8B8] hover:bg-[#2C1E14]'
                 : 'bg-[#4a5568] text-[#cbd5e0] hover:bg-[#2d3748]'
             }`}
@@ -174,8 +205,8 @@ export const DamageCard = () => {
           disabled={!aliveMonster}
           className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${
             !aliveMonster 
-              ? 'opacity-40 cursor-not-allowed bg-gray-600 text-gray-300' 
-              : theme === 'papyrus' 
+              ? 'opacity-40 cursor-not-allowed bg-gray-650 text-gray-400' 
+              : isPapyrus 
                 ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' 
                 : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'
           }`}
@@ -186,7 +217,7 @@ export const DamageCard = () => {
 
         <button 
           onClick={handleApplyDamage}
-          className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${theme === 'papyrus' ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'}`}
+          className={`w-full py-2 px-1 uppercase font-bold text-xs sm:text-sm tracking-wider transition rounded cursor-pointer ${isPapyrus ? 'bg-[#8B0000] text-[#EAD8B8] hover:bg-[#600000]' : 'bg-[#9b2c2c] text-[#cbd5e0] hover:bg-[#742a2a]'}`}
         >
           Dano no Herói (-{finalDamage} {unitLabel}) {hasReduction && '🛡️'}
           {isTraveller && <span className="block text-[10px] opacity-80 lowercase font-mono">({activeName})</span>}
@@ -195,5 +226,3 @@ export const DamageCard = () => {
     </div>
   );
 };
-
-

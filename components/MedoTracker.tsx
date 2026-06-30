@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
 import { Zap, Brain, ShieldAlert, Cpu, Clock, Save } from 'lucide-react';
+import { Die, getDiceStyle } from './Die';
 
 export const MedoTracker = () => {
   const {
@@ -35,6 +36,7 @@ export const MedoTracker = () => {
 
   const [blastResult, setBlastResult] = useState<string | null>(null);
   const [rollingBlast, setRollingBlast] = useState(false);
+  const [rollingDiceBlast, setRollingDiceBlast] = useState<number[]>([1, 1]);
 
   if (!isMedo) return null;
 
@@ -80,9 +82,21 @@ export const MedoTracker = () => {
 
     audio.playDiceRoll();
     setRollingBlast(true);
-    setBlastResult('Mirando...');
+    setBlastResult(null);
+
+    let rolls = 0;
+    const interval = setInterval(() => {
+      setRollingDiceBlast([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1
+      ]);
+      rolls++;
+    }, 70);
 
     setTimeout(() => {
+      clearInterval(interval);
+      setRollingBlast(false);
+
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
       const total = d1 + d2;
@@ -91,22 +105,24 @@ export const MedoTracker = () => {
       const hit = total <= skill;
       setAttribute('energy', attributes.energy.current - 2, false);
 
+      setRollingDiceBlast([d1, d2]);
+
       if (hit) {
-        setBlastResult(`Acertou! Rolado: ${total} (Hab: ${skill})`);
+        setBlastResult(`Acertou! (Rolado: ${total} vs Hab: ${skill})`);
         addCombatLog({
           type: 'Poder',
-          value: `Rajada de Energia acertou e tonteou o alvo! [Rolado: ${total} vs Hab: ${skill}] (-2 Energia)`
+          value: `Rajada de Energia acertou e tonteou o alvo! [Rolou ${total} (🎲${d1}+🎲${d2}) vs Hab ${skill}] (-2 Energia)`
         });
-        audio.playCoin();
+        audio.playSuccess();
       } else {
-        setBlastResult(`Errou! Rolado: ${total} (Hab: ${skill})`);
+        setBlastResult(`Errou! (Rolado: ${total} vs Hab: ${skill})`);
         addCombatLog({
           type: 'Poder',
-          value: `Rajada de Energia errou o alvo! [Rolado: ${total} vs Hab: ${skill}] (-2 Energia)`
+          value: `Rajada de Energia errou o alvo! [Rolou ${total} (🎲${d1}+🎲${d2}) vs Hab ${skill}] (-2 Energia)`
         });
+        audio.playFailure();
       }
-      setRollingBlast(false);
-    }, 800);
+    }, 600);
   };
 
   const handleSaveClues = async () => {
@@ -238,12 +254,22 @@ export const MedoTracker = () => {
                   </button>
                   {blastResult && (
                     <span className={`text-xs font-bold font-mono px-2 py-1 bg-slate-950/30 rounded ${
-                      blastResult.includes('Acertou') ? 'text-green-500' : blastResult.includes('Errou') ? 'text-red-500' : 'text-slate-400'
+                      blastResult.includes('Acertou') ? 'text-green-500' : 'text-red-500'
                     }`}>
                       {blastResult}
                     </span>
                   )}
                 </div>
+
+                {(rollingBlast || blastResult) && (
+                  <div className="flex items-center gap-2.5 mt-2.5 bg-current/5 border border-current/15 p-2 rounded-lg justify-start w-fit">
+                    <span className="text-[10px] uppercase font-bold tracking-wider opacity-75">Teste (2d6):</span>
+                    <div className="flex gap-1.5">
+                      <Die value={rollingDiceBlast[0]} rolling={rollingBlast} styleClass={getDiceStyle(theme, 'Encontro Marcado com o M.E.D.O.')} />
+                      <Die value={rollingDiceBlast[1]} rolling={rollingBlast} styleClass={getDiceStyle(theme, 'Encontro Marcado com o M.E.D.O.')} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {!superpower && (
