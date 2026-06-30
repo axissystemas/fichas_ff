@@ -8,7 +8,7 @@ import { Die, getDiceStyle } from './Die';
 
 interface Props {
   label: string;
-  attrKey: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower';
+  attrKey: string;
 }
 
 export const AttributeCard = ({ label, attrKey }: Props) => {

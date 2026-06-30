@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
 import { audio } from '@/lib/audio';
 import { ACHIEVEMENTS, getAchievementIdForBook } from '@/lib/achievements';
+import { getRuleset } from '@/lib/rulesets';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -104,6 +105,7 @@ export interface AttributeModifiers {
   fear?: number;
   willpower?: number;
   damageReduction?: number;
+  [key: string]: number | undefined;
 }
 
 export interface Item {
@@ -165,6 +167,7 @@ export interface DbSheet {
     selectedHero?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null;
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
     traveller?: TravellerData;
+    [key: string]: any;
   };
   gold?: number;
   provisions?: number;
@@ -238,6 +241,7 @@ interface SheetState {
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
     traveller?: TravellerData;
     activeCombatantId?: string;
+    [key: string]: any;
   };
   gold: number;
   provisions: number;
@@ -322,7 +326,7 @@ interface SheetState {
   clearLocalState: () => void;
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower', value: number, isInitial: boolean) => void;
+  setAttribute: (key: string, value: number, isInitial: boolean) => void;
   setSpells: (spells: Record<string, number>) => void;
   toggleDisease: (disease: string) => void;
   updateCoffinsDestroyed: (delta: number) => void;
@@ -338,7 +342,7 @@ interface SheetState {
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, delta: number) => void;
   toggleEquipItem: (id: string) => void;
-  getModifiedAttribute: (key: 'skill' | 'energy' | 'luck' | 'magic' | 'faith' | 'fear' | 'willpower') => number;
+  getModifiedAttribute: (key: string) => number;
   setTheme: (theme: 'papyrus' | 'night') => void;
   toggleSound: () => void;
   toggleMusic: () => void;
@@ -813,26 +817,35 @@ export const useSheetStore = create<SheetState>()(
         set((state) => {
           const attr = state.attributes[key] || { initial: 0, current: 0 };
           
-          const isFaith = key === 'faith';
-          const isFear = key === 'fear';
+          // Obtém o ruleset ativo para o livro desta ficha
+          const activeSheet = state.sheetsList.find(s => s.id === state.activeSheetId);
+          const ruleset = getRuleset(activeSheet?.gamebook);
+          const attrConfig = ruleset.attributes.find((a) => a.key === key);
+          
           let finalValue = value;
           
           if (!isInitial) {
-            if (isFear) {
-              finalValue = Math.max(0, Math.min(value, attr.initial));
-            } else if (!isFaith) {
+            // Se o atributo está configurado para ser limitado ao valor inicial,
+            // ou se for um atributo padrão e limitToInitial não for explicitamente falso
+            const shouldLimit = attrConfig ? attrConfig.limitToInitial !== false : true;
+            
+            if (shouldLimit) {
               finalValue = Math.max(0, Math.min(value, attr.initial));
             } else {
               finalValue = Math.max(0, value);
             }
           }
           
-          if (key === 'energy' && !isInitial && attr.current > 0 && finalValue <= 0) {
-            playerDied = true;
-          }
+          // Condição de morte
+          const deathCond = attrConfig?.deathCondition || (key === 'energy' ? 'min' : 'none');
           
-          if (key === 'fear' && !isInitial && attr.initial > 0 && finalValue >= attr.initial) {
-            playerDied = true;
+          if (!isInitial) {
+            if (deathCond === 'min' && attr.current > 0 && finalValue <= 0) {
+              playerDied = true;
+            }
+            if (deathCond === 'max' && attr.initial > 0 && finalValue >= attr.initial) {
+              playerDied = true;
+            }
           }
           
           // Detecta se a energia diminuiu e ficou crítica (entre 1 e 4)

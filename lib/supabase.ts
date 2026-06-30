@@ -13,6 +13,7 @@ export interface AttributeModifiers {
   faith?: number;
   fear?: number;
   damageReduction?: number;
+  [key: string]: number | undefined;
 }
 
 export interface DbItem {
@@ -33,6 +34,7 @@ export interface DbSheet {
     energy: { initial: number; current: number };
     luck: { initial: number; current: number };
     currentSection?: string;
+    [key: string]: any;
   };
   gold: number;
   provisions: number;

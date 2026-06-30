@@ -34,6 +34,7 @@ import {
   Heart, Home as HomeIcon, ChevronLeft, MoreVertical, Map as MapIcon
 } from 'lucide-react';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
+import { getRuleset } from '@/lib/rulesets';
 import { audio, music } from '@/lib/audio';
 import confetti from 'canvas-confetti';
 import AchievementsGallery from '@/components/AchievementsGallery';
@@ -429,6 +430,8 @@ export default function Home() {
     unlockedAchievements,
     setAttribute,
   } = useSheetStore();
+
+  const ruleset = getRuleset(gamebook);
 
   const [inspectMode, setInspectMode] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -1969,18 +1972,20 @@ export default function Home() {
                         </div>
 
                         {/* Aba: Mochila */}
-                        <div className="flex flex-col items-center">
-                          <button
-                            onClick={() => { setActiveTab('Inventário'); audio.playBlip(); }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Inventário'
-                                ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
-                                : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
-                              }`}
-                          >
-                            <Backpack size={18} />
-                          </button>
-                          <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Inventário' ? 'text-current font-extrabold' : 'opacity-65'}`}>Mochila</span>
-                        </div>
+                        {!ruleset.hideDefaultTabs?.includes('Inventário') && (
+                          <div className="flex flex-col items-center">
+                            <button
+                              onClick={() => { setActiveTab('Inventário'); audio.playBlip(); }}
+                              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${activeTab === 'Inventário'
+                                  ? (isPapyrus ? 'bg-[#5C4033] text-[#EAD8B8] border-2 border-[#8B4513] shadow-md scale-105' : 'bg-cyan-500 text-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105')
+                                  : (isPapyrus ? 'bg-[#EAD8B8]/40 text-[#5C4033]/60 border border-[#5C4033]/30 hover:bg-[#EAD8B8]/60' : 'bg-slate-800/40 text-slate-450 border border-slate-700/60 hover:bg-slate-800')
+                                }`}
+                            >
+                              <Backpack size={18} />
+                            </button>
+                            <span className={`text-[10px] font-bold mt-1 ${activeTab === 'Inventário' ? 'text-current font-extrabold' : 'opacity-65'}`}>Mochila</span>
+                          </div>
+                        )}
 
                         {/* Aba: Diário */}
                         <div className="flex flex-col items-center">
@@ -2141,31 +2146,14 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {gamebook === 'A Cidadela do Caos' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <CidadelaTracker />
+                        {ruleset.mobileWidgets?.map((Widget, idx) => (
+                          <div 
+                            key={`mobile-widget-${idx}`}
+                            className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}
+                          >
+                            <Widget />
                           </div>
-                        )}
-                        {gamebook === 'A Cripta do Vampiro' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <VampiroTracker />
-                          </div>
-                        )}
-                        {gamebook === 'Exércitos da Morte' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <ExercitosTracker />
-                          </div>
-                        )}
-                        {gamebook === 'Nave Espacial Traveller' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <TravellerTracker />
-                          </div>
-                        )}
-                        {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
-                          <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
-                            <GrimorioAmarilleo />
-                          </div>
-                        )}
+                        ))}
                       </div>
                     )}
 
@@ -2178,7 +2166,7 @@ export default function Home() {
                           </h3>
                         </div>
 
-                        {gamebook !== 'Nave Espacial Traveller' && (
+                        {!ruleset.hideDefaultTabs?.includes('Inventário') && (
                           <>
                             <div className={`p-4 border rounded-2xl ${isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/30' : 'bg-[#1a202c]/50 border-slate-700/60'}`}>
                               <GoldAndProvisions />
@@ -2399,28 +2387,22 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-fade-in">
                       {/* STATUS TAB (Mobile) / Coluna Esquerda (Desktop) */}
                       <div className="lg:col-span-1 flex flex-col gap-6">
-                        {gamebook !== 'Nave Espacial Traveller' && (
-                          <>
-                            <AttributeCard label="Habilidade" attrKey="skill" />
-                            <AttributeCard label="Energia" attrKey="energy" />
-                            <AttributeCard label="Sorte" attrKey="luck" />
-                          </>
-                        )}
-                        {gamebook === 'A Cidadela do Caos' && (
-                          <AttributeCard label="Mágica" attrKey="magic" />
-                        )}
-                        {gamebook === 'A Cripta do Vampiro' && (
-                          <AttributeCard label="Fé" attrKey="faith" />
-                        )}
-                        {gamebook === 'A Mansão do Inferno' && (
-                          <AttributeCard label="Medo" attrKey="fear" />
-                        )}
-                        {gamebook === 'A Lenda de Zagor' && (
-                          <AttributeCard
-                            label={effectiveHero === 'sallazar' ? 'Pontos de Magia' : 'Força de Vontade'}
-                            attrKey="willpower"
-                          />
-                        )}
+                        {!ruleset.hideAttributeCards && ruleset.attributes.map((attr) => {
+                          let label = attr.label;
+                          if (attr.key === 'willpower') {
+                            const effectiveHero = useSheetStore.getState().attributes.selectedHero;
+                            if (effectiveHero === 'sallazar') {
+                              label = 'Pontos de Magia';
+                            }
+                          }
+                          return (
+                            <AttributeCard
+                              key={`desktop-attr-${attr.key}`}
+                              label={label}
+                              attrKey={attr.key}
+                            />
+                          );
+                        })}
                         <CurrentSectionCard />
                         <CompletionChecklist />
                       </div>
@@ -2447,8 +2429,9 @@ export default function Home() {
                                 </div>
                               </div>
                               <div className="xl:col-span-1">
-                                {gamebook === 'A Cripta do Vampiro' && <VampiroTracker />}
-                                {gamebook === 'Exércitos da Morte' && <ExercitosTracker />}
+                                {ruleset.desktopSideWidgets?.map((Widget, idx) => (
+                                  <Widget key={`desktop-widget-side-${idx}`} />
+                                ))}
                               </div>
                             </div>
                           ) : (
@@ -2474,16 +2457,12 @@ export default function Home() {
                           )}
                         </div>
 
-                        {gamebook === 'A Cidadela do Caos' && (
-                          <CidadelaTracker />
-                        )}
-
-                        {gamebook === 'A Lenda de Zagor' && effectiveHero === 'sallazar' && (
-                          <GrimorioAmarilleo />
-                        )}
+                        {ruleset.desktopWidgets?.map((Widget, idx) => (
+                          <Widget key={`desktop-widget-${idx}`} />
+                        ))}
 
                         {/* Seção do Inventário (Desktop) */}
-                        {gamebook === 'Nave Espacial Traveller' ? (
+                        {ruleset.hideDefaultTabs?.includes('Inventário') ? (
                           <section
                             className={`bg-transparent border-2 p-6 shadow-[-10px_10px_0px_rgba(0,0,0,0.1)] ${isPapyrus ? 'border-[#4A3728]' : 'border-[#4a5568]'
                               }`}

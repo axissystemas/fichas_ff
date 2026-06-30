@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { getBookIntro } from '@/lib/bookIntros';
 import { audio } from '@/lib/audio';
+import { getRuleset } from '@/lib/rulesets';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users } from 'lucide-react';
 import { Die, getDiceStyle } from './Die';
@@ -34,6 +35,29 @@ export const CharacterCreation = () => {
   const isMansao = gamebook === 'A Mansão do Inferno';
   const isZagor = gamebook === 'A Lenda de Zagor';
   const isTraveller = gamebook === 'Nave Espacial Traveller';
+  
+  const ruleset = getRuleset(gamebook);
+  
+  const getRolledVal = (key: string): number | null => {
+    if (key === 'skill') return rolledSkill;
+    if (key === 'energy') return rolledEnergy;
+    if (key === 'luck') return rolledLuck;
+    if (key === 'willpower') return rolledWillpower;
+    if (key === 'fear') return rolledFear;
+    if (key === 'faith') return rolledFaith;
+    if (key === 'magic') return rolledMagic;
+    return null;
+  };
+
+  const setRolledVal = (key: string, val: number | null) => {
+    if (key === 'skill') setRolledSkill(val);
+    if (key === 'energy') setRolledEnergy(val);
+    if (key === 'luck') setRolledLuck(val);
+    if (key === 'willpower') setRolledWillpower(val);
+    if (key === 'fear') setRolledFear(val);
+    if (key === 'faith') setRolledFaith(val);
+    if (key === 'magic') setRolledMagic(val);
+  };
   
   // Selected superpower for MEDO
   const [selectedPower, setSelectedPower] = useState<'superforca' | 'psi' | 'hta' | 'rajada' | null>(null);
@@ -556,17 +580,17 @@ export const CharacterCreation = () => {
   // Wizard steps configuration based on active gamebook
   const steps: { id: string; title: string; subtitle: string }[] = [];
   steps.push({ id: 'intro', title: 'Narrativa', subtitle: 'Introdução da aventura' });
-  if (isMedo) {
+  if (ruleset.creation.choosePowers) {
     steps.push({ id: 'power', title: 'Superpoder', subtitle: 'Habilidade especial' });
   }
-  if (isZagor) {
+  if (ruleset.creation.chooseArchetype) {
     steps.push({ id: 'hero', title: 'Herói', subtitle: 'Escolha de guerreiro' });
   }
   steps.push({ id: 'attributes', title: 'Atributos', subtitle: 'Rolagem de dados' });
   if (isCidadela) {
     steps.push({ id: 'spells', title: 'Grimório', subtitle: 'Escolha de feitiços' });
   }
-  if (isTraveller) {
+  if (ruleset.id === 'traveller') {
     steps.push({ id: 'crew', title: 'Tripulação', subtitle: 'Oficiais e Astronave' });
   }
   steps.push({ id: 'review', title: 'Revisão', subtitle: 'Resumo dos dados' });
@@ -582,12 +606,10 @@ export const CharacterCreation = () => {
         return selectedPower !== null;
       case 'hero':
         return selectedHeroLocal !== null && (selectedHeroLocal !== 'personalizado' || customArchetypeLocal !== null);
-      case 'attributes':
-        return rolledSkill !== null && rolledEnergy !== null && rolledLuck !== null &&
-          (!isVampiro || rolledFaith !== null) &&
-          (!isMansao || rolledFear !== null) &&
-          (!isZagor || rolledWillpower !== null) &&
-          (!isCidadela || rolledMagic !== null);
+      case 'attributes': {
+        const requiredKeys = ruleset.attributes.map((a) => a.key);
+        return requiredKeys.every((key) => getRolledVal(key) !== null);
+      }
       case 'spells': {
         const spent = Object.values(selectedSpells).reduce((sum, val) => sum + val, 0);
         return rolledMagic !== null && (rolledMagic - spent) === 0;
@@ -908,38 +930,17 @@ export const CharacterCreation = () => {
         )}
 
         {/* STEP 2: Superpower (M.E.D.O.) */}
-        {currentStep.id === 'power' && isMedo && (
+        {currentStep.id === 'power' && ruleset.creation.choosePowers && (
           <div className="space-y-6 animate-fade-in font-sans">
             <div className="text-center mb-4">
               <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                Escolha seu Superpoder
+                {ruleset.creation.choosePowers.label}
               </h3>
               <p className="text-xs opacity-75 mt-1">Cada poder oferece uma mecânica única e um caminho diferente na história.</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                {
-                  id: 'superforca',
-                  name: 'Superforça & Voo',
-                  desc: 'Habilidade de lutar ampliada (Habilidade inicial trava em 13) e capacidade de voar para perseguições terrestres ou aéreas.',
-                },
-                {
-                  id: 'psi',
-                  name: 'Poderes Psi',
-                  desc: 'Capacidade de ler mentes e mover objetos mentalmente. Cada uso consome 2 de Energia.',
-                },
-                {
-                  id: 'hta',
-                  name: 'Habilidade Tecnológica Avançada (HTA)',
-                  desc: 'Diversos dispositivos de alta tecnologia em seu Cinto de Utilidades.',
-                },
-                {
-                  id: 'rajada',
-                  name: 'Rajada de Energia',
-                  desc: 'Canalize energia eletrostática pelas mãos para tontear adversários humanos. Cada uso consome 2 de Energia.',
-                },
-              ].map((p) => {
+              {ruleset.creation.choosePowers.options.map((p) => {
                 const isSelected = selectedPower === p.id;
                 const cardClass = isSelected
                   ? isPapyrus
@@ -971,7 +972,7 @@ export const CharacterCreation = () => {
                         {isSelected && '⚡'} {p.name}
                       </h4>
                       <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'} leading-normal`}>
-                        {p.desc}
+                        {p.description}
                       </p>
                     </div>
                   </div>
@@ -982,47 +983,24 @@ export const CharacterCreation = () => {
         )}
 
         {/* STEP 3: Hero Choice (Zagor) */}
-        {currentStep.id === 'hero' && isZagor && (
+        {currentStep.id === 'hero' && ruleset.creation.chooseArchetype && (
           <div className="space-y-6 animate-fade-in font-sans">
             <div className="text-center mb-4">
               <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
-                Escolha seu Herói
+                {ruleset.creation.chooseArchetype.label}
               </h3>
-              <p className="text-xs opacity-75 mt-1">Escolha um dos quatro heróis clássicos ou crie um Herói Personalizado.</p>
+              <p className="text-xs opacity-75 mt-1">Escolha um dos heróis clássicos ou crie um Herói Personalizado.</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {[
-                {
-                  id: 'anvar',
-                  name: 'Anvar',
-                  subtitle: 'Bárbaro',
-                  desc: 'Hab: 10 | Ener: 22\nSorte: 10 | Vontade: 10',
-                },
-                {
-                  id: 'braxus',
-                  name: 'Braxus',
-                  subtitle: 'Guerreiro',
-                  desc: 'Hab: 11 | Ener: 20\nSorte: 9 | Vontade: 11',
-                },
-                {
-                  id: 'restolho',
-                  name: 'Restolho',
-                  subtitle: 'Anão',
-                  desc: 'Hab: 9 | Ener: 24\nSorte: 11 | Vontade: 10',
-                },
-                {
-                  id: 'sallazar',
-                  name: 'Sallazar',
-                  subtitle: 'Mago',
-                  desc: 'Hab: 7 | Ener: 16\nSorte: 8 | Magia: 14',
-                },
+                ...ruleset.creation.chooseArchetype.options,
                 {
                   id: 'personalizado',
                   name: 'Personalizado',
-                  subtitle: 'Sua Criação',
-                  desc: 'Determine seus atributos rolando os dados.',
-                },
+                  description: 'Determine seus atributos rolando os dados.',
+                  attributes: {}
+                }
               ].map((h) => {
                 const isSelected = selectedHeroLocal === h.id;
                 const cardClass = isSelected
@@ -1032,6 +1010,9 @@ export const CharacterCreation = () => {
                   : isPapyrus
                     ? 'border border-[#5C4033]/30 bg-transparent hover:border-[#5C4033]/70 hover:bg-[#EAD8B8]/10'
                     : 'border border-slate-800 bg-transparent hover:border-slate-600 rounded-xl hover:bg-slate-900/30';
+                
+                // Formata o subtítulo e a descrição baseando-se no objeto ou na chave
+                const subtitle = h.id === 'personalizado' ? 'Sua Criação' : 'Classe';
                 
                 return (
                   <div
@@ -1047,10 +1028,10 @@ export const CharacterCreation = () => {
                         {h.name}
                       </h4>
                       <div className={`text-[10px] font-semibold mb-1 uppercase tracking-wider ${isPapyrus ? 'text-[#8B5A2B]' : 'text-cyan-400'}`}>
-                        {h.subtitle}
+                        {subtitle}
                       </div>
-                      <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/85' : 'text-slate-350 font-mono'} leading-tight whitespace-pre-line`}>
-                        {h.desc}
+                      <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/85' : 'text-slate-355 font-mono'} leading-tight whitespace-pre-line`}>
+                        {h.description}
                       </p>
                     </div>
                   </div>
@@ -1067,12 +1048,7 @@ export const CharacterCreation = () => {
                   Selecione o arquétipo para determinar seu estilo de jogo, vantagens e desvantagens:
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
-                  {[
-                    { id: 'anvar', name: 'Bárbaro (Anvar)' },
-                    { id: 'braxus', name: 'Guerreiro (Braxus)' },
-                    { id: 'restolho', name: 'Anão (Restolho)' },
-                    { id: 'sallazar', name: 'Mago (Sallazar)' }
-                  ].map((arc) => {
+                  {ruleset.creation.chooseArchetype.options.map((arc) => {
                     const isArcSelected = customArchetypeLocal === arc.id;
                     const arcBtnClass = isArcSelected
                       ? isPapyrus
@@ -1115,7 +1091,7 @@ export const CharacterCreation = () => {
               </p>
             </div>
 
-            <div className={`grid grid-cols-1 ${(isCidadela || isVampiro || isMansao || isZagor) ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6`}>
+            <div className={`grid grid-cols-1 ${ruleset.attributes.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-6`}>
               {/* SKILL Card */}
               <div 
                 onClick={rolledSkill === null && !(isMedo && selectedPower === 'superforca') ? rollSkill : undefined}
@@ -1247,7 +1223,7 @@ export const CharacterCreation = () => {
               </div>
 
               {/* FAITH Card */}
-              {isVampiro && (
+              {ruleset.attributes.some((a) => a.key === 'faith') && (
                 <div 
                   onClick={rolledFaith === null ? rollFaith : undefined}
                   className={attributeCardStyle(rolledFaith !== null, rollingFaith)}
@@ -1282,7 +1258,7 @@ export const CharacterCreation = () => {
               )}
 
               {/* MAGIC Card */}
-              {isCidadela && (
+              {ruleset.attributes.some((a) => a.key === 'magic') && (
                 <div 
                   onClick={rolledMagic === null ? rollMagic : undefined}
                   className={attributeCardStyle(rolledMagic !== null, rollingMagic)}
@@ -1322,7 +1298,7 @@ export const CharacterCreation = () => {
               )}
 
               {/* FEAR Card */}
-              {isMansao && (
+              {ruleset.attributes.some((a) => a.key === 'fear') && (
                 <div 
                   onClick={rolledFear === null ? rollFear : undefined}
                   className={attributeCardStyle(rolledFear !== null, rollingFear)}
@@ -1357,7 +1333,7 @@ export const CharacterCreation = () => {
               )}
 
               {/* WILLPOWER Card */}
-              {isZagor && selectedHeroLocal && (
+              {ruleset.attributes.some((a) => a.key === 'willpower') && selectedHeroLocal && (
                 <div 
                   onClick={rolledWillpower === null ? rollWillpower : undefined}
                   className={attributeCardStyle(rolledWillpower !== null, rollingWillpower)}
