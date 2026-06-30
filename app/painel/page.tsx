@@ -1167,59 +1167,57 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
         {showAdminDashboard && (
           <div className="space-y-8 animate-fade-in font-sans">
             {/* ── Navegação por Abas (Visual Premium) ── */}
-            <div className="overflow-x-auto pb-3 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-              <div className={`flex items-center gap-2 pb-1 border-b ${isPapyrus ? 'border-[#5C4033]/20' : 'border-slate-800'} min-w-max`}>
-                {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube', 'conquistas'] as const).map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => {
-                      setActiveAdminTab(tab);
-                      setSelectedSheetDetails(null);
-                    }}
-                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 rounded-full border cursor-pointer whitespace-nowrap select-none ${
-                      activeAdminTab === tab
-                        ? (isPapyrus 
-                            ? 'bg-[#5C4033] border-[#5C4033] text-[#FDF6E3] font-extrabold shadow-md scale-105' 
-                            : 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] scale-105')
-                        : (isPapyrus
-                            ? 'bg-[#EAD8B8]/20 border-[#5C4033]/20 text-[#5C4033]/70 hover:bg-[#EAD8B8]/40 hover:text-[#5C4033]'
-                            : 'bg-slate-900/30 border-slate-800/80 text-slate-400 hover:bg-slate-800/40 hover:text-slate-200')
-                    }`}
-                  >
-                    {tab === 'geral' && 'Painel Geral'}
-                    {tab === 'jogadores' && 'Jogadores / Streaks'}
-                    {tab === 'combate' && 'Combates / Monstros'}
-                    {tab === 'aventuras' && 'Aventuras / Social'}
-                    {tab === 'novidades' && 'Novidades / Notícias'}
-                    {tab === 'online' && (
-                      <span className="flex items-center gap-1.5">
-                        Tempo Real
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <div className={`flex flex-wrap items-center gap-2 pb-3 border-b ${isPapyrus ? 'border-[#5C4033]/20' : 'border-slate-800'}`}>
+              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube', 'conquistas'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveAdminTab(tab);
+                    setSelectedSheetDetails(null);
+                  }}
+                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 rounded-full border cursor-pointer whitespace-nowrap select-none ${
+                    activeAdminTab === tab
+                      ? (isPapyrus 
+                          ? 'bg-[#5C4033] border-[#5C4033] text-[#FDF6E3] font-extrabold shadow-md scale-105' 
+                          : 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] scale-105')
+                      : (isPapyrus
+                          ? 'bg-[#EAD8B8]/20 border-[#5C4033]/20 text-[#5C4033]/70 hover:bg-[#EAD8B8]/40 hover:text-[#5C4033]'
+                          : 'bg-slate-900/30 border-slate-800/80 text-slate-400 hover:bg-slate-800/40 hover:text-slate-200')
+                  }`}
+                >
+                  {tab === 'geral' && 'Painel Geral'}
+                  {tab === 'jogadores' && 'Jogadores / Streaks'}
+                  {tab === 'combate' && 'Combates / Monstros'}
+                  {tab === 'aventuras' && 'Aventuras / Social'}
+                  {tab === 'novidades' && 'Novidades / Notícias'}
+                  {tab === 'online' && (
+                    <span className="flex items-center gap-1.5">
+                      Tempo Real
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      {onlineUsers.length > 0 && (
+                        <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
+                          {onlineUsers.length}
                         </span>
-                        {onlineUsers.length > 0 && (
-                          <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
-                            {onlineUsers.length}
-                          </span>
-                        )}
-                      </span>
-                    )}
-                    {tab === 'youtube' && (
-                      <span className="flex items-center gap-1.5">
-                        <Youtube size={13} className="text-red-500" />
-                        Youtube / Live
-                      </span>
-                    )}
-                    {tab === 'conquistas' && (
-                      <span className="flex items-center gap-1.5">
-                        <Award size={13} className="text-amber-500" />
-                        Conquistas
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+                      )}
+                    </span>
+                  )}
+                  {tab === 'youtube' && (
+                    <span className="flex items-center gap-1.5">
+                      <Youtube size={13} className="text-red-500" />
+                      Youtube / Live
+                    </span>
+                  )}
+                  {tab === 'conquistas' && (
+                    <span className="flex items-center gap-1.5">
+                      <Award size={13} className="text-amber-500" />
+                      Conquistas
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
 
             {/* Seletor de Livro-Jogo Global para Filtro */}
