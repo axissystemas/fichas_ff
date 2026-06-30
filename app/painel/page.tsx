@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, Loader2, LogOut, Search, PlusCircle, Trash2, Pencil, Check, X,
   Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy, Bookmark,
-  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube
+  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube, Terminal
 } from 'lucide-react';
 import {
   AttributeHistoryLineChart,
@@ -1167,73 +1167,75 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
         {showAdminDashboard && (
           <div className="space-y-8 animate-fade-in font-sans">
             {/* ── Navegação por Abas (Visual Premium) ── */}
-            <div className={`flex flex-wrap gap-2 border-b pb-1 ${isPapyrus ? 'border-[#5C4033]/30' : 'border-slate-800'}`}>
-              {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube', 'conquistas'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveAdminTab(tab);
-                    setSelectedSheetDetails(null);
-                  }}
-                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-t-lg border-t border-x -mb-[1px] cursor-pointer ${
-                    activeAdminTab === tab
-                      ? (isPapyrus 
-                          ? 'bg-[#EAD8B8]/30 border-[#5C4033] text-[#2D1D16] font-extrabold' 
-                          : 'bg-slate-900 border-slate-800 text-cyan-400 border-b-slate-900')
-                      : (isPapyrus
-                          ? 'bg-transparent border-transparent text-[#5C4033]/60 hover:text-[#5C4033]'
-                          : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200')
-                  }`}
-                >
-                  {tab === 'geral' && 'Painel Geral'}
-                  {tab === 'jogadores' && 'Jogadores / Streaks'}
-                  {tab === 'combate' && 'Combates / Monstros'}
-                  {tab === 'aventuras' && 'Aventuras / Social'}
-                  {tab === 'novidades' && 'Novidades / Notícias'}
-                  {tab === 'online' && (
-                    <span className="flex items-center gap-1.5">
-                      Tempo Real
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                      {onlineUsers.length > 0 && (
-                        <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
-                          {onlineUsers.length}
+            <div className="overflow-x-auto pb-3 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className={`flex items-center gap-2 pb-1 border-b ${isPapyrus ? 'border-[#5C4033]/20' : 'border-slate-800'} min-w-max`}>
+                {(['geral', 'jogadores', 'combate', 'aventuras', 'novidades', 'online', 'youtube', 'conquistas'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setActiveAdminTab(tab);
+                      setSelectedSheetDetails(null);
+                    }}
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 rounded-full border cursor-pointer whitespace-nowrap select-none ${
+                      activeAdminTab === tab
+                        ? (isPapyrus 
+                            ? 'bg-[#5C4033] border-[#5C4033] text-[#FDF6E3] font-extrabold shadow-md scale-105' 
+                            : 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] scale-105')
+                        : (isPapyrus
+                            ? 'bg-[#EAD8B8]/20 border-[#5C4033]/20 text-[#5C4033]/70 hover:bg-[#EAD8B8]/40 hover:text-[#5C4033]'
+                            : 'bg-slate-900/30 border-slate-800/80 text-slate-400 hover:bg-slate-800/40 hover:text-slate-200')
+                    }`}
+                  >
+                    {tab === 'geral' && 'Painel Geral'}
+                    {tab === 'jogadores' && 'Jogadores / Streaks'}
+                    {tab === 'combate' && 'Combates / Monstros'}
+                    {tab === 'aventuras' && 'Aventuras / Social'}
+                    {tab === 'novidades' && 'Novidades / Notícias'}
+                    {tab === 'online' && (
+                      <span className="flex items-center gap-1.5">
+                        Tempo Real
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </span>
-                      )}
-                    </span>
-                  )}
-                  {tab === 'youtube' && (
-                    <span className="flex items-center gap-1.5">
-                      <Youtube size={13} className="text-red-500" />
-                      Youtube / Live
-                    </span>
-                  )}
-                  {tab === 'conquistas' && (
-                    <span className="flex items-center gap-1.5">
-                      <Award size={13} className="text-amber-500" />
-                      Conquistas
-                    </span>
-                  )}
-                </button>
-              ))}
+                        {onlineUsers.length > 0 && (
+                          <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded-full ${isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-slate-800 text-cyan-400 border border-cyan-500/20'}`}>
+                            {onlineUsers.length}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                    {tab === 'youtube' && (
+                      <span className="flex items-center gap-1.5">
+                        <Youtube size={13} className="text-red-500" />
+                        Youtube / Live
+                      </span>
+                    )}
+                    {tab === 'conquistas' && (
+                      <span className="flex items-center gap-1.5">
+                        <Award size={13} className="text-amber-500" />
+                        Conquistas
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Seletor de Livro-Jogo Global para Filtro */}
-            <div className={`p-4 border flex flex-col sm:flex-row items-center justify-between gap-4 ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/40 rounded-xl'}`}>
-              <div className="flex items-center gap-2">
+            <div className={`p-4 border backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl shadow-sm ${isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/10' : 'border-slate-800/80 bg-slate-900/25'}`}>
+              <div className="flex items-center gap-2 select-none">
                 <BookOpen size={18} className={isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'} />
-                <span className="text-sm font-bold uppercase tracking-wider">Filtrar por Livro-Jogo:</span>
+                <span className="text-xs uppercase font-extrabold tracking-wider">Filtrar por Livro-Jogo:</span>
               </div>
               <select
                 id="global-gamebook-filter"
                 value={selectedGamebookFilter}
                 onChange={(e) => setSelectedGamebookFilter(e.target.value)}
-                className={`w-full sm:w-72 px-3 py-1.5 text-xs border focus:outline-none transition-all ${
+                className={`w-full sm:w-72 px-3 py-2 text-xs border focus:outline-none transition-all cursor-pointer ${
                   isPapyrus
                     ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]'
-                    : 'border-slate-700 bg-slate-950 text-[#cbd5e0] focus:ring-1 focus:ring-cyan-500/50 rounded-lg'
+                    : 'border-slate-700 bg-slate-950 text-[#cbd5e0] focus:ring-2 focus:ring-cyan-500/50 rounded-lg'
                 }`}
               >
                 <option value="all" className={isPapyrus ? 'bg-[#FDF6E3] text-[#2C1E14]' : 'bg-slate-900 text-slate-200'}>
@@ -1259,76 +1261,108 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
               <div className="space-y-6">
                 {/* Cards Macro */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-cyan-500/10 text-cyan-400"><Compass size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-cyan-500/30 shadow-sm hover:shadow-[0_0_15px_rgba(6,182,212,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-cyan-500/10 text-cyan-400 shrink-0"><Compass size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Total Fichas</p>
-                      <p className="text-xl font-bold">{totalSheets}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Total Fichas</p>
+                      <p className="text-xl font-extrabold">{totalSheets}</p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-yellow-500/10 text-yellow-500"><Coins size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-yellow-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(234,179,8,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-yellow-500/10 text-yellow-500 shrink-0"><Coins size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Ouro Total</p>
-                      <p className="text-xl font-bold">{totalGold}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Ouro Total</p>
+                      <p className="text-xl font-extrabold">{totalGold}</p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-emerald-500/10 text-emerald-400"><Clock size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(16,185,129,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0"><Clock size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Tempo Jogando</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Tempo Jogando</p>
+                      <p className="text-xl font-extrabold">
                         {profiles.reduce((acc, p) => acc + (p.total_play_time || 0), 0)} min
                       </p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-purple-500/10 text-purple-400"><User size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-purple-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(168,85,247,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 shrink-0"><User size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Total Usuários</p>
-                      <p className="text-xl font-bold">{profiles.length}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Total Usuários</p>
+                      <p className="text-xl font-extrabold">{profiles.length}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Segunda Fileira de Cards: Médias e Balanceamento */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-emerald-500/10 text-emerald-400"><Award size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(16,185,129,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0"><Award size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Taxa de Sucesso</p>
-                      <p className="text-xl font-bold">{winRate}%</p>
-                      <p className="text-[10px] opacity-50 mt-0.5">{victoryCount} Vit / {defeatCount} Der</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Taxa de Sucesso</p>
+                      <p className="text-xl font-extrabold">{winRate}%</p>
+                      <p className="text-[9px] opacity-60 mt-0.5 font-sans">{victoryCount} Vit / {defeatCount} Der</p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-slate-500/10 text-slate-300"><Shield size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-slate-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(100,116,139,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-slate-500/10 text-slate-300 shrink-0"><Shield size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Habilidade Média</p>
-                      <p className="text-xl font-bold">{avgSkill}</p>
-                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgSkillInitial}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Habilidade Média</p>
+                      <p className="text-xl font-extrabold">{avgSkill}</p>
+                      <p className="text-[9px] opacity-60 mt-0.5 font-sans">Inicial: {avgSkillInitial}</p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-red-500/10 text-red-400"><Flame size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-red-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-red-500/10 text-red-400 shrink-0"><Flame size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Energia Média</p>
-                      <p className="text-xl font-bold">{avgEnergy}</p>
-                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgEnergyInitial}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Energia Média</p>
+                      <p className="text-xl font-extrabold">{avgEnergy}</p>
+                      <p className="text-[9px] opacity-60 mt-0.5 font-sans">Inicial: {avgEnergyInitial}</p>
                     </div>
                   </div>
 
-                  <div className={`p-4 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-900/50 rounded-lg'} flex items-center gap-3`}>
-                    <div className="p-2 rounded bg-blue-500/10 text-blue-400"><Sun size={18} /></div>
+                  <div className={`p-4 border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-3 ${
+                    isPapyrus
+                      ? 'border-[#5C4033]/60 bg-[#EAD8B8]/15 hover:bg-[#EAD8B8]/25 shadow-sm'
+                      : 'border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/60 hover:border-blue-500/20 shadow-sm hover:shadow-[0_0_15px_rgba(59,130,246,0.08)] rounded-xl'
+                  }`}>
+                    <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-400 shrink-0"><Sun size={18} /></div>
                     <div>
-                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60">Sorte Média</p>
-                      <p className="text-xl font-bold">{avgLuck}</p>
-                      <p className="text-[10px] opacity-50 mt-0.5">Inicial: {avgLuckInitial}</p>
+                      <p className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">Sorte Média</p>
+                      <p className="text-xl font-extrabold">{avgLuck}</p>
+                      <p className="text-[9px] opacity-60 mt-0.5 font-sans">Inicial: {avgLuckInitial}</p>
                     </div>
                   </div>
                 </div>
@@ -2455,22 +2489,31 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL de Migração (Supabase):</span>
+                      <span className={`text-[10px] uppercase font-extrabold tracking-wider font-sans flex items-center gap-1.5 ${
+                        isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'
+                      }`}>
+                        <Terminal size={11} />
+                        Script SQL de Migração (Supabase):
+                      </span>
                       <button
                         type="button"
                         onClick={copyAchievementsSqlToClipboard}
-                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
-                          isPapyrus 
-                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
-                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        className={`flex items-center gap-1.5 px-3 py-1.5 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded-full transition-all duration-200 ${
+                          copiedAchievementsSql
+                            ? 'border-green-500/50 bg-green-500/10 text-green-400'
+                            : (isPapyrus 
+                              ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                              : 'border-slate-700 hover:bg-slate-800 hover:border-cyan-500/40 text-slate-300 bg-slate-900/50')
                         }`}
                       >
-                        {copiedAchievementsSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                        {copiedAchievementsSql ? 'Copiado!' : 'Copiar Script SQL'}
+                        {copiedAchievementsSql ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+                        {copiedAchievementsSql ? 'Copiado!' : 'Copiar SQL'}
                       </button>
                     </div>
-                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
-                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    <pre className={`p-4 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded-lg leading-relaxed ${
+                      isPapyrus 
+                        ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' 
+                        : 'border-slate-700/60 bg-[#0d1117] text-emerald-300/90 shadow-inner'
                     }`}>
                       {achievementsSqlCommand}
                     </pre>
@@ -2529,22 +2572,31 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL de Migração (Supabase):</span>
+                      <span className={`text-[10px] uppercase font-extrabold tracking-wider font-sans flex items-center gap-1.5 ${
+                        isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'
+                      }`}>
+                        <Terminal size={11} />
+                        Script SQL de Migração (Supabase):
+                      </span>
                       <button
                         type="button"
                         onClick={copyStatsSqlToClipboard}
-                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
-                          isPapyrus 
-                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
-                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        className={`flex items-center gap-1.5 px-3 py-1.5 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded-full transition-all duration-200 ${
+                          copiedStatsSql
+                            ? 'border-green-500/50 bg-green-500/10 text-green-400'
+                            : (isPapyrus 
+                              ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                              : 'border-slate-700 hover:bg-slate-800 hover:border-cyan-500/40 text-slate-300 bg-slate-900/50')
                         }`}
                       >
-                        {copiedStatsSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                        {copiedStatsSql ? 'Copiado!' : 'Copiar Script SQL'}
+                        {copiedStatsSql ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+                        {copiedStatsSql ? 'Copiado!' : 'Copiar SQL'}
                       </button>
                     </div>
-                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
-                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    <pre className={`p-4 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded-lg leading-relaxed ${
+                      isPapyrus 
+                        ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' 
+                        : 'border-slate-700/60 bg-[#0d1117] text-emerald-300/90 shadow-inner'
                     }`}>
                       {statsSqlCommand}
                     </pre>
@@ -2578,22 +2630,31 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold tracking-wider font-sans">Script SQL da Função RPC:</span>
+                      <span className={`text-[10px] uppercase font-extrabold tracking-wider font-sans flex items-center gap-1.5 ${
+                        isPapyrus ? 'text-[#5C4033]/70' : 'text-slate-400'
+                      }`}>
+                        <Terminal size={11} />
+                        Script SQL da Função RPC:
+                      </span>
                       <button
                         type="button"
                         onClick={copyRpcSqlToClipboard}
-                        className={`flex items-center gap-1 px-2.5 py-1 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded transition ${
-                          isPapyrus 
-                            ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
-                            : 'border-slate-700 hover:bg-slate-800 text-slate-300 bg-slate-900/50'
+                        className={`flex items-center gap-1.5 px-3 py-1.5 border text-[10px] uppercase font-bold tracking-wider cursor-pointer rounded-full transition-all duration-200 ${
+                          copiedRpcSql
+                            ? 'border-green-500/50 bg-green-500/10 text-green-400'
+                            : (isPapyrus 
+                              ? 'border-[#5C4033] hover:bg-[#5C4033]/10 text-[#2D1D16] bg-[#EAD8B8]' 
+                              : 'border-slate-700 hover:bg-slate-800 hover:border-cyan-500/40 text-slate-300 bg-slate-900/50')
                         }`}
                       >
-                        {copiedRpcSql ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                        {copiedRpcSql ? 'Copiado!' : 'Copiar Script SQL'}
+                        {copiedRpcSql ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+                        {copiedRpcSql ? 'Copiado!' : 'Copiar SQL'}
                       </button>
                     </div>
-                    <pre className={`p-3 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded ${
-                      isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' : 'border-slate-800 bg-slate-950 text-slate-300'
+                    <pre className={`p-4 border font-mono text-[10px] overflow-x-auto max-h-[180px] rounded-lg leading-relaxed ${
+                      isPapyrus 
+                        ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30 text-[#2D1D16]' 
+                        : 'border-slate-700/60 bg-[#0d1117] text-emerald-300/90 shadow-inner'
                     }`}>
                       {rpcSqlCommand}
                     </pre>
