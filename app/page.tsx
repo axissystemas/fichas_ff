@@ -14,6 +14,7 @@ import AuthStatus from '@/components/AuthStatus';
 import { CurrentSectionCard } from '@/components/CurrentSectionCard';
 import { useSheetStore } from '@/store/useSheetStore';
 import { CharacterCreation } from '@/components/CharacterCreation';
+import { getThemeConfig } from '@/lib/themeUtils';
 import { supabase } from '@/lib/supabase';
 import { MedoTracker } from '@/components/MedoTracker';
 import { CidadelaTracker } from '@/components/CidadelaTracker';
@@ -717,6 +718,39 @@ export default function Home() {
   };
 
   const isPapyrus = theme === 'papyrus';
+  const themeConfig = getThemeConfig(theme, activeSheetId ? gamebook : undefined);
+
+  // Swipe Gestures for Mobile Tabs
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 55;
+    const isRightSwipe = distance < -55;
+
+    const tabs = ['Status', 'Combate', 'Inventário', 'Notas'];
+    const currentIndex = tabs.indexOf(activeTab);
+
+    if (isLeftSwipe && currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+      audio.playBlip();
+    } else if (isRightSwipe && currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]);
+      audio.playBlip();
+    }
+  };
+
   // We remove global isLoading so it doesn't unmount child components during fetch.
   // The child components will handle their own loading states.
 
@@ -1000,16 +1034,15 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 font-serif ${isPapyrus ? 'theme-papyrus' : 'theme-night'
-        }`}
+      className={`min-h-screen py-6 px-4 md:py-12 md:px-8 transition-colors duration-300 ${themeConfig.bodyFontClass} ${themeConfig.bodyClass}`}
     >
       <div
         className={`w-full mx-auto transition-all duration-300 ${showSheet || showLogin
             ? 'max-w-[1280px] xl:max-w-[1400px]'
             : 'max-w-[1024px]'
           } ${showSheet
-            ? 'p-0 md:p-8 border-0 md:border ' + (isPapyrus ? 'md:bg-[#EAD8B8] md:border-[#C5A059] md:shadow-2xl' : 'md:bg-[#1a202c] md:border-[#4a5568] md:shadow-2xl')
-            : 'p-4 sm:p-8 border shadow-2xl ' + (isPapyrus ? 'theme-papyrus-card' : 'theme-night-card')
+            ? 'p-0 md:p-8 border-0 md:border ' + (themeConfig.isDark ? (gamebook === 'A Floresta da Destruição' ? 'md:bg-slate-950/70 md:border-emerald-800 md:shadow-2xl' : 'md:bg-[#1a202c] md:border-[#4a5568] md:shadow-2xl') : 'md:bg-[#EAD8B8] md:border-[#C5A059] md:shadow-2xl')
+            : 'p-4 sm:p-8 border shadow-2xl ' + themeConfig.cardClass
           }`}
       >
         {/* ── Cabeçalho Desktop ── */}
@@ -1020,7 +1053,7 @@ export default function Home() {
           <div className="text-center sm:text-left">
             {/* Title — clicking it when in a sheet goes back to dashboard */}
             <h1
-              className={`text-4xl sm:text-5xl font-bold uppercase tracking-widest ${showSheet ? 'cursor-pointer hover:opacity-80 transition' : ''}`}
+              className={`text-4xl sm:text-5xl font-bold uppercase tracking-widest ${themeConfig.headerFontClass} ${showSheet ? 'cursor-pointer hover:opacity-80 transition' : ''}`}
               onClick={() => showSheet && handleBackToDashboard()}
               title={showSheet ? 'Voltar ao painel de fichas' : undefined}
             >
@@ -1756,7 +1789,7 @@ export default function Home() {
                             <ChevronLeft size={20} />
                           </button>
                           <div className="min-w-0">
-                            <h2 className="text-base font-extrabold uppercase tracking-wide truncate max-w-[160px] sm:max-w-[240px] font-serif">
+                            <h2 className={`text-base font-extrabold uppercase tracking-wide truncate max-w-[160px] sm:max-w-[240px] ${themeConfig.headerFontClass}`}>
                               {activeSheetTitle || 'Aventureiro'}
                             </h2>
                             <p className={`text-[10px] font-sans truncate opacity-80 max-w-[160px] sm:max-w-[240px] font-bold ${isPapyrus ? 'text-[#C5A059]' : 'text-cyan-400'}`}>
@@ -1957,9 +1990,15 @@ export default function Home() {
                     </div>
 
                     {/* CONTEÚDO DAS ABAS (MOBILE) */}
+                    <div
+                      onTouchStart={onTouchStart}
+                      onTouchMove={onTouchMove}
+                      onTouchEnd={onTouchEnd}
+                      className="min-h-[350px]"
+                    >
 
-                    {/* Aba Status */}
-                    {activeTab === 'Status' && (
+                      {/* Aba Status */}
+                      {activeTab === 'Status' && (
                       <div className="px-4 space-y-4 animate-fade-in">
                         <div className="flex items-center justify-between mt-2">
                           <h3 className={`text-xs font-bold uppercase tracking-wider ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>
@@ -2162,6 +2201,7 @@ export default function Home() {
                         </div>
                       </div>
                     )}
+                    </div>
 
                     {/* Barra de Navegação Inferior Fixa */}
                     <div className={`fixed bottom-0 left-0 right-0 z-[100] border-t backdrop-blur-md safe-bottom flex items-center justify-around py-2.5 shadow-2xl transition-colors duration-300 ${isPapyrus ? 'bg-[#1C120D]/95 border-[#4A3728] text-[#EAD8B8]' : 'bg-slate-950/95 border-slate-850 text-slate-300'

@@ -6,20 +6,80 @@
   }
 }
 
+/* Custom Fonts mapping to Next.js CSS variables */
+.font-almendra {
+  font-family: var(--font-almendra), serif;
+}
+.font-cinzel {
+  font-family: var(--font-cinzel), serif;
+}
+.font-bangers {
+  font-family: var(--font-bangers), sans-serif;
+}
+.font-share-mono {
+  font-family: var(--font-share-mono), monospace;
+}
+.font-serif {
+  font-family: var(--font-serif), serif;
+}
+.font-sans {
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* --- Theme Papyrus (Parchment Texture) --- */
 .theme-papyrus {
-  @apply bg-[#16110F] text-[#2D1D16];
+  background-color: #1a1412;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(253, 246, 227, 0.04) 0%, rgba(22, 17, 15, 0.7) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  color: #2D1D16;
 }
 
 .theme-papyrus-card {
-  @apply bg-[#EAD8B8] border-[#C5A059] shadow-2xl;
+  background-color: #EAD8B8;
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(253, 246, 227, 0.35) 0%, rgba(234, 216, 184, 0.2) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  box-shadow: 
+    inset 0 0 30px rgba(92, 64, 51, 0.12),
+    0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 2px solid #C5A059;
 }
 
+/* --- Theme Night (Sleek Dark UI) --- */
 .theme-night {
-  @apply bg-[#0f172a] text-[#cbd5e0];
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.6) 0%, #0b0f19 100%);
+  color: #cbd5e0;
 }
 
 .theme-night-card {
-  @apply bg-[#1a202c] border-[#4a5568] shadow-2xl;
+  background-color: rgba(26, 32, 44, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 85, 104, 0.4);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.25),
+    inset 0 0 8px rgba(99, 102, 241, 0.03);
+}
+
+/* --- Theme Forest (Special Doom Theme for A Floresta da Destruição) --- */
+.theme-forest {
+  background-color: #050f09;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.06) 0%, #050f09 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.012'/%3E%3C/svg%3E");
+  color: #a7f3d0;
+}
+
+.theme-forest-card {
+  background-color: rgba(6, 30, 18, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.35),
+    inset 0 0 10px rgba(16, 185, 129, 0.08);
+  color: #d1fae5;
 }
 
 /* Altura do Safe Area para iPhones e celulares modernos */
@@ -58,6 +118,32 @@
   animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.05);
+  }
+  25% {
+    transform: translateY(-2px) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-16px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.9);
+  }
+}
+
+.animate-float-up {
+  animation: floatUp 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
 /* Ocultar barra de rolagem para listas horizontais */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
@@ -65,6 +151,179 @@
 .scrollbar-none {
   -ms-overflow-style: none;  /* IE/Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* --- Custom Scrollbars by Theme --- */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Papyrus theme scrollbars */
+.theme-papyrus ::-webkit-scrollbar-track {
+  background: rgba(92, 64, 51, 0.05);
+}
+
+.theme-papyrus ::-webkit-scrollbar-thumb {
+  background: rgba(92, 64, 51, 0.6);
+  border-radius: 4px;
+  border: 1px solid #EAD8B8;
+}
+
+.theme-papyrus ::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 64, 51, 0.85);
+}
+
+/* Night theme scrollbars */
+.theme-night ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.theme-night ::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.35);
+  border-radius: 4px;
+  border: 1px solid #1a202c;
+}
+
+.theme-night ::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.6);
+}
+
+/* Forest theme scrollbars */
+.theme-forest ::-webkit-scrollbar-track {
+  background: rgba(5, 15, 9, 0.25);
+}
+
+.theme-forest ::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.35);
+  border-radius: 4px;
+  border: 1px solid #061e12;
+}
+
+.theme-forest ::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.6);
+}
+
+/* General scrollbar support for Firefox */
+.theme-papyrus {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(92, 64, 51, 0.6) transparent;
+}
+
+.theme-night {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.35) transparent;
+}
+
+.theme-forest {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.35) transparent;
+}
+
+/* --- Custom Range Inputs (Sliders) --- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Webkit browser tracks (Chrome, Safari, Edge) */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.theme-papyrus input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(92, 64, 51, 0.25);
+}
+
+.theme-night input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.theme-forest input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+/* Webkit browser thumbs (Chrome, Safari, Edge) */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -4px; /* Align vertical center */
+  height: 12px;
+  width: 12px;
+  border-radius: 9999px;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.theme-papyrus input[type="range"]::-webkit-slider-thumb {
+  background-color: #5C4033;
+  border: 1.5px solid #C5A059;
+}
+
+.theme-night input[type="range"]::-webkit-slider-thumb {
+  background-color: #22d3ee;
+  box-shadow: 0 0 6px rgba(34, 211, 238, 0.7);
+}
+
+.theme-forest input[type="range"]::-webkit-slider-thumb {
+  background-color: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+}
+
+/* Mozilla Firefox tracks */
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.theme-papyrus input[type="range"]::-moz-range-track {
+  background: rgba(92, 64, 51, 0.25);
+}
+
+.theme-night input[type="range"]::-moz-range-track {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.theme-forest input[type="range"]::-moz-range-track {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+/* Mozilla Firefox thumbs */
+input[type="range"]::-moz-range-thumb {
+  border: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 9999px;
+  transition: transform 0.15s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.25);
+}
+
+.theme-papyrus input[type="range"]::-moz-range-thumb {
+  background-color: #5C4033;
+  border: 1.5px solid #C5A059;
+}
+
+.theme-night input[type="range"]::-moz-range-thumb {
+  background-color: #22d3ee;
+}
+
+.theme-forest input[type="range"]::-moz-range-thumb {
+  background-color: #10b981;
 }
 
 

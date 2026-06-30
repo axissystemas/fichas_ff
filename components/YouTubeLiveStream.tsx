@@ -19,7 +19,7 @@ function extractYoutubeId(urlOrId: string): string | null {
 export function YouTubeLiveStream() {
   const { theme, youtubeSettings, loadYoutubeSettings } = useSheetStore();
   const isPapyrus = theme === 'papyrus';
-  const { channelId, videoUrl, isLive } = youtubeSettings;
+  const { channelId, videoUrl, isLive, youtubeUrl } = youtubeSettings;
 
   // Load configuration from Supabase / localStorage on mount
   useEffect(() => {
@@ -92,9 +92,23 @@ export function YouTubeLiveStream() {
               className="w-full h-full object-cover select-none pointer-events-none"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-4">
-              <div className="flex items-center gap-1.5 text-white">
-                <span className="h-2 w-2 rounded-full bg-slate-500"></span>
-                <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-90">Canal Atualmente Offline</span>
+              <div className="flex flex-col gap-1.5 items-start text-white">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-slate-500"></span>
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-90">Canal Atualmente Offline</span>
+                </div>
+                {youtubeUrl && (
+                  <a
+                    href={youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[10px] underline font-sans font-bold transition mt-1 uppercase tracking-wider ${
+                      isPapyrus ? 'text-[#C5A059] hover:text-[#EAD8B8]' : 'text-cyan-400 hover:text-cyan-300'
+                    }`}
+                  >
+                    Visite nosso canal no YouTube →
+                  </a>
+                )}
               </div>
             </div>
           </div>
