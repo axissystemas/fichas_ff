@@ -1469,93 +1469,95 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                     </div>
                   )}
 
-                  {/* Listagem Grelha */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredSheets.map(sheet => {
-                      const isEditing = editingId === sheet.id;
-                      const isConfirmingDelete = confirmDeleteId === sheet.id;
-                      const uDate = new Date(sheet.updated_at).toLocaleDateString('pt-BR');
-                      const p = profiles.find(pr => pr.id === sheet.user_id);
+                  {/* Listagem Grelha com scrollbar (limite de visualização 3x3) */}
+                  <div className="max-h-[580px] overflow-y-auto pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredSheets.map(sheet => {
+                        const isEditing = editingId === sheet.id;
+                        const isConfirmingDelete = confirmDeleteId === sheet.id;
+                        const uDate = new Date(sheet.updated_at).toLocaleDateString('pt-BR');
+                        const p = profiles.find(pr => pr.id === sheet.user_id);
 
-                      return (
-                        <div
-                          key={sheet.id}
-                          className={`p-4 border flex flex-col gap-3 group transition ${
-                            isPapyrus 
-                              ? 'border-[#5C4033] bg-[#EAD8B8]/30' 
-                              : 'border-slate-800 bg-slate-900/40 hover:bg-slate-900/75 rounded-lg'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start">
-                            {isEditing ? (
-                              <input
-                                value={editTitle}
-                                onChange={e => setEditTitle(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleRename(sheet.id)}
-                                className={`px-2 py-1 text-xs border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'}`}
-                              />
-                            ) : (
-                              <div>
-                                <h4 className="font-bold text-sm leading-tight">{sheet.title}</h4>
-                                <div className="flex flex-col gap-0.5 mt-0.5">
-                                  <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
-                                  <span className={`text-[10px] font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}</span>
+                        return (
+                          <div
+                            key={sheet.id}
+                            className={`p-4 border flex flex-col gap-3 group transition ${
+                              isPapyrus 
+                                ? 'border-[#5C4033] bg-[#EAD8B8]/30' 
+                                : 'border-slate-800 bg-slate-900/40 hover:bg-slate-900/75 rounded-lg'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              {isEditing ? (
+                                <input
+                                  value={editTitle}
+                                  onChange={e => setEditTitle(e.target.value)}
+                                  onKeyDown={e => e.key === 'Enter' && handleRename(sheet.id)}
+                                  className={`px-2 py-1 text-xs border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'}`}
+                                />
+                              ) : (
+                                <div>
+                                  <h4 className="font-bold text-sm leading-tight">{sheet.title}</h4>
+                                  <div className="flex flex-col gap-0.5 mt-0.5">
+                                    <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
+                                    <span className={`text-[10px] font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-
-                            <div className="flex gap-1">
-                              {!isEditing && (
-                                <button onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }} className="p-1 opacity-0 group-hover:opacity-100 transition hover:text-cyan-400">
-                                  <Pencil size={11} />
-                                </button>
                               )}
-                              {isEditing && (
-                                <>
-                                  <button onClick={() => handleRename(sheet.id)} className="text-green-500"><Check size={12} /></button>
-                                  <button onClick={() => setEditingId(null)} className="text-red-500"><X size={12} /></button>
-                                </>
+
+                              <div className="flex gap-1">
+                                {!isEditing && (
+                                  <button onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }} className="p-1 opacity-0 group-hover:opacity-100 transition hover:text-cyan-400">
+                                    <Pencil size={11} />
+                                  </button>
+                                )}
+                                {isEditing && (
+                                  <>
+                                    <button onClick={() => handleRename(sheet.id)} className="text-green-500"><Check size={12} /></button>
+                                    <button onClick={() => setEditingId(null)} className="text-red-500"><X size={12} /></button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center text-xs opacity-75 border-t border-current/5 pt-2">
+                              <span>Status: <strong className="uppercase">{sheet.status || 'playing'}</strong></span>
+                              <span>Acessada: <span className="font-mono">{uDate}</span></span>
+                            </div>
+
+                            <div className="flex gap-2 mt-1">
+                              <button
+                                onClick={() => handleSelectSheetDetails(sheet)}
+                                className={`flex-1 flex justify-center items-center gap-1 py-1 text-[10px] uppercase font-bold border cursor-pointer ${
+                                  isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/10' : 'border-slate-700 hover:bg-slate-800 rounded'
+                                }`}
+                              >
+                                Análise <ChevronRight size={10} />
+                              </button>
+
+                              <button
+                                onClick={() => handleExportSheet(sheet.id, sheet.title)}
+                                className={`p-1.5 border cursor-pointer hover:bg-current/5 ${isPapyrus ? 'border-[#5C4033]' : 'border-slate-700 rounded'}`}
+                                title="Exportar JSON"
+                              >
+                                <Download size={11} />
+                              </button>
+
+                              {isConfirmingDelete ? (
+                                <div className="flex gap-1">
+                                  <button onClick={() => handleDelete(sheet.id)} className="p-1 text-red-500 border border-red-500/50 rounded"><Check size={10} /></button>
+                                  <button onClick={() => setConfirmDeleteId(null)} className="p-1 text-slate-400 border border-slate-700 rounded"><X size={10} /></button>
+                                </div>
+                              ) : (
+                                <button onClick={() => setConfirmDeleteId(sheet.id)} className="p-1.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 cursor-pointer rounded">
+                                  <Trash2 size={11} />
+                                </button>
                               )}
                             </div>
                           </div>
-
-                          <div className="flex justify-between items-center text-xs opacity-75 border-t border-current/5 pt-2">
-                            <span>Status: <strong className="uppercase">{sheet.status || 'playing'}</strong></span>
-                            <span>Acessada: <span className="font-mono">{uDate}</span></span>
-                          </div>
-
-                          <div className="flex gap-2 mt-1">
-                            <button
-                              onClick={() => handleSelectSheetDetails(sheet)}
-                              className={`flex-1 flex justify-center items-center gap-1 py-1 text-[10px] uppercase font-bold border cursor-pointer ${
-                                isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/10' : 'border-slate-700 hover:bg-slate-800 rounded'
-                              }`}
-                            >
-                              Análise <ChevronRight size={10} />
-                            </button>
-
-                            <button
-                              onClick={() => handleExportSheet(sheet.id, sheet.title)}
-                              className={`p-1.5 border cursor-pointer hover:bg-current/5 ${isPapyrus ? 'border-[#5C4033]' : 'border-slate-700 rounded'}`}
-                              title="Exportar JSON"
-                            >
-                              <Download size={11} />
-                            </button>
-
-                            {isConfirmingDelete ? (
-                              <div className="flex gap-1">
-                                <button onClick={() => handleDelete(sheet.id)} className="p-1 text-red-500 border border-red-500/50 rounded"><Check size={10} /></button>
-                                <button onClick={() => setConfirmDeleteId(null)} className="p-1 text-slate-400 border border-slate-700 rounded"><X size={10} /></button>
-                              </div>
-                            ) : (
-                              <button onClick={() => setConfirmDeleteId(sheet.id)} className="p-1.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 cursor-pointer rounded">
-                                <Trash2 size={11} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
@@ -1643,8 +1645,8 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="border-b border-current/25 font-bold uppercase opacity-85">
-                            <th className="py-2.5">Nome / Email</th>
-                            <th className="py-2.5">UID</th>
+                            <th className="py-2.5">Nome</th>
+                            <th className="py-2.5">Email</th>
                             <th className="py-2.5 text-center">Último Acesso</th>
                             <th className="py-2.5 text-center">Consecutivos (Streak)</th>
                             <th className="py-2.5 text-center">Tempo de Jogo</th>
@@ -1657,8 +1659,8 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                             });
                             return (
                               <tr key={p.id} className="border-b border-current/5 hover:bg-current/5 transition-colors">
-                                <td className="py-3 font-semibold">{p.display_name || p.email}</td>
-                                <td className="py-3 font-mono text-[10px] opacity-75">{p.id}</td>
+                                <td className="py-3 font-semibold">{p.display_name || 'Sem nome'}</td>
+                                <td className="py-3 font-mono text-[10px] opacity-75">{p.email || '-'}</td>
                                 <td className="py-3 text-center">{lastLoginDate}</td>
                                 <td className="py-3 text-center font-bold text-orange-500">
                                   🔥 {p.login_streak || 1} dias
