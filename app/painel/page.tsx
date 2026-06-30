@@ -461,7 +461,8 @@ GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
   };
 
   const handleCreate = async () => {
-    const title = newTitle.trim() || 'Nova Ficha Admin';
+    const title = newTitle.trim();
+    if (!title) return;
     await createSheet(title, newGamebook, newSuggestionsEnabled);
     setNewTitle('');
     setNewGamebook(GAMEBOOKS[0]);
@@ -1422,9 +1423,11 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                             placeholder="Ex: Admin Campaign"
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                             className={`w-full px-3 py-1.5 text-xs border ${
                               isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'
                             }`}
+                            required
                           />
                         </div>
                         <div className="flex-1 flex flex-col gap-1">
@@ -1462,7 +1465,17 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                           </label>
                         </div>
                         <div className="flex gap-2 shrink-0">
-                          <button onClick={handleCreate} className={`px-3 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Criar</button>
+                          <button
+                            onClick={handleCreate}
+                            disabled={!newTitle.trim()}
+                            className={`px-3 py-1.5 text-xs font-bold uppercase border cursor-pointer rounded transition ${
+                              !newTitle.trim()
+                                ? 'opacity-40 cursor-not-allowed border border-current/10'
+                                : (isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950')
+                            }`}
+                          >
+                            Criar
+                          </button>
                           <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); }} className={`px-3 py-1.5 text-xs border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Cancelar</button>
                         </div>
                       </div>

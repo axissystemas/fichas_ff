@@ -67,7 +67,8 @@ function SheetDashboard() {
   }, []);
 
   const handleCreate = async () => {
-    const title = newTitle.trim() || 'Nova Ficha';
+    const title = newTitle.trim();
+    if (!title) return;
     await createSheet(title, newGamebook, newSuggestionsEnabled);
     setNewTitle('');
     setNewGamebook(GAMEBOOKS[0]);
@@ -141,6 +142,7 @@ function SheetDashboard() {
                 onChange={(e) => setNewTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 autoFocus
+                required
               />
             </div>
             <div className="flex-1 flex flex-col gap-1.5">
@@ -178,7 +180,14 @@ function SheetDashboard() {
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={handleCreate}
-                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider ${isPapyrus ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer transition' : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer transition rounded'}`}
+                disabled={!newTitle.trim()}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs uppercase font-bold tracking-wider transition ${
+                  !newTitle.trim()
+                    ? 'opacity-40 cursor-not-allowed border border-current/10'
+                    : (isPapyrus 
+                        ? 'border border-[#5C4033] bg-[#5C4033] text-[#EAD8B8] hover:bg-[#3D2B1F] cursor-pointer' 
+                        : 'border border-cyan-500/60 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 cursor-pointer rounded')
+                }`}
               >
                 <Check size={14} /> Criar
               </button>
