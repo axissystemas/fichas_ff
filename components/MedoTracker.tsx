@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
 import { Zap, Brain, ShieldAlert, Cpu, Clock, Save } from 'lucide-react';
@@ -37,6 +37,14 @@ export const MedoTracker = () => {
   const [blastResult, setBlastResult] = useState<string | null>(null);
   const [rollingBlast, setRollingBlast] = useState(false);
   const [rollingDiceBlast, setRollingDiceBlast] = useState<number[]>([1, 1]);
+
+  useEffect(() => {
+    setLocalClue(clues.local || '');
+    setDiaClue(clues.dia || '');
+    setHorarioClue(clues.horario || '');
+    setLiderClue(clues.lider || '');
+    setOutrasClue(clues.outras || '');
+  }, [clues.local, clues.dia, clues.horario, clues.lider, clues.outras]);
 
   if (!isMedo) return null;
 
@@ -186,9 +194,9 @@ export const MedoTracker = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         {/* Left Column: Superpower & Relógio do Crime */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-1">
           {/* Superpower Card */}
           <div className={cardClasses}>
             <h3 className={titleClasses}>Poder Ativo</h3>
@@ -304,7 +312,7 @@ export const MedoTracker = () => {
         </div>
 
         {/* Right Column: Clues */}
-        <div className={cardClasses}>
+        <div className={`${cardClasses} lg:col-span-4`}>
           <div className="flex items-center justify-between mb-3 border-b border-current/10 pb-1">
             <h3 className={titleClasses + ' !mb-0 !border-0'}>Pistas do M.E.D.O.</h3>
             <button
