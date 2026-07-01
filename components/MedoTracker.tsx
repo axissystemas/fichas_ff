@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSheetStore } from '@/store/useSheetStore';
 import { audio } from '@/lib/audio';
-import { Zap, Brain, ShieldAlert, Cpu, Clock, Save } from 'lucide-react';
+import { Zap, Brain, ShieldAlert, Cpu, Clock, Save, Trash2, Plus } from 'lucide-react';
 import { Die, getDiceStyle } from './Die';
 
 export const MedoTracker = () => {
@@ -14,6 +14,7 @@ export const MedoTracker = () => {
     updateHeroPoints,
     advanceTime,
     updateClues,
+    updateCluesList,
     addCombatLog,
     saveToSupabase,
     getModifiedAttribute,
@@ -27,12 +28,14 @@ export const MedoTracker = () => {
   const timeDay = attributes.timeDay || 1;
   const timePeriod = attributes.timePeriod || 'manha';
   const clues = attributes.clues || { local: '', dia: '', horario: '', lider: '', outras: '' };
+  const cluesList = attributes.cluesList || [];
 
   const [localClue, setLocalClue] = useState(clues.local);
   const [diaClue, setDiaClue] = useState(clues.dia);
   const [horarioClue, setHorarioClue] = useState(clues.horario);
   const [liderClue, setLiderClue] = useState(clues.lider);
   const [outrasClue, setOutrasClue] = useState(clues.outras);
+  const [activeClueId, setActiveClueId] = useState<string | null>(null);
 
   const [blastResult, setBlastResult] = useState<string | null>(null);
   const [rollingBlast, setRollingBlast] = useState(false);
@@ -133,14 +136,77 @@ export const MedoTracker = () => {
     }, 600);
   };
 
-  const handleSaveClues = async () => {
+  const handleSelectClue = (clue: any) => {
+    setActiveClueId(clue.id);
+    setLocalClue(clue.local || '');
+    setDiaClue(clue.dia || '');
+    setHorarioClue(clue.horario || '');
+    setLiderClue(clue.lider || '');
+    setOutrasClue(clue.outras || '');
+    audio.playBlip();
+  };
+
+  const handleNewClue = () => {
+    setActiveClueId(null);
+    setLocalClue('');
+    setDiaClue('');
+    setHorarioClue('');
+    setLiderClue('');
+    setOutrasClue('');
+    audio.playBlip();
+  };
+
+  const handleSaveClue = async () => {
+    if (!localClue && !diaClue && !horarioClue && !liderClue && !outrasClue) return;
+
+    let newList = [...cluesList];
+
+    if (activeClueId) {
+      newList = newList.map(c => c.id === activeClueId ? {
+        id: activeClueId,
+        local: localClue,
+        dia: diaClue,
+        horario: horarioClue,
+        lider: liderClue,
+        outras: outrasClue
+      } : c);
+    } else {
+      const newClue = {
+        id: Date.now().toString(),
+        local: localClue || 'Pista sem Local',
+        dia: diaClue,
+        horario: horarioClue,
+        lider: liderClue,
+        outras: outrasClue
+      };
+      newList.push(newClue);
+      setActiveClueId(newClue.id);
+    }
+
+    updateCluesList(newList);
     updateClues({
       local: localClue,
       dia: diaClue,
       horario: horarioClue,
       lider: liderClue,
-      outras: outrasClue,
+      outras: outrasClue
     });
+    await saveToSupabase();
+    audio.playCoin();
+  };
+
+  const handleDeleteClue = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    audio.playBlip();
+    if (!confirm('Deseja excluir esta pista do arquivo?')) return;
+
+    const newList = cluesList.filter((c: any) => c.id !== id);
+    updateCluesList(newList);
+
+    if (activeClueId === id) {
+      handleNewClue();
+    }
+
     await saveToSupabase();
   };
 
@@ -194,7 +260,7 @@ export const MedoTracker = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Superpower & Relógio do Crime */}
         <div className="space-y-6 lg:col-span-1">
           {/* Superpower Card */}
@@ -312,11 +378,11 @@ export const MedoTracker = () => {
         </div>
 
         {/* Right Column: Clues */}
-        <div className={`${cardClasses} lg:col-span-4`}>
+        <div className={`${cardClasses} lg:col-span-1`}>
           <div className="flex items-center justify-between mb-3 border-b border-current/10 pb-1">
             <h3 className={titleClasses + ' !mb-0 !border-0'}>Pistas do M.E.D.O.</h3>
             <button
-              onClick={handleSaveClues}
+              onClick={handleSaveClue}
               className="p-1 border border-transparent hover:border-current rounded hover:text-cyan-400 transition cursor-pointer"
               title="Salvar Pistas"
             >
@@ -331,7 +397,7 @@ export const MedoTracker = () => {
                 placeholder="Ex: Jato Executivo, Galpão 4..."
                 value={localClue}
                 onChange={(e) => setLocalClue(e.target.value)}
-                onBlur={handleSaveClues}
+                onBlur={handleSaveClue}
                 className={inputClasses}
               />
             </div>
@@ -343,7 +409,7 @@ export const MedoTracker = () => {
                   placeholder="Ex: Quarta-feira..."
                   value={diaClue}
                   onChange={(e) => setDiaClue(e.target.value)}
-                  onBlur={handleSaveClues}
+                  onBlur={handleSaveClue}
                   className={inputClasses}
                 />
               </div>
@@ -354,7 +420,7 @@ export const MedoTracker = () => {
                   placeholder="Ex: 20:00..."
                   value={horarioClue}
                   onChange={(e) => setHorarioClue(e.target.value)}
-                  onBlur={handleSaveClues}
+                  onBlur={handleSaveClue}
                   className={inputClasses}
                 />
               </div>
@@ -366,7 +432,7 @@ export const MedoTracker = () => {
                 placeholder="Ex: Vladimir Utoshski (Ciborg Titânio)..."
                 value={liderClue}
                 onChange={(e) => setLiderClue(e.target.value)}
-                onBlur={handleSaveClues}
+                onBlur={handleSaveClue}
                 className={inputClasses}
               />
             </div>
@@ -376,11 +442,73 @@ export const MedoTracker = () => {
                 placeholder="Ex: Bronski capturado no Parque Audubon..."
                 value={outrasClue}
                 onChange={(e) => setOutrasClue(e.target.value)}
-                onBlur={handleSaveClues}
+                onBlur={handleSaveClue}
                 rows={3}
                 className={inputClasses + ' resize-none'}
               />
             </div>
+            <button
+              type="button"
+              onClick={handleSaveClue}
+              className={`${buttonClasses} w-full mt-4 flex items-center justify-center gap-1.5`}
+            >
+              <Save size={14} /> {activeClueId ? 'Atualizar Pista' : 'Salvar no Arquivo'}
+            </button>
+          </div>
+        </div>
+
+        {/* Third Column: Arquivo de Pistas */}
+        <div className={cardClasses}>
+          <div className="flex items-center justify-between mb-3 border-b border-current/10 pb-1">
+            <h3 className={titleClasses + ' !mb-0 !border-0'}>Arquivo de Pistas</h3>
+            <button
+              onClick={handleNewClue}
+              className={`px-2 py-1 text-[10px] font-bold uppercase border border-current/25 hover:bg-current/10 transition rounded cursor-pointer flex items-center gap-1`}
+              title="Nova Pista"
+            >
+              <Plus size={10} /> Nova
+            </button>
+          </div>
+          
+          <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+            {cluesList.length === 0 ? (
+              <p className="text-xs italic text-center py-6 opacity-60">Nenhuma pista arquivada ainda.</p>
+            ) : (
+              cluesList.map((clue: any) => {
+                const isClueActive = activeClueId === clue.id;
+                const clueItemClass = isClueActive
+                  ? isPapyrus
+                    ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/40 shadow-md'
+                    : 'border border-cyan-400 bg-cyan-950/20 shadow-[0_0_10px_rgba(6,182,212,0.15)] rounded-lg'
+                  : isPapyrus
+                    ? 'border border-[#5C4033]/30 bg-transparent hover:bg-[#EAD8B8]/10'
+                    : 'border border-slate-800 bg-transparent hover:border-slate-700/40 rounded-lg';
+                
+                return (
+                  <div
+                    key={clue.id}
+                    onClick={() => handleSelectClue(clue)}
+                    className={`p-2.5 cursor-pointer transition-all duration-150 flex items-start justify-between gap-2 ${clueItemClass}`}
+                  >
+                    <div className="flex-1 text-left min-w-0">
+                      <h4 className="font-bold text-xs uppercase tracking-wider truncate">
+                        {clue.local || 'Local não especificado'}
+                      </h4>
+                      <p className="text-[10px] opacity-75 mt-0.5 font-mono truncate">
+                        {clue.dia && `Dia: ${clue.dia}`} {clue.horario && `| H: ${clue.horario}`}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => handleDeleteClue(clue.id, e)}
+                      className="p-1 hover:text-red-500 rounded transition cursor-pointer text-slate-400 hover:bg-red-500/10 shrink-0"
+                      title="Excluir Pista"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

@@ -327,6 +327,7 @@ interface SheetState {
   setActiveSheetId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
   setAttribute: (key: string, value: number, isInitial: boolean) => void;
+  updateCluesList: (cluesList: any[]) => void;
   setSpells: (spells: Record<string, number>) => void;
   toggleDisease: (disease: string) => void;
   updateCoffinsDestroyed: (delta: number) => void;
@@ -1171,6 +1172,15 @@ export const useSheetStore = create<SheetState>()(
             },
           };
         });
+        scheduleSave(get());
+      },
+      updateCluesList: (cluesList) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            cluesList,
+          },
+        }));
         scheduleSave(get());
       },
       updateClues: (updatedClues) => {
