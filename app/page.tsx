@@ -2373,15 +2373,9 @@ export default function Home() {
                   {/* ── VISUALIZAÇÃO DESKTOP (hidden md:block) ── */}
                   {/* ──────────────────────────────────────────────────────── */}
                   <div className="hidden md:block space-y-8 text-left">
-                    {/* Painel do Super-Herói (exclusivo para o livro do M.E.D.O.) */}
-                    {gamebook === 'Encontro Marcado com o M.E.D.O.' && (
-                      <MedoTracker />
-                    )}
-
-                    {/* Ficha Oficial de A Nave Espacial Traveller */}
-                    {gamebook === 'Nave Espacial Traveller' && (
-                      <TravellerOfficialSheet />
-                    )}
+                    {ruleset.desktopTopWidgets?.map((Widget, idx) => (
+                      <Widget key={`desktop-widget-top-${idx}`} />
+                    ))}
 
                     {/* Main Layout Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-fade-in">

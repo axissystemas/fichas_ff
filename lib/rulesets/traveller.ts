@@ -19,5 +19,5 @@ export const travellerRuleset: GamebookRuleset = {
   hideDefaultTabs: ['Inventário'],
   hideAttributeCards: true,
   mobileWidgets: [TravellerTracker],
-  desktopWidgets: [TravellerOfficialSheet]
+  desktopTopWidgets: [TravellerOfficialSheet]
 };

@@ -25,5 +25,5 @@ export const medoRuleset: GamebookRuleset = {
       ]
     }
   },
-  desktopWidgets: [MedoTracker]
+  desktopTopWidgets: [MedoTracker]
 };

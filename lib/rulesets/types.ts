@@ -54,4 +54,5 @@ export interface GamebookRuleset {
   mobileWidgets?: React.ComponentType<any>[]; // Widgets injetados no status mobile
   desktopWidgets?: React.ComponentType<any>[]; // Widgets injetados no status desktop
   desktopSideWidgets?: React.ComponentType<any>[]; // Widgets injetados ao lado do combate no desktop
+  desktopTopWidgets?: React.ComponentType<any>[]; // Widgets injetados no topo do desktop (antes do grid)
 }
