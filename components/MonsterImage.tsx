@@ -15,35 +15,51 @@ export const MonsterImage = ({ name, className = '' }: MonsterImageProps) => {
   const formats = ['.webp', '.jpg', '.png'];
   const bucketUrl = 'https://uygapxzgpcoryrmaxvuh.supabase.co/storage/v1/object/public/monsters';
 
-  // Sanitiza o nome do monstro para formar o nome de arquivo adequado
-  const sanitizeFileName = (rawName: string): string => {
-    return rawName
-      .normalize('NFD') // Decompõe acentos
-      .replace(/[\u0300-\u036f]/g, '') // Remove os acentos decompostos
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais não alfanuméricos
-      .replace(/\s+/g, '-'); // Substitui espaços por hifens
+  // Obtém informações da imagem (nome do arquivo e altura com base nas regras)
+  const getMonsterImageInfo = (rawName: string) => {
+    const lowerName = rawName.toLowerCase();
+    let imageName = '';
+    let height = 92; // Altura padrão (83x92 px)
+
+    if (lowerName.includes('orc')) {
+      imageName = 'orc';
+    } else if (lowerName.includes('zumbi')) {
+      imageName = 'zumbi';
+    } else if (lowerName.includes('morcegos gigantes') || lowerName.includes('morcego gigante')) {
+      imageName = 'morcegos-gigantes';
+      height = 73; // Exceção: 83x73 px
+    } else {
+      // Higienização padrão
+      imageName = rawName
+        .normalize('NFD') // Decompõe acentos
+        .replace(/[\u0300-\u036f]/g, '') // Remove os acentos
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+        .replace(/\s+/g, '-'); // Substitui espaços por hifens
+    }
+
+    return { imageName, height };
   };
+
+  const { imageName, height } = getMonsterImageInfo(name);
 
   useEffect(() => {
     setFormatIndex(0);
     setHasError(false);
     
-    if (name) {
-      const sanitized = sanitizeFileName(name);
-      setImgSrc(`${bucketUrl}/${sanitized}${formats[0]}`);
+    if (imageName) {
+      setImgSrc(`${bucketUrl}/${imageName}${formats[0]}`);
     } else {
       setHasError(true);
     }
-  }, [name]);
+  }, [name, imageName]);
 
   const handleError = () => {
     if (formatIndex < formats.length - 1) {
       const nextIndex = formatIndex + 1;
-      const sanitized = sanitizeFileName(name);
       setFormatIndex(nextIndex);
-      setImgSrc(`${bucketUrl}/${sanitized}${formats[nextIndex]}`);
+      setImgSrc(`${bucketUrl}/${imageName}${formats[nextIndex]}`);
     } else {
       setHasError(true);
     }
@@ -59,14 +75,18 @@ export const MonsterImage = ({ name, className = '' }: MonsterImageProps) => {
   }
 
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-black/5 flex items-center justify-center ${className}`}>
+    <div className={`w-full h-full flex items-center justify-center bg-black/5 p-2 ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imgSrc}
         alt={name}
         onError={handleError}
-        className="w-full h-full object-cover transition-opacity duration-300 hover:scale-105"
-        style={{ imageRendering: 'auto' }}
+        style={{ 
+          width: '83px', 
+          height: `${height}px`,
+          imageRendering: 'pixelated'
+        }}
+        className="object-contain transition-opacity duration-300 hover:scale-110"
       />
     </div>
   );
