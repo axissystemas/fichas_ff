@@ -62,6 +62,12 @@ function SheetDashboard() {
   const [editTitle, setEditTitle] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  // Estados para validação e sugestões de nomes
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createSuggestions, setCreateSuggestions] = useState<string[]>([]);
+  const [renameErrorId, setRenameErrorId] = useState<string | null>(null);
+  const [renameSuggestions, setRenameSuggestions] = useState<string[]>([]);
+
   useEffect(() => {
     loadSheetsList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,19 +76,35 @@ function SheetDashboard() {
   const handleCreate = async () => {
     const title = newTitle.trim();
     if (!title) return;
-    await createSheet(title, newGamebook, newSuggestionsEnabled);
-    setNewTitle('');
-    setNewGamebook(GAMEBOOKS[0]);
-    setNewSuggestionsEnabled(true);
-    setCreating(false);
+    setCreateError(null);
+    setCreateSuggestions([]);
+
+    const res = await createSheet(title, newGamebook, newSuggestionsEnabled);
+    if (res && !res.success) {
+      setCreateError(res.error || 'Erro ao criar ficha.');
+      setCreateSuggestions(res.suggestions || []);
+    } else {
+      setNewTitle('');
+      setNewGamebook(GAMEBOOKS[0]);
+      setNewSuggestionsEnabled(true);
+      setCreating(false);
+    }
   };
 
   const handleRename = async (id: string) => {
-    if (editTitle.trim()) {
-      await renameSheet(id, editTitle.trim());
+    const title = editTitle.trim();
+    if (!title) return;
+    setRenameErrorId(null);
+    setRenameSuggestions([]);
+
+    const res = await renameSheet(id, title);
+    if (res && !res.success) {
+      setRenameErrorId(id);
+      setRenameSuggestions(res.suggestions || []);
+    } else {
+      setEditingId(null);
+      setEditTitle('');
     }
-    setEditingId(null);
-    setEditTitle('');
   };
 
   const handleDelete = async (id: string) => {
@@ -193,13 +215,41 @@ function SheetDashboard() {
                 <Check size={14} /> Criar
               </button>
               <button
-                onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); }}
+                onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); setCreateError(null); setCreateSuggestions([]); }}
                 className={`flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs uppercase font-bold tracking-wider ${btnBase}`}
               >
                 <X size={14} />
               </button>
             </div>
           </div>
+
+          {createError && (
+            <div className="text-xs text-red-500 font-sans flex flex-col gap-1.5 border border-red-500/20 bg-red-500/5 p-2.5 rounded">
+              <span className="font-semibold">⚠️ {createError}</span>
+              {createSuggestions.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                  <span className="opacity-80">Que tal usar um destes?</span>
+                  {createSuggestions.map((sug) => (
+                    <button
+                      key={sug}
+                      onClick={() => {
+                        setNewTitle(sug);
+                        setCreateError(null);
+                        setCreateSuggestions([]);
+                      }}
+                      className={`px-2 py-1 text-[10px] uppercase font-bold border transition cursor-pointer ${
+                        isPapyrus
+                          ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8]'
+                          : 'border-cyan-500/40 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/20 rounded'
+                      }`}
+                    >
+                      {sug}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -238,23 +288,51 @@ function SheetDashboard() {
               >
                 {/* Title / Rename */}
                 {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      className={`flex-1 ${inputBase} py-1`}
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleRename(sheet.id);
-                        if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); }
-                      }}
-                      autoFocus
-                    />
-                    <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
-                      <Check size={14} />
-                    </button>
-                    <button onClick={() => { setEditingId(null); setEditTitle(''); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
-                      <X size={14} />
-                    </button>
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="flex items-center gap-2">
+                      <input
+                        className={`flex-1 ${inputBase} py-1`}
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRename(sheet.id);
+                          if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); setRenameErrorId(null); setRenameSuggestions([]); }
+                        }}
+                        autoFocus
+                      />
+                      <button onClick={() => handleRename(sheet.id)} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-green-700 cursor-pointer' : 'text-slate-400 hover:text-green-400 cursor-pointer'} transition`}>
+                        <Check size={14} />
+                      </button>
+                      <button onClick={() => { setEditingId(null); setEditTitle(''); setRenameErrorId(null); setRenameSuggestions([]); }} className={`p-1.5 ${isPapyrus ? 'text-[#5C4033] hover:text-red-700 cursor-pointer' : 'text-slate-400 hover:text-red-400 cursor-pointer'} transition`}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                    {renameErrorId === sheet.id && (
+                      <div className="text-[10px] text-red-500 font-sans flex flex-col gap-1 border border-red-500/20 bg-red-500/5 p-2 rounded">
+                        <span className="font-semibold">⚠️ Nome indisponível</span>
+                        {renameSuggestions.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1 mt-1">
+                            {renameSuggestions.map((sug) => (
+                              <button
+                                key={sug}
+                                onClick={() => {
+                                  setEditTitle(sug);
+                                  setRenameErrorId(null);
+                                  setRenameSuggestions([]);
+                                }}
+                                className={`px-1.5 py-0.5 text-[9px] uppercase font-bold border transition cursor-pointer ${
+                                  isPapyrus
+                                    ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8]'
+                                    : 'border-cyan-500/40 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/20 rounded'
+                                }`}
+                              >
+                                {sug}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="flex items-start justify-between gap-2">

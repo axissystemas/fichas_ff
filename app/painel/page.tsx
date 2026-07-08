@@ -108,6 +108,12 @@ export default function PainelAdmin() {
   const [selectedSheetLogs, setSelectedSheetLogs] = useState<any[]>([]);
   const [loadingSheetLogs, setLoadingSheetLogs] = useState(false);
 
+  // Estados para validação e sugestões de nomes
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createSuggestions, setCreateSuggestions] = useState<string[]>([]);
+  const [renameErrorId, setRenameErrorId] = useState<string | null>(null);
+  const [renameSuggestions, setRenameSuggestions] = useState<string[]>([]);
+
   // Função para carregar as métricas do banco de dados
   const loadStatsData = async () => {
     setStatsLoading(true);
@@ -362,7 +368,46 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO anon;
-GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
+GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;
+
+-- Função para verificar se os nomes de fichas já estão cadastrados globalmente (evita duplicações)
+CREATE OR REPLACE FUNCTION public.check_sheet_titles_taken(titles_to_check TEXT[])
+RETURNS TEXT[]
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN ARRAY(
+    SELECT DISTINCT title 
+    FROM public.adventure_sheets 
+    WHERE LOWER(TRIM(title)) = ANY(
+      SELECT LOWER(TRIM(val)) FROM unnest(titles_to_check) val
+    )
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.check_sheet_titles_taken(TEXT[]) TO anon;
+GRANT EXECUTE ON FUNCTION public.check_sheet_titles_taken(TEXT[]) TO authenticated;
+
+-- Função para verificar se um título já está em uso, exceto por uma ficha específica (usado na edição/renomeação)
+CREATE OR REPLACE FUNCTION public.check_sheet_title_exists_excluding(title_to_check TEXT, exclude_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 
+    FROM public.adventure_sheets 
+    WHERE LOWER(TRIM(title)) = LOWER(TRIM(title_to_check))
+    AND id <> exclude_id
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.check_sheet_title_exists_excluding(TEXT, UUID) TO anon;
+GRANT EXECUTE ON FUNCTION public.check_sheet_title_exists_excluding(TEXT, UUID) TO authenticated;`;
 
   const copyRpcSqlToClipboard = () => {
     navigator.clipboard.writeText(rpcSqlCommand);
@@ -463,19 +508,35 @@ GRANT EXECUTE ON FUNCTION public.get_recent_achievements() TO authenticated;`;
   const handleCreate = async () => {
     const title = newTitle.trim();
     if (!title) return;
-    await createSheet(title, newGamebook, newSuggestionsEnabled);
-    setNewTitle('');
-    setNewGamebook(GAMEBOOKS[0]);
-    setNewSuggestionsEnabled(true);
-    setCreating(false);
+    setCreateError(null);
+    setCreateSuggestions([]);
+
+    const res = await createSheet(title, newGamebook, newSuggestionsEnabled);
+    if (res && !res.success) {
+      setCreateError(res.error || 'Erro ao criar ficha.');
+      setCreateSuggestions(res.suggestions || []);
+    } else {
+      setNewTitle('');
+      setNewGamebook(GAMEBOOKS[0]);
+      setNewSuggestionsEnabled(true);
+      setCreating(false);
+    }
   };
 
   const handleRename = async (id: string) => {
-    if (editTitle.trim()) {
-      await renameSheet(id, editTitle.trim());
+    const title = editTitle.trim();
+    if (!title) return;
+    setRenameErrorId(null);
+    setRenameSuggestions([]);
+
+    const res = await renameSheet(id, title);
+    if (res && !res.success) {
+      setRenameErrorId(id);
+      setRenameSuggestions(res.suggestions || []);
+    } else {
+      setEditingId(null);
+      setEditTitle('');
     }
-    setEditingId(null);
-    setEditTitle('');
   };
 
   const handleDelete = async (id: string) => {
@@ -1476,9 +1537,38 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                           >
                             Criar
                           </button>
-                          <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); }} className={`px-3 py-1.5 text-xs border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Cancelar</button>
+                          <button onClick={() => { setCreating(false); setNewTitle(''); setNewGamebook(GAMEBOOKS[0]); setNewSuggestionsEnabled(true); setCreateError(null); setCreateSuggestions([]); }} className={`px-3 py-1.5 text-xs border cursor-pointer rounded ${isPapyrus ? 'border-[#5C4033] hover:bg-[#5C4033]/15 text-[#2D1D16] bg-[#EAD8B8]' : 'border-slate-700 hover:bg-slate-800 text-[#cbd5e0] bg-slate-950'}`}>Cancelar</button>
                         </div>
                       </div>
+
+                      {createError && (
+                        <div className="text-xs text-red-500 font-sans flex flex-col gap-1.5 border border-red-500/20 bg-red-500/5 p-2.5 rounded">
+                          <span className="font-semibold">⚠️ {createError}</span>
+                          {createSuggestions.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                              <span className="opacity-80">Que tal usar um destes?</span>
+                              {createSuggestions.map((sug) => (
+                                <button
+                                  key={sug}
+                                  type="button"
+                                  onClick={() => {
+                                    setNewTitle(sug);
+                                    setCreateError(null);
+                                    setCreateSuggestions([]);
+                                  }}
+                                  className={`px-2 py-1 text-[10px] uppercase font-bold border transition cursor-pointer ${
+                                    isPapyrus
+                                      ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8]'
+                                      : 'border-cyan-500/40 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/20 rounded'
+                                  }`}
+                                >
+                                  {sug}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1502,17 +1592,50 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                           >
                             <div className="flex justify-between items-start">
                               {isEditing ? (
-                                <input
-                                  value={editTitle}
-                                  onChange={e => setEditTitle(e.target.value)}
-                                  onKeyDown={e => e.key === 'Enter' && handleRename(sheet.id)}
-                                  className={`px-2 py-1 text-xs border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'}`}
-                                />
+                                <div className="flex flex-col gap-1.5 w-full">
+                                  <input
+                                    value={editTitle}
+                                    onChange={e => setEditTitle(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter') handleRename(sheet.id);
+                                      if (e.key === 'Escape') { setEditingId(null); setEditTitle(''); setRenameErrorId(null); setRenameSuggestions([]); }
+                                    }}
+                                    className={`px-2 py-1 text-xs border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16]' : 'border-slate-700 bg-slate-950 rounded'}`}
+                                    autoFocus
+                                  />
+                                  {renameErrorId === sheet.id && (
+                                    <div className="text-[9px] text-red-500 font-sans flex flex-col gap-0.5 border border-red-500/20 bg-red-500/5 p-1.5 rounded">
+                                      <span className="font-semibold">⚠️ Nome indisponível</span>
+                                      {renameSuggestions.length > 0 && (
+                                        <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                                          {renameSuggestions.map((sug) => (
+                                            <button
+                                              key={sug}
+                                              type="button"
+                                              onClick={() => {
+                                                setEditTitle(sug);
+                                                setRenameErrorId(null);
+                                                setRenameSuggestions([]);
+                                              }}
+                                              className={`px-1 py-0.5 text-[8px] uppercase font-bold border transition cursor-pointer ${
+                                                isPapyrus
+                                                  ? 'border-[#5C4033] bg-[#EAD8B8]/60 text-[#2D1D16] hover:bg-[#5C4033] hover:text-[#EAD8B8]'
+                                                  : 'border-cyan-500/40 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/20 rounded'
+                                              }`}
+                                            >
+                                              {sug}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               ) : (
                                 <div>
                                   <h4 className="font-bold text-sm leading-tight">{sheet.title}</h4>
                                   <div className="flex flex-col gap-0.5 mt-0.5">
-                                    <span className="text-[10px] font-sans opacity-60">Dono: {p?.display_name || p?.email || 'Desconhecido'}</span>
+                                    <span className="text-[10px] font-sans opacity-60">Dono: {p?.account_name || p?.email || 'Desconhecido'}</span>
                                     <span className={`text-[10px] font-sans font-bold ${isPapyrus ? 'text-[#8B4513]' : 'text-cyan-400'}`}>📚 {sheet.gamebook || 'O Feiticeiro da Montanha de Fogo'}</span>
                                   </div>
                                 </div>
@@ -1520,14 +1643,14 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
 
                               <div className="flex gap-1">
                                 {!isEditing && (
-                                  <button onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); }} className="p-1 opacity-0 group-hover:opacity-100 transition hover:text-cyan-400">
+                                  <button onClick={() => { setEditingId(sheet.id); setEditTitle(sheet.title); setRenameErrorId(null); setRenameSuggestions([]); }} className="p-1 opacity-0 group-hover:opacity-100 transition hover:text-cyan-400">
                                     <Pencil size={11} />
                                   </button>
                                 )}
                                 {isEditing && (
                                   <>
                                     <button onClick={() => handleRename(sheet.id)} className="text-green-500"><Check size={12} /></button>
-                                    <button onClick={() => setEditingId(null)} className="text-red-500"><X size={12} /></button>
+                                    <button onClick={() => { setEditingId(null); setEditTitle(''); setRenameErrorId(null); setRenameSuggestions([]); }} className="text-red-500"><X size={12} /></button>
                                   </>
                                 )}
                               </div>

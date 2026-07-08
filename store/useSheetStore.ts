@@ -385,8 +385,8 @@ interface SheetState {
   setSyncStatus: (status: SyncStatus) => void;
   loadSheetsList: (allSheets?: boolean) => Promise<void>;
   loadSheet: (id: string) => Promise<void>;
-  createSheet: (title: string, gamebook: string, suggestionsEnabled?: boolean) => Promise<void>;
-  renameSheet: (id: string, newTitle: string) => Promise<void>;
+  createSheet: (title: string, gamebook: string, suggestionsEnabled?: boolean) => Promise<{ success: boolean; error?: string; suggestions?: string[] }>;
+  renameSheet: (id: string, newTitle: string) => Promise<{ success: boolean; error?: string; suggestions?: string[] }>;
   deleteSheet: (id: string) => Promise<void>;
   saveToSupabase: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
@@ -410,6 +410,47 @@ function scheduleSave(store: SheetState) {
     store.saveToSupabase();
   }, 1200);
 }
+
+const generateAvailableSuggestions = async (baseName: string): Promise<string[]> => {
+  const suffixes = [
+    'Destemido', 'de Allansia', 'das Sombras', 'Lendário', 'o Forte', 
+    'o Sábio', 'Valente', 'Intrépido', 'Implacável', 'o Audaz'
+  ];
+  
+  const candidates: string[] = [];
+  
+  // 1. Numerais Romanos
+  candidates.push(`${baseName} II`);
+  candidates.push(`${baseName} III`);
+  candidates.push(`${baseName} IV`);
+  
+  // 2. Títulos e Adjetivos RPG
+  suffixes.forEach(s => {
+    candidates.push(`${baseName}, o ${s}`);
+    candidates.push(`${baseName} ${s}`);
+  });
+  
+  // 3. Números Aleatórios
+  candidates.push(`${baseName} ${Math.floor(Math.random() * 899) + 100}`);
+  candidates.push(`${baseName} ${Math.floor(Math.random() * 90) + 10}`);
+
+  // Embaralha e escolhe 6 candidatos para verificar no banco
+  const shuffled = candidates.sort(() => 0.5 - Math.random()).slice(0, 6);
+  
+  try {
+    const { data: takenTitles } = await supabase
+      .rpc('check_sheet_titles_taken', { titles_to_check: shuffled });
+      
+    if (takenTitles && Array.isArray(takenTitles)) {
+      const takenLower = takenTitles.map((t: string) => t.toLowerCase().trim());
+      return shuffled.filter(c => !takenLower.includes(c.toLowerCase().trim())).slice(0, 4);
+    }
+  } catch (err) {
+    console.warn('[Validation] Erro ao buscar títulos em uso para sugestões:', err);
+  }
+  
+  return shuffled.slice(0, 4);
+};
 
 // ─── Default state ────────────────────────────────────────────────────────────
 
@@ -576,9 +617,24 @@ export const useSheetStore = create<SheetState>()(
 
       createSheet: async (title: string, gamebook: string, suggestionsEnabled = true) => {
         const user = get().user;
-        if (!user) return;
+        if (!user) return { success: false, error: 'Usuário não autenticado' };
         set({ syncStatus: 'saving' });
         try {
+          // 1. Verifica se o título exato já está em uso
+          const { data: exactTaken } = await supabase
+            .rpc('check_sheet_titles_taken', { titles_to_check: [title] });
+
+          const isTaken = exactTaken && Array.isArray(exactTaken) && exactTaken.length > 0;
+          if (isTaken) {
+            const suggestions = await generateAvailableSuggestions(title);
+            set({ syncStatus: 'idle' });
+            return {
+              success: false,
+              error: 'Nome já em uso. Escolha outro nome ou use uma de nossas sugestões.',
+              suggestions
+            };
+          }
+
           const newSheetId = crypto.randomUUID();
           const isMedo = gamebook === 'Encontro Marcado com o M.E.D.O.';
           const isCidadela = gamebook === 'A Cidadela do Caos';
@@ -700,17 +756,35 @@ export const useSheetStore = create<SheetState>()(
           setTimeout(() => {
             if (get().syncStatus === 'saved') set({ syncStatus: 'idle' });
           }, 2000);
+
+          return { success: true };
         } catch (err: any) {
           console.error('[Supabase] createSheet error:', err);
-          alert('Erro ao criar ficha: ' + (err?.message || JSON.stringify(err)));
           set({ syncStatus: 'error' });
+          return { success: false, error: err?.message || 'Erro ao criar ficha.' };
         }
       },
 
       renameSheet: async (id: string, newTitle: string) => {
         const user = get().user;
-        if (!user) return;
+        if (!user) return { success: false, error: 'Usuário não autenticado' };
         try {
+          // Verifica se o título já está em uso excluindo a própria ficha
+          const { data: isTaken } = await supabase
+            .rpc('check_sheet_title_exists_excluding', { 
+              title_to_check: newTitle, 
+              exclude_id: id 
+            });
+
+          if (isTaken) {
+            const suggestions = await generateAvailableSuggestions(newTitle);
+            return {
+              success: false,
+              error: 'Nome já em uso. Escolha outro nome ou use uma de nossas sugestões.',
+              suggestions
+            };
+          }
+
           const { error } = await supabase
             .from('adventure_sheets')
             .update({ title: newTitle })
@@ -724,8 +798,10 @@ export const useSheetStore = create<SheetState>()(
               s.id === id ? { ...s, title: newTitle } : s
             ),
           }));
-        } catch (err) {
+          return { success: true };
+        } catch (err: any) {
           console.error('[Supabase] renameSheet error:', err);
+          return { success: false, error: err?.message || 'Erro ao renomear ficha.' };
         }
       },
 
