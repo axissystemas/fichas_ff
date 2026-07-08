@@ -169,32 +169,41 @@ export const MonsterManager = () => {
               initial={{ scale: 1 }}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 0.4 }}
-              className={`bg-[#EAD8B8] border flex flex-col ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-2.5 text-sm text-[#2C1E14] min-w-0`}
+              className={`bg-[#EAD8B8] border flex flex-col ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-3 text-sm text-[#2C1E14] min-w-0`}
             >
+              {/* Cabeçalho do Card */}
               <div className="font-bold border-b border-[#5C4033] mb-2 pb-1.5 flex justify-between items-center shrink-0">
                 <span className="truncate pr-2">{monster.name}</span>
-                <button onClick={() => handleRemoveMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase shrink-0">Remover</button>
+                <button onClick={() => handleRemoveMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase shrink-0 font-sans font-bold">REMOVER</button>
               </div>
               
-              {/* Ilustração do Monstro */}
-              <div className="w-full h-32 mb-2 border border-[#5C4033]/40 bg-[#3D2B1F]/5 overflow-hidden shrink-0">
-                <MonsterImage name={monster.name} />
+              {/* Corpo do Card (Lado a Lado) */}
+              <div className="flex flex-row justify-between items-stretch gap-2.5 flex-grow min-w-0">
+                {/* Lado Esquerdo: Atributos e Botões */}
+                <div className="flex flex-col justify-between flex-grow min-w-0">
+                  <div className="text-xs font-semibold text-[#2C1E14] leading-relaxed">
+                    <p>Hab: {monster.skill}</p>
+                    <p>Ener Max: {monster.energyMax}</p>
+                    <p>Ener At: {monster.energyCurrent}</p>
+                  </div>
+                  <div className="flex gap-2 mt-2 shrink-0">
+                    <button onClick={() => handleUpdateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs cursor-pointer">-1</button>
+                    <button onClick={() => handleUpdateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs cursor-pointer">+1</button>
+                  </div>
+                </div>
+
+                {/* Lado Direito: Imagem do Monstro */}
+                <div className="shrink-0 flex items-center justify-center border border-[#5C4033]/40 bg-[#3D2B1F]/5 overflow-hidden">
+                  <MonsterImage name={monster.name} />
+                </div>
               </div>
 
-              <div className="flex justify-between items-center flex-grow mt-1 min-w-0">
-                <div className="text-xs font-semibold text-[#2C1E14] leading-tight shrink-0">
-                  <p>Hab: {monster.skill}</p>
-                  <p>Ener Max: {monster.energyMax}</p>
-                  <p>Ener At: {monster.energyCurrent}</p>
+              {/* Status de Derrotado */}
+              {monster.status !== 'alive' && (
+                <div className="mt-2.5 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 shrink-0 bg-slate-800 text-white uppercase tracking-wider font-sans rounded-sm">
+                  DERROTADO
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2.5 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs">-1</button>
-                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2.5 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs">+1</button>
-                </div>
-              </div>
-              <div className={`mt-2.5 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 shrink-0 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
-                {monster.status === 'alive' ? 'VIVO' : 'DERROTADO'}
-              </div>
+              )}
             </motion.div>
           );
         })}
