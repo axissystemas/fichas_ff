@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSheetStore, Monster } from '@/store/useSheetStore';
 import { User, Sparkles } from 'lucide-react';
 import { audio } from '@/lib/audio';
+import { MonsterImage } from './MonsterImage';
 
 // Importando arquivos de encontros dos livros
 import feiticeiroMontanhaJSON from '@/encontros/feiticeiro_montanha_de_fogo.json';
@@ -159,7 +160,7 @@ export const MonsterManager = () => {
       <h2 className="text-xl font-bold uppercase text-center border-b-2 border-[#2C1E14] pb-2 mb-4">
         {gamebook === 'Nave Espacial Traveller' ? 'Encontros' : 'Encontro com Monstros'}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 max-h-80 overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 max-h-[500px] overflow-y-auto pr-1">
         {monsters.map(monster => {
           const isLowEnergy = (monster.energyCurrent / monster.energyMax) < 0.25;
           return (
@@ -168,24 +169,30 @@ export const MonsterManager = () => {
               initial={{ scale: 1 }}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 0.4 }}
-              className={`bg-[#EAD8B8] border flex flex-col ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-2 text-sm text-[#2C1E14]`}
+              className={`bg-[#EAD8B8] border flex flex-col ${isLowEnergy ? 'border-4 border-yellow-500' : 'border-[#5C4033]'} p-2.5 text-sm text-[#2C1E14] min-w-0`}
             >
-              <div className="font-bold border-b border-[#5C4033] mb-1 pb-1 flex justify-between">
-                {monster.name}
-                <button onClick={() => handleRemoveMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase">Remover</button>
+              <div className="font-bold border-b border-[#5C4033] mb-2 pb-1.5 flex justify-between items-center shrink-0">
+                <span className="truncate pr-2">{monster.name}</span>
+                <button onClick={() => handleRemoveMonster(monster.id)} className="text-red-700 text-[10px] hover:underline uppercase shrink-0">Remover</button>
               </div>
-              <div className="flex justify-between items-center flex-grow mt-1">
-                <div className="text-sm font-semibold text-[#2C1E14] leading-tight">
+              
+              {/* Ilustração do Monstro */}
+              <div className="w-full h-32 mb-2 border border-[#5C4033]/40 bg-[#3D2B1F]/5 overflow-hidden shrink-0">
+                <MonsterImage name={monster.name} />
+              </div>
+
+              <div className="flex justify-between items-center flex-grow mt-1 min-w-0">
+                <div className="text-xs font-semibold text-[#2C1E14] leading-tight shrink-0">
                   <p>Hab: {monster.skill}</p>
                   <p>Ener Max: {monster.energyMax}</p>
                   <p>Ener At: {monster.energyCurrent}</p>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">-1</button>
-                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-3 py-1.5 font-bold">+1</button>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, -1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2.5 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs">-1</button>
+                  <button onClick={() => handleUpdateMonsterEnergy(monster.id, 1)} className="bg-[#2C1E14] text-[#EAD8B8] px-2.5 py-1.5 font-bold hover:bg-[#3D2B1F] transition text-xs">+1</button>
                 </div>
               </div>
-              <div className={`mt-2 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
+              <div className={`mt-2.5 text-center text-[10px] sm:text-xs font-bold py-0.5 px-1 shrink-0 ${monster.status === 'alive' ? 'bg-red-900 text-white' : 'bg-gray-700 text-white'}`}>
                 {monster.status === 'alive' ? 'VIVO' : 'DERROTADO'}
               </div>
             </motion.div>
