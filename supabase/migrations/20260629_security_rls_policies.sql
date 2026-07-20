@@ -76,9 +76,17 @@ USING (
 ALTER TABLE IF EXISTS user_profiles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Leitura pública/autenticada de perfis" ON user_profiles;
-CREATE POLICY "Leitura pública/autenticada de perfis"
+DROP POLICY IF EXISTS "Leitura restrita de perfis" ON user_profiles;
+CREATE POLICY "Leitura restrita de perfis"
 ON user_profiles FOR SELECT
-USING (true);
+USING (
+  id::text = auth.uid()::text
+  OR EXISTS (
+    SELECT 1 FROM admin_users
+    WHERE admin_users.id::text = auth.uid()::text
+    AND admin_users.is_admin = true
+  )
+);
 
 DROP POLICY IF EXISTS "Usuários podem gerenciar seu próprio perfil" ON user_profiles;
 CREATE POLICY "Usuários podem gerenciar seu próprio perfil"
@@ -92,9 +100,17 @@ WITH CHECK (id::text = auth.uid()::text);
 ALTER TABLE IF EXISTS user_stats ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Leitura pública/autenticada de estatísticas" ON user_stats;
-CREATE POLICY "Leitura pública/autenticada de estatísticas"
+DROP POLICY IF EXISTS "Leitura restrita de estatísticas" ON user_stats;
+CREATE POLICY "Leitura restrita de estatísticas"
 ON user_stats FOR SELECT
-USING (true);
+USING (
+  user_id::text = auth.uid()::text
+  OR EXISTS (
+    SELECT 1 FROM admin_users
+    WHERE admin_users.id::text = auth.uid()::text
+    AND admin_users.is_admin = true
+  )
+);
 
 DROP POLICY IF EXISTS "Usuários podem gerenciar suas próprias estatísticas" ON user_stats;
 CREATE POLICY "Usuários podem gerenciar suas próprias estatísticas"
@@ -108,9 +124,17 @@ WITH CHECK (user_id::text = auth.uid()::text);
 ALTER TABLE IF EXISTS user_achievements ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Leitura pública/autenticada de conquistas" ON user_achievements;
-CREATE POLICY "Leitura pública/autenticada de conquistas"
+DROP POLICY IF EXISTS "Leitura restrita de conquistas" ON user_achievements;
+CREATE POLICY "Leitura restrita de conquistas"
 ON user_achievements FOR SELECT
-USING (true);
+USING (
+  user_id::text = auth.uid()::text
+  OR EXISTS (
+    SELECT 1 FROM admin_users
+    WHERE admin_users.id::text = auth.uid()::text
+    AND admin_users.is_admin = true
+  )
+);
 
 DROP POLICY IF EXISTS "Usuários podem registrar suas próprias conquistas" ON user_achievements;
 CREATE POLICY "Usuários podem registrar suas próprias conquistas"

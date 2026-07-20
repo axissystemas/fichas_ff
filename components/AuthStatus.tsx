@@ -60,9 +60,12 @@ export const AuthStatus = () => {
       return;
     }
 
+    // Sanitização e limitação de comprimento para evitar injeção e dados corrompidos
+    const sanitizedSection = sectionInput.trim().slice(0, 50).replace(/[<>{}]/g, '');
+
     setLoading(true);
     // Atualiza o estado da store e força o salvamento síncrono no Supabase
-    useSheetStore.getState().setCurrentSection(sectionInput);
+    useSheetStore.getState().setCurrentSection(sanitizedSection);
     await useSheetStore.getState().saveToSupabase();
 
     const { error } = await supabase.auth.signOut();
