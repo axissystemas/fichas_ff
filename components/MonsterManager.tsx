@@ -194,7 +194,7 @@ export const MonsterManager = () => {
 
                 {/* Lado Direito: Imagem do Monstro */}
                 <div className="shrink-0 flex items-center justify-center border border-[#5C4033]/40 bg-[#3D2B1F]/5 overflow-hidden">
-                  <MonsterImage name={monster.name} />
+                  <MonsterImage name={monster.name} isDead={monster.status !== 'alive'} />
                 </div>
               </div>
 
