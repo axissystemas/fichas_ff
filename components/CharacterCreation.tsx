@@ -6,7 +6,7 @@ import { getBookIntro } from '@/lib/bookIntros';
 import { audio } from '@/lib/audio';
 import { getRuleset } from '@/lib/rulesets';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users, KeyRound, Coins, Footprints, Wind, EyeOff, Search, Check } from 'lucide-react';
+import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users, KeyRound, Coins, Footprints, Wind, EyeOff, Search, Check, Gauge, Crosshair } from 'lucide-react';
 import { Die, getDiceStyle } from './Die';
 
 export const CharacterCreation = () => {
@@ -37,6 +37,7 @@ export const CharacterCreation = () => {
   const isZagor = gamebook === 'A Lenda de Zagor';
   const isTraveller = gamebook === 'Nave Espacial Traveller';
   const isLadrao = gamebook === 'Ladrão da Meia-Noite';
+  const isGuerreiro = gamebook === 'Guerreiro das Estradas';
   
   const ruleset = getRuleset(gamebook);
   
@@ -70,6 +71,15 @@ export const CharacterCreation = () => {
 
   // Selected special skills for Ladrão da Meia-Noite (chooseSkills)
   const [selectedSkillsLocal, setSelectedSkillsLocal] = useState<string[]>([]);
+
+  // Dodge Interceptor attributes for Guerreiro das Estradas
+  const [rolledInterceptorFp, setRolledInterceptorFp] = useState<number | null>(null);
+  const [rollingInterceptorFp, setRollingInterceptorFp] = useState(false);
+  const [interceptorFpDice, setInterceptorFpDice] = useState<[number]>([1]);
+
+  const [rolledInterceptorArmour, setRolledInterceptorArmour] = useState<number | null>(null);
+  const [rollingInterceptorArmour, setRollingInterceptorArmour] = useState(false);
+  const [interceptorArmourDice, setInterceptorArmourDice] = useState<[number, number]>([1, 1]);
 
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
@@ -173,6 +183,46 @@ export const CharacterCreation = () => {
       setRolledWillpower(finalVal);
       setDisplayWillpower(finalVal);
       setRollingWillpower(false);
+      audio.playCoin();
+    }, 600);
+  };
+
+  const rollInterceptorFp = () => {
+    if (rollingInterceptorFp || rolledInterceptorFp !== null) return;
+    setRollingInterceptorFp(true);
+    audio.playDiceRoll();
+    const interval = setInterval(() => {
+      setInterceptorFpDice([Math.floor(Math.random() * 6) + 1]);
+    }, 60);
+    setTimeout(() => {
+      clearInterval(interval);
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      setInterceptorFpDice([d1]);
+      const total = d1 + 6;
+      setRolledInterceptorFp(total);
+      setRollingInterceptorFp(false);
+      audio.playCoin();
+    }, 600);
+  };
+
+  const rollInterceptorArmour = () => {
+    if (rollingInterceptorArmour || rolledInterceptorArmour !== null) return;
+    setRollingInterceptorArmour(true);
+    audio.playDiceRoll();
+    const interval = setInterval(() => {
+      setInterceptorArmourDice([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1
+      ]);
+    }, 60);
+    setTimeout(() => {
+      clearInterval(interval);
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      setInterceptorArmourDice([d1, d2]);
+      const total = d1 + d2 + 24;
+      setRolledInterceptorArmour(total);
+      setRollingInterceptorArmour(false);
       audio.playCoin();
     }, 600);
   };
@@ -406,6 +456,7 @@ export const CharacterCreation = () => {
     if (isVampiro && rolledFaith === null) return;
     if (isMansao && rolledFear === null) return;
     if (isZagor && rolledWillpower === null) return;
+    if (isGuerreiro && (rolledInterceptorFp === null || rolledInterceptorArmour === null)) return;
 
     // Play retro victory fanfare
     audio.playVictory();
@@ -506,6 +557,33 @@ export const CharacterCreation = () => {
       }
     }
 
+    if (isGuerreiro) {
+      updateGold(200 - gold);
+      updateProvisions(10 - provisions);
+
+      const roll1d6_6 = () => Math.floor(Math.random() * 6) + 7;
+      const roll2d6_24 = () => Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 26;
+
+      const fp = rolledInterceptorFp ?? roll1d6_6();
+      const arm = rolledInterceptorArmour ?? roll2d6_24();
+
+      useSheetStore.setState((state) => ({
+        attributes: {
+          ...state.attributes,
+          interceptor: {
+            firepower: { initial: fp, current: fp },
+            armour: { initial: arm, current: arm },
+            missiles: 4,
+            spikes: 3,
+            oil: 2,
+            spareTires: 2,
+            fuel: 10,
+            modifications: 'Interceptor preparado para as rodovias da morte.'
+          }
+        }
+      }));
+    }
+
     if (ruleset.creation.chooseSkills && selectedSkillsLocal.length > 0) {
       setSpecialSkills(selectedSkillsLocal);
     }
@@ -515,6 +593,9 @@ export const CharacterCreation = () => {
     const magicStr = isCidadela ? ` | Mágica: ${rolledMagic}` : '';
     const faithStr = isVampiro ? ` | Fé: ${rolledFaith}` : '';
     const fearStr = isMansao ? ` | Medo Máx: ${rolledFear}` : '';
+    const interceptorStr = isGuerreiro
+      ? ` | Interceptor: Fogo ${rolledInterceptorFp}, Blindagem ${rolledInterceptorArmour} | 200 Créditos | 10 Medkits`
+      : '';
     const skillsStr = ruleset.creation.chooseSkills && selectedSkillsLocal.length > 0
       ? ` | Proficiências: ${selectedSkillsLocal.map(id => ruleset.creation.chooseSkills?.options.find(o => o.id === id)?.name || id).join(', ')}`
       : '';
@@ -528,7 +609,7 @@ export const CharacterCreation = () => {
     const heroStr = isZagor && selectedHeroLocal ? ` | Herói: ${heroNameMap[selectedHeroLocal]} | ${selectedHeroLocal === 'sallazar' ? 'PM' : 'Força de Vontade'}: ${rolledWillpower}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}${skillsStr}${heroStr}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}${interceptorStr}${skillsStr}${heroStr}`,
     });
 
     // Log telemetry
@@ -559,7 +640,8 @@ export const CharacterCreation = () => {
     (!isVampiro || rolledFaith !== null) &&
     (!isMansao || rolledFear !== null) &&
     (!isZagor || rolledWillpower !== null) &&
-    (!ruleset.creation.chooseSkills || selectedSkillsLocal.length === (ruleset.creation.chooseSkills?.maxSelection || 3));
+    (!ruleset.creation.chooseSkills || selectedSkillsLocal.length === (ruleset.creation.chooseSkills?.maxSelection || 3)) &&
+    (!isGuerreiro || (rolledInterceptorFp !== null && rolledInterceptorArmour !== null));
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -627,7 +709,11 @@ export const CharacterCreation = () => {
         return selectedHeroLocal !== null && (selectedHeroLocal !== 'personalizado' || customArchetypeLocal !== null);
       case 'attributes': {
         const requiredKeys = ruleset.attributes.map((a) => a.key);
-        return requiredKeys.every((key) => getRolledVal(key) !== null);
+        const attrsOk = requiredKeys.every((key) => getRolledVal(key) !== null);
+        if (isGuerreiro) {
+          return attrsOk && rolledInterceptorFp !== null && rolledInterceptorArmour !== null;
+        }
+        return attrsOk;
       }
       case 'spells': {
         const spent = Object.values(selectedSpells).reduce((sum, val) => sum + val, 0);
@@ -838,6 +924,26 @@ export const CharacterCreation = () => {
               </div>
             )}
 
+            {isGuerreiro && (
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider opacity-60 block">Dodge Interceptor V8</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold border ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033] border-[#5C4033]/25' : 'bg-orange-500/15 text-orange-400 border border-orange-500/30'}`}>
+                    🎯 Poder de Fogo: {rolledInterceptorFp ?? 10}
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold border ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033] border-[#5C4033]/25' : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'}`}>
+                    🛡️ Blindagem: {rolledInterceptorArmour ?? 30}
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold border ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033] border-[#5C4033]/25' : 'bg-red-500/15 text-red-400 border border-red-500/30'}`}>
+                    🚀 4 Mísseis
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold border ${isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033] border-[#5C4033]/25' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'}`}>
+                    💳 200 Créditos | 🩹 10 Medkits
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className={`p-3.5 border rounded-lg text-xs leading-relaxed ${
               isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/20 text-[#5C4033]' : 'bg-slate-950/40 border-slate-800 text-slate-300'
             }`}>
@@ -851,7 +957,8 @@ export const CharacterCreation = () => {
               {isZagor && selectedHeroLocal === 'restolho' && "Restolho possui +2 de Força de Ataque contra oponentes de Pedra."}
               {isZagor && selectedHeroLocal === 'sallazar' && "Sallazar tem vantagens em percepção e magia ilimitada no Grimório."}
               {isLadrao && "Você possui 3 proficiências especiais adquiridas na Guilda dos Ladrões para superar testes e desafios durante a aventura."}
-              {!isMedo && !isZagor && !isLadrao && "Ficha básica criada. Você carrega seus pertences normais e está pronto para jogar!"}
+              {isGuerreiro && "Você é um piloto nas rodovias da morte com seu Dodge Interceptor armado com torreta de metralhadora computadorizada, 4 mísseis, cravos e óleo!"}
+              {!isMedo && !isZagor && !isLadrao && !isGuerreiro && "Ficha básica criada. Você carrega seus pertences normais e está pronto para jogar!"}
             </div>
           </div>
 
@@ -1503,6 +1610,93 @@ export const CharacterCreation = () => {
                       Role 1d6+6
                     </button>
                   )}
+                </div>
+              )}
+
+              {/* DODGE INTERCEPTOR ROLL CARDS FOR GUERREIRO DAS ESTRADAS */}
+              {isGuerreiro && (
+                <div className="col-span-full mt-6 pt-6 border-t border-current/15">
+                  <div className="text-center mb-4">
+                    <h4 className={`text-base font-black uppercase tracking-widest flex items-center justify-center gap-2 ${isPapyrus ? 'text-[#5C4033]' : 'text-orange-400'}`}>
+                      <Gauge size={18} /> Dodge Interceptor V8
+                    </h4>
+                    <p className="text-xs opacity-75 mt-0.5 font-sans">
+                      Role os dados para determinar o Poder de Fogo e a Blindagem do seu veículo de combate.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
+                    {/* PODER DE FOGO */}
+                    <div
+                      onClick={rolledInterceptorFp === null ? rollInterceptorFp : undefined}
+                      className={attributeCardStyle(rolledInterceptorFp !== null, rollingInterceptorFp)}
+                    >
+                      <div className="flex items-center gap-1.5 justify-center mb-1">
+                        <Crosshair size={16} className={isPapyrus ? 'text-[#8B4513]' : 'text-orange-400'} />
+                        <span className="text-xs uppercase font-extrabold tracking-wider">Poder de Fogo</span>
+                      </div>
+                      <div className="my-4 h-14 flex items-center justify-center">
+                        {rollingInterceptorFp ? (
+                          <Die value={interceptorFpDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                        ) : rolledInterceptorFp !== null ? (
+                          <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                            <Die value={interceptorFpDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                            <span className="text-sm font-bold opacity-70">+</span>
+                            <span className="text-sm font-bold opacity-70">6</span>
+                            <span className="text-sm font-bold opacity-70">=</span>
+                            <span className="text-3xl font-extrabold text-orange-500">{rolledInterceptorFp}</span>
+                          </motion.div>
+                        ) : (
+                          <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
+                        )}
+                      </div>
+                      {rolledInterceptorFp !== null ? (
+                        <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">1 Dado + 6</div>
+                      ) : (
+                        <button onClick={(e) => { e.stopPropagation(); rollInterceptorFp(); }} className={buttonStyle} disabled={rollingInterceptorFp}>
+                          Role 1d6+6
+                        </button>
+                      )}
+                    </div>
+
+                    {/* BLINDAGEM */}
+                    <div
+                      onClick={rolledInterceptorArmour === null ? rollInterceptorArmour : undefined}
+                      className={attributeCardStyle(rolledInterceptorArmour !== null, rollingInterceptorArmour)}
+                    >
+                      <div className="flex items-center gap-1.5 justify-center mb-1">
+                        <Shield size={16} className={isPapyrus ? 'text-[#8B4513]' : 'text-blue-400'} />
+                        <span className="text-xs uppercase font-extrabold tracking-wider">Blindagem</span>
+                      </div>
+                      <div className="my-4 h-14 flex items-center justify-center">
+                        {rollingInterceptorArmour ? (
+                          <div className="flex gap-1.5">
+                            <Die value={interceptorArmourDice[0]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                            <Die value={interceptorArmourDice[1]} rolling={true} styleClass={getDiceStyle(theme, gamebook)} />
+                          </div>
+                        ) : rolledInterceptorArmour !== null ? (
+                          <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex items-center gap-1.5">
+                            <Die value={interceptorArmourDice[0]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                            <span className="text-xs font-bold opacity-70">+</span>
+                            <Die value={interceptorArmourDice[1]} rolling={false} styleClass={getDiceStyle(theme, gamebook)} />
+                            <span className="text-xs font-bold opacity-70">+</span>
+                            <span className="text-xs font-bold opacity-70">24</span>
+                            <span className="text-xs font-bold opacity-70">=</span>
+                            <span className="text-3xl font-extrabold text-blue-500">{rolledInterceptorArmour}</span>
+                          </motion.div>
+                        ) : (
+                          <Dices size={32} className={`opacity-40 ${isPapyrus ? 'text-[#5C4033]' : 'text-slate-400'}`} />
+                        )}
+                      </div>
+                      {rolledInterceptorArmour !== null ? (
+                        <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 font-sans">2 Dados + 24</div>
+                      ) : (
+                        <button onClick={(e) => { e.stopPropagation(); rollInterceptorArmour(); }} className={buttonStyle} disabled={rollingInterceptorArmour}>
+                          Role 2d6+24
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

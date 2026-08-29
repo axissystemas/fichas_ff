@@ -25,6 +25,7 @@ import { TravellerOfficialSheet } from '@/components/TravellerOfficialSheet';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
 import { LadraoTracker } from '@/components/LadraoTracker';
+import { GuerreiroTracker } from '@/components/GuerreiroTracker';
 import { ActiveCombatantSelector } from '@/components/ActiveCombatantSelector';
 import MapAllansia from '@/components/MapAllansia';
 import {
@@ -2130,6 +2131,13 @@ export default function Home() {
                         {gamebook === 'Ladrão da Meia-Noite' && (
                           <div className="mt-4">
                             <LadraoTracker />
+                          </div>
+                        )}
+
+                        {/* Dodge Interceptor (Guerreiro das Estradas) */}
+                        {gamebook === 'Guerreiro das Estradas' && (
+                          <div className="mt-4">
+                            <GuerreiroTracker />
                           </div>
                         )}
 

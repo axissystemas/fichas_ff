@@ -194,6 +194,17 @@ export interface TravellerData {
   crew: Record<string, CrewMember>;
 }
 
+export interface InterceptorData {
+  firepower: Attribute;
+  armour: Attribute;
+  missiles: number;
+  spikes: number;
+  oil: number;
+  spareTires: number;
+  fuel: number;
+  modifications: string;
+}
+
 export interface AuthUser {
   id: string;
   email?: string;
@@ -242,6 +253,7 @@ interface SheetState {
     traveller?: TravellerData;
     activeCombatantId?: string;
     specialSkills?: string[];
+    interceptor?: InterceptorData;
     [key: string]: any;
   };
   gold: number;
@@ -363,6 +375,9 @@ interface SheetState {
   updateHeroPoints: (amount: number) => void;
   setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
   setSpecialSkills: (skills: string[]) => void;
+  updateInterceptorAttribute: (key: 'firepower' | 'armour', delta: number, isInitial?: boolean) => void;
+  updateInterceptorResource: (key: 'missiles' | 'spikes' | 'oil' | 'spareTires' | 'fuel', delta: number) => void;
+  setInterceptorModifications: (text: string) => void;
   setSelectedHero: (hero: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null) => void;
   setCustomArchetype: (archetype: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null) => void;
   advanceTime: () => void;
@@ -1232,6 +1247,86 @@ export const useSheetStore = create<SheetState>()(
             specialSkills: skills,
           },
         }));
+        scheduleSave(get());
+      },
+      updateInterceptorAttribute: (key, delta, isInitial = false) => {
+        set((state) => {
+          const currentInterceptor = state.attributes.interceptor || {
+            firepower: { initial: 10, current: 10 },
+            armour: { initial: 30, current: 30 },
+            missiles: 4,
+            spikes: 3,
+            oil: 2,
+            spareTires: 2,
+            fuel: 10,
+            modifications: ''
+          };
+          const attr = currentInterceptor[key] || { initial: 0, current: 0 };
+          const newInitial = isInitial ? Math.max(0, attr.initial + delta) : attr.initial;
+          const newCurrent = isInitial
+            ? Math.min(attr.current, newInitial)
+            : Math.max(0, Math.min(attr.current + delta, attr.initial));
+
+          return {
+            attributes: {
+              ...state.attributes,
+              interceptor: {
+                ...currentInterceptor,
+                [key]: { initial: newInitial, current: newCurrent }
+              }
+            }
+          };
+        });
+        scheduleSave(get());
+      },
+      updateInterceptorResource: (key, delta) => {
+        set((state) => {
+          const currentInterceptor = state.attributes.interceptor || {
+            firepower: { initial: 10, current: 10 },
+            armour: { initial: 30, current: 30 },
+            missiles: 4,
+            spikes: 3,
+            oil: 2,
+            spareTires: 2,
+            fuel: 10,
+            modifications: ''
+          };
+          const currentVal = currentInterceptor[key] ?? 0;
+          const newVal = Math.max(0, currentVal + delta);
+          return {
+            attributes: {
+              ...state.attributes,
+              interceptor: {
+                ...currentInterceptor,
+                [key]: newVal
+              }
+            }
+          };
+        });
+        scheduleSave(get());
+      },
+      setInterceptorModifications: (text) => {
+        set((state) => {
+          const currentInterceptor = state.attributes.interceptor || {
+            firepower: { initial: 10, current: 10 },
+            armour: { initial: 30, current: 30 },
+            missiles: 4,
+            spikes: 3,
+            oil: 2,
+            spareTires: 2,
+            fuel: 10,
+            modifications: ''
+          };
+          return {
+            attributes: {
+              ...state.attributes,
+              interceptor: {
+                ...currentInterceptor,
+                modifications: text
+              }
+            }
+          };
+        });
         scheduleSave(get());
       },
       advanceTime: () => {
