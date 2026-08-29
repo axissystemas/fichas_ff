@@ -189,14 +189,22 @@ export const CompletionBarChart = ({ data }: { data: UserCompletionData[] }) => 
 };
 
 // ─── 4. Activity Heatmap (Grid layout of last 28 days) ───────────────────────
-interface HeatmapPoint {
+export interface HeatmapPoint {
   date: string;
+  dateIso?: string;
+  fullDateLabel?: string;
+  rawDate?: Date;
   count: number;
 }
 
-export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
+export interface ActivityHeatmapProps {
+  data: HeatmapPoint[];
+  onSelectDate?: (point: HeatmapPoint) => void;
+  selectedDate?: string | null;
+}
+
+export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHeatmapProps) => {
   const { theme } = useSheetStore();
-  const colors = theme === 'papyrus' ? COLORS.papyrus : COLORS.night;
 
   // Generate last 28 days if data is empty
   const generateMockDays = () => {
@@ -205,9 +213,11 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
     for (let i = 27; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      const fullDateLabel = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const dateIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       // Deterministic activity count (0 to 4) instead of Math.random to satisfy react-hooks/purity
       const count = (d.getDate() + i) % 5;
-      arr.push({ date: dateStr, count });
+      arr.push({ date: dateStr, dateIso, fullDateLabel, rawDate: d, count });
     }
     return arr;
   };
@@ -217,16 +227,16 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
   // Helper to determine cell color based on count
   const getCellColor = (count: number) => {
     if (theme === 'papyrus') {
-      if (count === 0) return 'bg-[#EAD8B8]/20 border-[#5C4033]/10';
-      if (count === 1) return 'bg-[#CD853F]/30 border-[#5C4033]/30';
-      if (count === 2) return 'bg-[#C5A059]/60 border-[#5C4033]/50';
-      if (count === 3) return 'bg-[#8B4513]/70 border-[#5C4033]/70';
+      if (count === 0) return 'bg-[#EAD8B8]/20 border-[#5C4033]/15 text-[#5C4033]/70';
+      if (count === 1) return 'bg-[#CD853F]/30 border-[#5C4033]/30 text-[#2D1D16]';
+      if (count === 2) return 'bg-[#C5A059]/60 border-[#5C4033]/50 text-[#2D1D16]';
+      if (count === 3) return 'bg-[#8B4513]/70 border-[#5C4033]/70 text-white';
       return 'bg-[#5C4033] border-[#5C4033] text-white';
     } else {
-      if (count === 0) return 'bg-slate-800/40 border-slate-700/20';
-      if (count === 1) return 'bg-cyan-950/40 border-cyan-800/30';
-      if (count === 2) return 'bg-cyan-900/60 border-cyan-600/40';
-      if (count === 3) return 'bg-cyan-600/80 border-cyan-400/60';
+      if (count === 0) return 'bg-slate-800/40 border-slate-700/20 text-slate-400';
+      if (count === 1) return 'bg-cyan-950/40 border-cyan-800/30 text-cyan-200';
+      if (count === 2) return 'bg-cyan-900/60 border-cyan-600/40 text-cyan-100';
+      if (count === 3) return 'bg-cyan-600/80 border-cyan-400/60 text-white';
       return 'bg-cyan-400 border-cyan-300 text-slate-950';
     }
   };
@@ -234,16 +244,27 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
   return (
     <div className="w-full flex flex-col items-center">
       <div className="grid grid-cols-7 gap-2.5 max-w-md w-full">
-        {heatmapData.map((item, idx) => (
-          <div
-            key={idx}
-            className={`aspect-square flex flex-col items-center justify-center border text-xs font-bold transition-all rounded ${getCellColor(item.count)}`}
-            title={`${item.date}: ${item.count} ações`}
-          >
-            <span>{item.date}</span>
-            <span className="opacity-75 font-mono text-[10px]">{item.count}</span>
-          </div>
-        ))}
+        {heatmapData.map((item, idx) => {
+          const isSelected = selectedDate === item.date || selectedDate === item.dateIso;
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onSelectDate?.(item)}
+              className={`aspect-square flex flex-col items-center justify-center border text-xs font-bold transition-all rounded cursor-pointer relative group ${getCellColor(item.count)} ${
+                isSelected
+                  ? theme === 'papyrus'
+                    ? 'ring-2 ring-[#8B4513] scale-110 shadow-md z-10'
+                    : 'ring-2 ring-cyan-400 scale-110 shadow-md z-10 shadow-cyan-500/20'
+                  : 'hover:scale-105 hover:z-10 hover:shadow-sm'
+              }`}
+              title={`${item.fullDateLabel || item.date}: ${item.count} ação(ões) — Clique para ver acessos`}
+            >
+              <span>{item.date}</span>
+              <span className="opacity-80 font-mono text-[10px]">{item.count}</span>
+            </button>
+          );
+        })}
       </div>
       <div className="flex justify-center items-center gap-4 mt-4 text-xs uppercase font-bold tracking-wider opacity-80">
         <span>Menos ativo</span>
@@ -256,6 +277,10 @@ export const ActivityHeatmap = ({ data }: { data: HeatmapPoint[] }) => {
         </div>
         <span>Mais ativo</span>
       </div>
+      <p className="text-[10px] mt-2 opacity-60 font-sans italic flex items-center gap-1">
+        💡 Clique em uma data para verificar quais contas acessaram a ficha.
+      </p>
     </div>
   );
 };
+

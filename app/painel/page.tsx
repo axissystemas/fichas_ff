@@ -6,13 +6,15 @@ import { supabase } from '@/lib/supabase';
 import {
   Sun, Moon, Loader2, LogOut, Search, PlusCircle, Trash2, Pencil, Check, X,
   Download, BookOpen, ShieldAlert, BarChart3, Database, KeyRound, Award, Copy, Bookmark,
-  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube, Terminal
+  Coins, Apple, Swords, Shield, Flame, Clock, Calendar, Compass, Skull, ChevronRight, User, Youtube, Terminal,
+  Users, Activity, Eye
 } from 'lucide-react';
 import {
   AttributeHistoryLineChart,
   MonsterPieChart,
   CompletionBarChart,
-  ActivityHeatmap
+  ActivityHeatmap,
+  HeatmapPoint
 } from '@/components/DashboardCharts';
 import { GAMEBOOKS, BOOKS_WITH_SUGGESTIONS } from '@/lib/gamebooks';
 
@@ -107,6 +109,9 @@ export default function PainelAdmin() {
   const [selectedSheetDetails, setSelectedSheetDetails] = useState<any | null>(null);
   const [selectedSheetLogs, setSelectedSheetLogs] = useState<any[]>([]);
   const [loadingSheetLogs, setLoadingSheetLogs] = useState(false);
+
+  // Data selecionada no Heatmap de Atividade
+  const [selectedHeatmapPoint, setSelectedHeatmapPoint] = useState<HeatmapPoint | null>(null);
 
   // Estados para validação e sugestões de nomes
   const [createError, setCreateError] = useState<string | null>(null);
@@ -852,19 +857,144 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
     .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Nenhum';
 
   // 5. Atividade para o Heatmap (últimos 28 dias)
-  const activityData: { date: string; count: number }[] = [];
+  const activityData: (HeatmapPoint & { dateIso: string; fullDateLabel: string; rawDate: Date })[] = [];
   const todayDate = new Date();
   for (let i = 27; i >= 0; i--) {
     const d = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - i);
     const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const fullDateLabel = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const dateIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const count = statsLogs.filter(log => {
       const logDate = new Date(log.created_at);
       return logDate.getDate() === d.getDate() &&
              logDate.getMonth() === d.getMonth() &&
              logDate.getFullYear() === d.getFullYear();
     }).length;
-    activityData.push({ date: dateStr, count });
+    activityData.push({ date: dateStr, count, dateIso, fullDateLabel, rawDate: d });
   }
+
+  // Cálculo de acessos e contas por data selecionada no Heatmap
+  const selectedDateAccessDetails = useMemo(() => {
+    if (!selectedHeatmapPoint || !selectedHeatmapPoint.rawDate) return null;
+    const targetDate = new Date(selectedHeatmapPoint.rawDate);
+    const targetDay = targetDate.getDate();
+    const targetMonth = targetDate.getMonth();
+    const targetYear = targetDate.getFullYear();
+
+    const isSameTargetDay = (d: Date) => {
+      return d.getDate() === targetDay && d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+    };
+
+    // Logs na data
+    const dayLogs = statsLogs.filter(log => isSameTargetDay(new Date(log.created_at)));
+
+    // Fichas atualizadas na data
+    const dayUpdatedSheets = statsSheets.filter(sheet => sheet.updated_at && isSameTargetDay(new Date(sheet.updated_at)));
+
+    const userMap = new Map<string, {
+      userId: string;
+      profile: any;
+      displayName: string;
+      email: string;
+      totalActions: number;
+      sheetsMap: Map<string, {
+        sheetId: string;
+        title: string;
+        gamebook: string;
+        sheetObj: any;
+        logs: any[];
+        updatedOnDate: boolean;
+        lastActiveTime: Date | null;
+      }>;
+    }>();
+
+    const getUserEntry = (userId: string) => {
+      if (!userMap.has(userId)) {
+        const p = profiles.find(pr => pr.id === userId);
+        const displayName = p?.display_name || (p?.email ? p.email.split('@')[0] : 'Jogador Anônimo');
+        const email = p?.email || 'Sem e-mail cadastrado';
+        userMap.set(userId, {
+          userId,
+          profile: p,
+          displayName,
+          email,
+          totalActions: 0,
+          sheetsMap: new Map(),
+        });
+      }
+      return userMap.get(userId)!;
+    };
+
+    // Agrupa logs do dia por usuário e por ficha
+    dayLogs.forEach(log => {
+      const sheet = sheetMap.get(log.sheet_id);
+      const userId = log.user_id || sheet?.user_id || 'unregistered';
+      const userEntry = getUserEntry(userId);
+      userEntry.totalActions += 1;
+
+      const sheetId = log.sheet_id || 'unknown';
+      if (!userEntry.sheetsMap.has(sheetId)) {
+        userEntry.sheetsMap.set(sheetId, {
+          sheetId,
+          title: sheet?.title || 'Ficha Sem Título',
+          gamebook: sheet?.gamebook || 'Desconhecido',
+          sheetObj: sheet,
+          logs: [],
+          updatedOnDate: false,
+          lastActiveTime: null,
+        });
+      }
+
+      const sheetEntry = userEntry.sheetsMap.get(sheetId)!;
+      sheetEntry.logs.push(log);
+      const logDate = new Date(log.created_at);
+      if (!sheetEntry.lastActiveTime || logDate > sheetEntry.lastActiveTime) {
+        sheetEntry.lastActiveTime = logDate;
+      }
+    });
+
+    // Processa fichas atualizadas no dia
+    dayUpdatedSheets.forEach(sheet => {
+      const userId = sheet.user_id || 'unregistered';
+      const userEntry = getUserEntry(userId);
+      const sheetId = sheet.id;
+
+      if (!userEntry.sheetsMap.has(sheetId)) {
+        userEntry.sheetsMap.set(sheetId, {
+          sheetId,
+          title: sheet.title || 'Ficha Sem Título',
+          gamebook: sheet.gamebook || 'Desconhecido',
+          sheetObj: sheet,
+          logs: [],
+          updatedOnDate: true,
+          lastActiveTime: new Date(sheet.updated_at),
+        });
+      } else {
+        const sheetEntry = userEntry.sheetsMap.get(sheetId)!;
+        sheetEntry.updatedOnDate = true;
+      }
+    });
+
+    const accounts = Array.from(userMap.values()).map(u => ({
+      userId: u.userId,
+      displayName: u.displayName,
+      email: u.email,
+      profile: u.profile,
+      totalActions: u.totalActions,
+      sheets: Array.from(u.sheetsMap.values()).map(s => ({
+        ...s,
+        logs: s.logs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+      })).sort((a, b) => (b.logs.length || 0) - (a.logs.length || 0)),
+    })).sort((a, b) => b.totalActions - a.totalActions);
+
+    return {
+      dateStr: selectedHeatmapPoint.date,
+      fullDateLabel: selectedHeatmapPoint.fullDateLabel || selectedHeatmapPoint.date,
+      totalActions: selectedHeatmapPoint.count,
+      accountsCount: accounts.length,
+      accounts,
+    };
+  }, [selectedHeatmapPoint, statsLogs, statsSheets, profiles, sheetMap]);
 
   // 6. Conclusões por jogador (Bar Chart)
   const userCompletionMap: Record<string, { name: string; iniciadas: number; concluidas: number }> = {};
@@ -1433,8 +1563,211 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                     <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
                       <Calendar size={16} /> Frequência de Ações (Últimos 28 Dias)
                     </h3>
-                    <ActivityHeatmap data={activityData} />
+                    <ActivityHeatmap
+                      data={activityData}
+                      selectedDate={selectedHeatmapPoint?.dateIso || selectedHeatmapPoint?.date}
+                      onSelectDate={(point) => setSelectedHeatmapPoint(point)}
+                    />
                   </div>
+
+                  {/* Modal de Detalhes de Acesso por Data (Heatmap) */}
+                  {selectedHeatmapPoint && selectedDateAccessDetails && (
+                    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setSelectedHeatmapPoint(null)}>
+                      <div
+                        className={`max-w-2xl w-full max-h-[85vh] flex flex-col border shadow-2xl rounded-xl overflow-hidden transition-all ${
+                          isPapyrus
+                            ? 'bg-[#FDF6E3] border-[#5C4033] text-[#2D1D16]'
+                            : 'bg-slate-900 border-slate-700 text-slate-100 shadow-[0_0_30px_rgba(0,0,0,0.5)]'
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Header */}
+                        <div className={`p-4 sm:p-5 border-b flex justify-between items-center ${isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/30' : 'border-slate-800 bg-slate-950/60'}`}>
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2.5 rounded-lg ${isPapyrus ? 'bg-[#5C4033]/15 text-[#8B4513]' : 'bg-cyan-500/10 text-cyan-400'}`}>
+                              <Calendar size={22} />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-base sm:text-lg flex items-center gap-2">
+                                Contas e Acessos em {selectedDateAccessDetails.fullDateLabel}
+                              </h3>
+                              <p className="text-xs opacity-75 font-sans flex items-center gap-2 mt-0.5">
+                                <span>📊 {selectedDateAccessDetails.totalActions} ação(ões) registrada(s)</span>
+                                <span>•</span>
+                                <span>👥 {selectedDateAccessDetails.accountsCount} conta(s) ativa(s)</span>
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setSelectedHeatmapPoint(null)}
+                            className={`p-1.5 rounded-lg transition hover:scale-110 cursor-pointer ${
+                              isPapyrus ? 'hover:bg-[#5C4033]/15 text-[#5C4033]' : 'hover:bg-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                            title="Fechar"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+
+                        {/* Content Body */}
+                        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+                          {selectedDateAccessDetails.accounts.length === 0 ? (
+                            <div className="text-center py-12 space-y-3">
+                              <div className="flex justify-center opacity-40">
+                                <Users size={44} />
+                              </div>
+                              <p className="text-sm font-semibold opacity-75 font-sans">
+                                Nenhuma conta ou ficha registrada nesta data ({selectedDateAccessDetails.fullDateLabel}).
+                              </p>
+                              <p className="text-xs opacity-50 font-sans">
+                                Não houveram acessos a parágrafos, combates ou modificações de fichas neste dia.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {selectedDateAccessDetails.accounts.map((acc, accIdx) => (
+                                <div
+                                  key={acc.userId + accIdx}
+                                  className={`p-4 border rounded-lg transition ${
+                                    isPapyrus
+                                      ? 'border-[#5C4033]/40 bg-[#EAD8B8]/20'
+                                      : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
+                                  }`}
+                                >
+                                  {/* Account Header */}
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-current/10">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 ${
+                                        isPapyrus
+                                          ? 'bg-[#5C4033] text-[#FDF6E3] border-[#5C4033]'
+                                          : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                                      }`}>
+                                        {acc.displayName.charAt(0).toUpperCase()}
+                                      </div>
+                                      <div>
+                                        <h4 className="font-bold text-sm flex items-center gap-2">
+                                          {acc.displayName}
+                                          {acc.profile?.is_admin && (
+                                            <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 border border-amber-500/30">
+                                              Admin
+                                            </span>
+                                          )}
+                                        </h4>
+                                        <p className="text-xs opacity-60 font-mono text-[11px]">{acc.email}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-left sm:text-right shrink-0">
+                                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold ${
+                                        isPapyrus ? 'bg-[#5C4033]/15 text-[#8B4513]' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'
+                                      }`}>
+                                        <Activity size={12} /> {acc.totalActions} ação(ões) no dia
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Sheets list for this account */}
+                                  <div className="mt-3 space-y-3">
+                                    <p className="text-[10px] uppercase font-bold tracking-wider opacity-60 flex items-center gap-1 font-sans">
+                                      <BookOpen size={11} /> Fichas Acessadas no Dia ({acc.sheets.length})
+                                    </p>
+
+                                    {acc.sheets.map((st) => (
+                                      <div
+                                        key={st.sheetId}
+                                        className={`p-3 border rounded-md ${
+                                          isPapyrus
+                                            ? 'border-[#5C4033]/30 bg-[#EAD8B8]/40'
+                                            : 'border-slate-800/80 bg-slate-900/60'
+                                        }`}
+                                      >
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                                          <div>
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-bold text-xs">{st.title}</span>
+                                              <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-bold ${
+                                                isPapyrus ? 'bg-[#8B4513]/15 text-[#8B4513]' : 'bg-blue-500/10 text-blue-300 border border-blue-500/20'
+                                              }`}>
+                                                📚 {st.gamebook}
+                                              </span>
+                                            </div>
+                                            {st.lastActiveTime && (
+                                              <p className="text-[10px] opacity-50 mt-0.5 flex items-center gap-1 font-sans">
+                                                <Clock size={10} /> Última atividade: {st.lastActiveTime.toLocaleTimeString('pt-BR')}
+                                              </p>
+                                            )}
+                                          </div>
+                                          {st.sheetObj && (
+                                            <button
+                                              onClick={() => {
+                                                handleSelectSheetDetails(st.sheetObj);
+                                                setSelectedHeatmapPoint(null);
+                                              }}
+                                              className={`flex items-center gap-1 px-2 py-1 text-[10px] uppercase font-bold rounded border cursor-pointer transition ${
+                                                isPapyrus
+                                                  ? 'border-[#5C4033] hover:bg-[#5C4033] hover:text-[#FDF6E3] text-[#2D1D16]'
+                                                  : 'border-cyan-500/40 hover:bg-cyan-500/20 text-cyan-300'
+                                              }`}
+                                              title="Ver histórico e gráfico de evolução da ficha"
+                                            >
+                                              <Eye size={11} /> Ver Ficha
+                                            </button>
+                                          )}
+                                        </div>
+
+                                        {/* Log entries preview for this sheet on this day */}
+                                        {st.logs.length > 0 ? (
+                                          <div className="space-y-1.5 mt-2 pt-2 border-t border-current/10 max-h-36 overflow-y-auto pr-1">
+                                            {st.logs.map((l, lIdx) => {
+                                              const timeStr = new Date(l.created_at).toLocaleTimeString('pt-BR');
+                                              return (
+                                                <div key={lIdx} className="text-[11px] flex items-start gap-2 opacity-90 font-sans">
+                                                  <span className="font-mono text-[10px] opacity-50 shrink-0 mt-0.5">{timeStr}</span>
+                                                  <span className="shrink-0">
+                                                    {l.event_type === 'death' ? '💀' : l.event_type === 'combat' ? '⚔️' : l.event_type === 'section_visit' ? '📖' : '⚡'}
+                                                  </span>
+                                                  <span className="flex-1">
+                                                    {l.event_type === 'section_visit' && `Visitou a Seção ${l.event_data?.section}`}
+                                                    {l.event_type === 'combat' && `Combate contra ${l.event_data?.monster} (${l.event_data?.result === 'victory' ? 'Vitória' : 'Derrota'})`}
+                                                    {l.event_type === 'death' && `Morreu por ${l.event_data?.cause === 'combat' ? `combate contra ${l.event_data?.monster}` : 'armadilha/parágrafo'}${l.event_data?.section ? ` na Seção ${l.event_data?.section}` : ''}`}
+                                                    {l.event_type === 'item_use' && `Usou consumível: ${l.event_data?.item === 'provisions' ? 'Provisão' : l.event_data?.item}`}
+                                                    {l.event_type === 'inventory_change' && `${l.event_data?.action === 'add' ? 'Adicionou' : 'Removeu'} item: ${l.event_data?.item}`}
+                                                    {l.event_type === 'game_completion' && `Concluiu o jogo: ${l.event_data?.status === 'victory' ? 'Vitória' : 'Derrota'}`}
+                                                    {!['section_visit', 'combat', 'death', 'item_use', 'inventory_change', 'game_completion'].includes(l.event_type) && (typeof l.event_data === 'object' ? JSON.stringify(l.event_data) : l.event_type)}
+                                                  </span>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        ) : (
+                                          <p className="text-[10px] opacity-50 italic mt-1 font-sans">
+                                            Ficha atualizada sem logs de combate registrados.
+                                          </p>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className={`p-3 sm:p-4 border-t flex justify-end ${isPapyrus ? 'border-[#5C4033]/30 bg-[#EAD8B8]/20' : 'border-slate-800 bg-slate-950/60'}`}>
+                          <button
+                            onClick={() => setSelectedHeatmapPoint(null)}
+                            className={`px-4 py-1.5 text-xs font-bold uppercase rounded border cursor-pointer transition ${
+                              isPapyrus
+                                ? 'border-[#5C4033] bg-[#5C4033] text-[#FDF6E3] hover:bg-[#8B4513]'
+                                : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+                            }`}
+                          >
+                            Fechar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Taxa de Conclusão */}
                   <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
