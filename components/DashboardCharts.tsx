@@ -195,15 +195,23 @@ export interface HeatmapPoint {
   fullDateLabel?: string;
   rawDate?: Date;
   count: number;
+  accountsCount?: number;
+  actionsCount?: number;
 }
 
 export interface ActivityHeatmapProps {
   data: HeatmapPoint[];
   onSelectDate?: (point: HeatmapPoint) => void;
   selectedDate?: string | null;
+  metricType?: 'accounts' | 'actions';
 }
 
-export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHeatmapProps) => {
+export const ActivityHeatmap = ({
+  data,
+  onSelectDate,
+  selectedDate,
+  metricType = 'accounts'
+}: ActivityHeatmapProps) => {
   const { theme } = useSheetStore();
 
   // Generate last 28 days if data is empty
@@ -215,9 +223,19 @@ export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHe
       const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       const fullDateLabel = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
       const dateIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      // Deterministic activity count (0 to 4) instead of Math.random to satisfy react-hooks/purity
-      const count = (d.getDate() + i) % 5;
-      arr.push({ date: dateStr, dateIso, fullDateLabel, rawDate: d, count });
+      // Deterministic activity count (0 to 3) instead of Math.random to satisfy react-hooks/purity
+      const mockAccounts = (d.getDate() + i) % 4;
+      const mockActions = mockAccounts * 8;
+      const count = metricType === 'accounts' ? mockAccounts : mockActions;
+      arr.push({
+        date: dateStr,
+        dateIso,
+        fullDateLabel,
+        rawDate: d,
+        count,
+        accountsCount: mockAccounts,
+        actionsCount: mockActions
+      });
     }
     return arr;
   };
@@ -226,17 +244,28 @@ export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHe
 
   // Helper to determine cell color based on count
   const getCellColor = (count: number) => {
+    let level = 0;
+    if (metricType === 'accounts') {
+      level = Math.min(count, 4);
+    } else {
+      if (count === 0) level = 0;
+      else if (count <= 5) level = 1;
+      else if (count <= 15) level = 2;
+      else if (count <= 30) level = 3;
+      else level = 4;
+    }
+
     if (theme === 'papyrus') {
-      if (count === 0) return 'bg-[#EAD8B8]/20 border-[#5C4033]/15 text-[#5C4033]/70';
-      if (count === 1) return 'bg-[#CD853F]/30 border-[#5C4033]/30 text-[#2D1D16]';
-      if (count === 2) return 'bg-[#C5A059]/60 border-[#5C4033]/50 text-[#2D1D16]';
-      if (count === 3) return 'bg-[#8B4513]/70 border-[#5C4033]/70 text-white';
+      if (level === 0) return 'bg-[#EAD8B8]/20 border-[#5C4033]/15 text-[#5C4033]/70';
+      if (level === 1) return 'bg-[#CD853F]/30 border-[#5C4033]/30 text-[#2D1D16]';
+      if (level === 2) return 'bg-[#C5A059]/60 border-[#5C4033]/50 text-[#2D1D16]';
+      if (level === 3) return 'bg-[#8B4513]/70 border-[#5C4033]/70 text-white';
       return 'bg-[#5C4033] border-[#5C4033] text-white';
     } else {
-      if (count === 0) return 'bg-slate-800/40 border-slate-700/20 text-slate-400';
-      if (count === 1) return 'bg-cyan-950/40 border-cyan-800/30 text-cyan-200';
-      if (count === 2) return 'bg-cyan-900/60 border-cyan-600/40 text-cyan-100';
-      if (count === 3) return 'bg-cyan-600/80 border-cyan-400/60 text-white';
+      if (level === 0) return 'bg-slate-800/40 border-slate-700/20 text-slate-400';
+      if (level === 1) return 'bg-cyan-950/40 border-cyan-800/30 text-cyan-200';
+      if (level === 2) return 'bg-cyan-900/60 border-cyan-600/40 text-cyan-100';
+      if (level === 3) return 'bg-cyan-600/80 border-cyan-400/60 text-white';
       return 'bg-cyan-400 border-cyan-300 text-slate-950';
     }
   };
@@ -246,6 +275,14 @@ export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHe
       <div className="grid grid-cols-7 gap-2.5 max-w-md w-full">
         {heatmapData.map((item, idx) => {
           const isSelected = selectedDate === item.date || selectedDate === item.dateIso;
+          const accountsNum = item.accountsCount ?? (metricType === 'accounts' ? item.count : 0);
+          const actionsNum = item.actionsCount ?? (metricType === 'actions' ? item.count : 0);
+          const displayCount = metricType === 'accounts' ? accountsNum : actionsNum;
+
+          const titleText = metricType === 'accounts'
+            ? `${item.fullDateLabel || item.date}: ${accountsNum} conta(s) que usaram a ficha (${actionsNum} ações registradas)`
+            : `${item.fullDateLabel || item.date}: ${actionsNum} ação(ões) por ${accountsNum} conta(s)`;
+
           return (
             <button
               key={idx}
@@ -258,27 +295,34 @@ export const ActivityHeatmap = ({ data, onSelectDate, selectedDate }: ActivityHe
                     : 'ring-2 ring-cyan-400 scale-110 shadow-md z-10 shadow-cyan-500/20'
                   : 'hover:scale-105 hover:z-10 hover:shadow-sm'
               }`}
-              title={`${item.fullDateLabel || item.date}: ${item.count} ação(ões) — Clique para ver acessos`}
+              title={`${titleText} — Clique para ver detalhes`}
             >
               <span>{item.date}</span>
-              <span className="opacity-80 font-mono text-[10px]">{item.count}</span>
+              <span className="opacity-80 font-mono text-[10px]">
+                {displayCount}
+              </span>
             </button>
           );
         })}
       </div>
+
+      {/* Legenda */}
       <div className="flex justify-center items-center gap-4 mt-4 text-xs uppercase font-bold tracking-wider opacity-80">
-        <span>Menos ativo</span>
+        <span>{metricType === 'accounts' ? '0 contas' : 'Menos ativo'}</span>
         <div className="flex gap-1">
-          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(0)}`}></div>
-          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(1)}`}></div>
-          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(2)}`}></div>
-          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(3)}`}></div>
-          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(4)}`}></div>
+          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(0)}`} title="Nenhuma atividade"></div>
+          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(metricType === 'accounts' ? 1 : 4)}`} title={metricType === 'accounts' ? '1 conta' : 'Poucas ações'}></div>
+          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(metricType === 'accounts' ? 2 : 12)}`} title={metricType === 'accounts' ? '2 contas' : 'Média de ações'}></div>
+          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(metricType === 'accounts' ? 3 : 25)}`} title={metricType === 'accounts' ? '3 contas' : 'Muitas ações'}></div>
+          <div className={`w-3.5 h-3.5 border rounded ${getCellColor(metricType === 'accounts' ? 4 : 40)}`} title={metricType === 'accounts' ? '4+ contas' : 'Volume alto de ações'}></div>
         </div>
-        <span>Mais ativo</span>
+        <span>{metricType === 'accounts' ? '4+ contas' : 'Mais ativo'}</span>
       </div>
-      <p className="text-[10px] mt-2 opacity-60 font-sans italic flex items-center gap-1">
-        💡 Clique em uma data para verificar quais contas acessaram a ficha.
+
+      <p className="text-[10px] mt-2 opacity-60 font-sans italic flex items-center gap-1 text-center">
+        {metricType === 'accounts'
+          ? '💡 Registrando contas que acessaram a ficha. Clique em qualquer data para ver as contas.'
+          : '💡 Registrando total de movimentações. Clique em qualquer data para ver as contas.'}
       </p>
     </div>
   );

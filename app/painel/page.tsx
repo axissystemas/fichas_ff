@@ -112,6 +112,8 @@ export default function PainelAdmin() {
 
   // Data selecionada no Heatmap de Atividade
   const [selectedHeatmapPoint, setSelectedHeatmapPoint] = useState<HeatmapPoint | null>(null);
+  // Métrica do Heatmap: 'accounts' (contas que usaram a ficha) ou 'actions' (total de movimentações)
+  const [heatmapMetric, setHeatmapMetric] = useState<'accounts' | 'actions'>('accounts');
 
   // Estados para validação e sugestões de nomes
   const [createError, setCreateError] = useState<string | null>(null);
@@ -864,14 +866,67 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
     const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
     const fullDateLabel = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const dateIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const count = statsLogs.filter(log => {
+
+    // Logs registrados no dia
+    const dayLogs = statsLogs.filter(log => {
       const logDate = new Date(log.created_at);
       return logDate.getDate() === d.getDate() &&
              logDate.getMonth() === d.getMonth() &&
              logDate.getFullYear() === d.getFullYear();
-    }).length;
-    activityData.push({ date: dateStr, count, dateIso, fullDateLabel, rawDate: d });
+    });
+
+    // Fichas modificadas/atualizadas no dia
+    const daySheets = statsSheets.filter(sheet => {
+      if (!sheet.updated_at) return false;
+      const sheetDate = new Date(sheet.updated_at);
+      return sheetDate.getDate() === d.getDate() &&
+             sheetDate.getMonth() === d.getMonth() &&
+             sheetDate.getFullYear() === d.getFullYear();
+    });
+
+    // Contas distintas que usaram a ficha no dia
+    const uniqueAccountIds = new Set<string>();
+    dayLogs.forEach(log => {
+      const uid = log.user_id || sheetMap.get(log.sheet_id)?.user_id;
+      if (uid) uniqueAccountIds.add(uid);
+    });
+    daySheets.forEach(sheet => {
+      if (sheet.user_id) uniqueAccountIds.add(sheet.user_id);
+    });
+
+    const accountsCount = uniqueAccountIds.size;
+    const actionsCount = dayLogs.length;
+    const count = heatmapMetric === 'accounts' ? accountsCount : actionsCount;
+
+    activityData.push({
+      date: dateStr,
+      count,
+      accountsCount,
+      actionsCount,
+      dateIso,
+      fullDateLabel,
+      rawDate: d
+    });
   }
+
+  // Total de contas únicas ativas nos últimos 28 dias
+  const totalUniqueAccountsLast28Days = useMemo(() => {
+    const twentyEightDaysAgo = new Date();
+    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
+    const uids = new Set<string>();
+    statsLogs.forEach(log => {
+      if (new Date(log.created_at) >= twentyEightDaysAgo) {
+        const uid = log.user_id || sheetMap.get(log.sheet_id)?.user_id;
+        if (uid) uids.add(uid);
+      }
+    });
+    statsSheets.forEach(sheet => {
+      if (sheet.updated_at && new Date(sheet.updated_at) >= twentyEightDaysAgo && sheet.user_id) {
+        uids.add(sheet.user_id);
+      }
+    });
+    return uids.size;
+  }, [statsLogs, statsSheets, sheetMap]);
 
   // Cálculo de acessos e contas por data selecionada no Heatmap
   const selectedDateAccessDetails = useMemo(() => {
@@ -1560,13 +1615,59 @@ CREATE POLICY "Permitir escrita apenas para administradores" ON public.guild_new
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Heatmap de Atividade */}
                   <div className={`p-5 border ${isPapyrus ? 'border-[#5C4033] bg-[#EAD8B8]/10' : 'border-slate-800 bg-slate-900/30 rounded-xl'}`}>
-                    <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
-                      <Calendar size={16} /> Frequência de Ações (Últimos 28 Dias)
-                    </h3>
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        {heatmapMetric === 'accounts' ? (
+                          <>
+                            <Users size={16} /> Contas que Usaram a Ficha (Últimos 28 Dias)
+                          </>
+                        ) : (
+                          <>
+                            <Calendar size={16} /> Frequência de Ações (Últimos 28 Dias)
+                          </>
+                        )}
+                      </h3>
+
+                      {/* Seletor entre Contas e Movimentação */}
+                      <div className={`flex items-center gap-1 p-1 rounded-lg border text-[10px] uppercase font-bold tracking-wider ${
+                        isPapyrus ? 'border-[#5C4033]/40 bg-[#EAD8B8]/40' : 'border-slate-800 bg-slate-950/80'
+                      }`}>
+                        <button
+                          type="button"
+                          onClick={() => setHeatmapMetric('accounts')}
+                          className={`px-2.5 py-1 rounded transition cursor-pointer flex items-center gap-1 ${
+                            heatmapMetric === 'accounts'
+                              ? isPapyrus
+                                ? 'bg-[#5C4033] text-[#FDF6E3] shadow-sm'
+                                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm'
+                              : 'opacity-60 hover:opacity-100'
+                          }`}
+                          title="Exibir quantidade de contas/jogadores distintos que acessaram fichas por dia"
+                        >
+                          <Users size={12} /> Contas ({totalUniqueAccountsLast28Days})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHeatmapMetric('actions')}
+                          className={`px-2.5 py-1 rounded transition cursor-pointer flex items-center gap-1 ${
+                            heatmapMetric === 'actions'
+                              ? isPapyrus
+                                ? 'bg-[#5C4033] text-[#FDF6E3] shadow-sm'
+                                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm'
+                              : 'opacity-60 hover:opacity-100'
+                          }`}
+                          title="Exibir volume total de ações e eventos registrados por dia"
+                        >
+                          <Activity size={12} /> Movimentação
+                        </button>
+                      </div>
+                    </div>
+
                     <ActivityHeatmap
                       data={activityData}
                       selectedDate={selectedHeatmapPoint?.dateIso || selectedHeatmapPoint?.date}
                       onSelectDate={(point) => setSelectedHeatmapPoint(point)}
+                      metricType={heatmapMetric}
                     />
                   </div>
 
