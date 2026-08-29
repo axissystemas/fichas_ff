@@ -6,7 +6,7 @@ import { getBookIntro } from '@/lib/bookIntros';
 import { audio } from '@/lib/audio';
 import { getRuleset } from '@/lib/rulesets';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users } from 'lucide-react';
+import { Sparkles, Dices, Shield, Heart, Clover, Flame, Rocket, Zap, Users, KeyRound, Coins, Footprints, Wind, EyeOff, Search, Check } from 'lucide-react';
 import { Die, getDiceStyle } from './Die';
 
 export const CharacterCreation = () => {
@@ -18,6 +18,7 @@ export const CharacterCreation = () => {
     saveToSupabase,
     logTelemetry,
     setSuperpower,
+    setSpecialSkills,
     updateHeroPoints,
     updateClues,
     setSpells,
@@ -35,6 +36,7 @@ export const CharacterCreation = () => {
   const isMansao = gamebook === 'A Mansão do Inferno';
   const isZagor = gamebook === 'A Lenda de Zagor';
   const isTraveller = gamebook === 'Nave Espacial Traveller';
+  const isLadrao = gamebook === 'Ladrão da Meia-Noite';
   
   const ruleset = getRuleset(gamebook);
   
@@ -65,6 +67,9 @@ export const CharacterCreation = () => {
   // Selected hero for A Lenda de Zagor
   const [selectedHeroLocal, setSelectedHeroLocal] = useState<'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null>(null);
   const [customArchetypeLocal, setCustomArchetypeLocal] = useState<'anvar' | 'braxus' | 'restolho' | 'sallazar' | null>(null);
+
+  // Selected special skills for Ladrão da Meia-Noite (chooseSkills)
+  const [selectedSkillsLocal, setSelectedSkillsLocal] = useState<string[]>([]);
 
   // Rolled attributes (null means unrolled)
   const [rolledSkill, setRolledSkill] = useState<number | null>(null);
@@ -501,11 +506,18 @@ export const CharacterCreation = () => {
       }
     }
 
+    if (ruleset.creation.chooseSkills && selectedSkillsLocal.length > 0) {
+      setSpecialSkills(selectedSkillsLocal);
+    }
+
     // Add log
     const powerStr = isMedo ? ` | Poder: ${selectedPower === 'superforca' ? 'Superforça' : selectedPower === 'psi' ? 'Psi' : selectedPower === 'hta' ? 'HTA' : 'Rajada'}` : '';
     const magicStr = isCidadela ? ` | Mágica: ${rolledMagic}` : '';
     const faithStr = isVampiro ? ` | Fé: ${rolledFaith}` : '';
     const fearStr = isMansao ? ` | Medo Máx: ${rolledFear}` : '';
+    const skillsStr = ruleset.creation.chooseSkills && selectedSkillsLocal.length > 0
+      ? ` | Proficiências: ${selectedSkillsLocal.map(id => ruleset.creation.chooseSkills?.options.find(o => o.id === id)?.name || id).join(', ')}`
+      : '';
     const heroNameMap = {
       anvar: 'Anvar',
       braxus: 'Braxus',
@@ -516,7 +528,7 @@ export const CharacterCreation = () => {
     const heroStr = isZagor && selectedHeroLocal ? ` | Herói: ${heroNameMap[selectedHeroLocal]} | ${selectedHeroLocal === 'sallazar' ? 'PM' : 'Força de Vontade'}: ${rolledWillpower}` : '';
     addCombatLog({
       type: 'Aventura',
-      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}${heroStr}`,
+      value: `Jornada iniciada! Hab: ${rolledSkill}, Ener: ${rolledEnergy}, Luck: ${rolledLuck}${powerStr}${magicStr}${faithStr}${fearStr}${skillsStr}${heroStr}`,
     });
 
     // Log telemetry
@@ -531,6 +543,7 @@ export const CharacterCreation = () => {
       fear: isMansao ? rolledFear : undefined,
       selectedHero: isZagor ? selectedHeroLocal : undefined,
       willpower: isZagor ? rolledWillpower : undefined,
+      specialSkills: selectedSkillsLocal.length > 0 ? selectedSkillsLocal : undefined,
     });
 
     // Save state to Supabase
@@ -545,7 +558,8 @@ export const CharacterCreation = () => {
     (!isCidadela || rolledMagic !== null) &&
     (!isVampiro || rolledFaith !== null) &&
     (!isMansao || rolledFear !== null) &&
-    (!isZagor || rolledWillpower !== null);
+    (!isZagor || rolledWillpower !== null) &&
+    (!ruleset.creation.chooseSkills || selectedSkillsLocal.length === (ruleset.creation.chooseSkills?.maxSelection || 3));
 
   // Aesthetic styling classes depending on theme
   const containerStyle = isPapyrus
@@ -583,6 +597,9 @@ export const CharacterCreation = () => {
   if (ruleset.creation.choosePowers) {
     steps.push({ id: 'power', title: 'Superpoder', subtitle: 'Habilidade especial' });
   }
+  if (ruleset.creation.chooseSkills) {
+    steps.push({ id: 'skills', title: 'Proficiências', subtitle: 'Habilidades da Guilda' });
+  }
   if (ruleset.creation.chooseArchetype) {
     steps.push({ id: 'hero', title: 'Herói', subtitle: 'Escolha de guerreiro' });
   }
@@ -604,6 +621,8 @@ export const CharacterCreation = () => {
         return true;
       case 'power':
         return selectedPower !== null;
+      case 'skills':
+        return selectedSkillsLocal.length === (ruleset.creation.chooseSkills?.maxSelection || 3);
       case 'hero':
         return selectedHeroLocal !== null && (selectedHeroLocal !== 'personalizado' || customArchetypeLocal !== null);
       case 'attributes': {
@@ -796,6 +815,29 @@ export const CharacterCreation = () => {
               </div>
             )}
 
+            {ruleset.creation.chooseSkills && selectedSkillsLocal.length > 0 && (
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider opacity-60 block">Proficiências Especiais</span>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {selectedSkillsLocal.map(skId => {
+                    const sk = ruleset.creation.chooseSkills?.options.find(o => o.id === skId);
+                    return (
+                      <span
+                        key={skId}
+                        className={`text-xs px-2 py-0.5 rounded font-bold border ${
+                          isPapyrus
+                            ? 'bg-[#5C4033]/10 text-[#5C4033] border-[#5C4033]/25'
+                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                        }`}
+                      >
+                        🗡️ {sk?.name || skId}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className={`p-3.5 border rounded-lg text-xs leading-relaxed ${
               isPapyrus ? 'bg-[#FDF6E3] border-[#5C4033]/20 text-[#5C4033]' : 'bg-slate-950/40 border-slate-800 text-slate-300'
             }`}>
@@ -808,7 +850,8 @@ export const CharacterCreation = () => {
               {isZagor && selectedHeroLocal === 'braxus' && "Braxus pode usar qualquer item ou armadura sem sofrer penalidades."}
               {isZagor && selectedHeroLocal === 'restolho' && "Restolho possui +2 de Força de Ataque contra oponentes de Pedra."}
               {isZagor && selectedHeroLocal === 'sallazar' && "Sallazar tem vantagens em percepção e magia ilimitada no Grimório."}
-              {!isMedo && !isZagor && "Ficha básica criada. Você carrega seus pertences normais e está pronto para jogar!"}
+              {isLadrao && "Você possui 3 proficiências especiais adquiridas na Guilda dos Ladrões para superar testes e desafios durante a aventura."}
+              {!isMedo && !isZagor && !isLadrao && "Ficha básica criada. Você carrega seus pertences normais e está pronto para jogar!"}
             </div>
           </div>
 
@@ -973,6 +1016,94 @@ export const CharacterCreation = () => {
                       </h4>
                       <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/80' : 'text-slate-400 font-sans'} leading-normal`}>
                         {p.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* STEP: Proficiências Especiais (Ladrão da Meia-Noite / chooseSkills) */}
+        {currentStep.id === 'skills' && ruleset.creation.chooseSkills && (
+          <div className="space-y-6 animate-fade-in font-sans">
+            <div className="text-center mb-4">
+              <h3 className={`text-lg uppercase font-bold tracking-widest ${isPapyrus ? 'text-[#2D1D16]' : 'text-slate-200'}`}>
+                {ruleset.creation.chooseSkills.label}
+              </h3>
+              <p className="text-xs opacity-75 mt-1 max-w-lg mx-auto leading-relaxed">
+                {ruleset.creation.chooseSkills.description || 'Escolha 3 proficiências especiais adquiridas no seu treinamento com a Guilda dos Ladrões.'}
+              </p>
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border">
+                <span>{selectedSkillsLocal.length} de {ruleset.creation.chooseSkills.maxSelection} selecionadas</span>
+                {selectedSkillsLocal.length === ruleset.creation.chooseSkills.maxSelection && (
+                  <span className="text-emerald-500 font-extrabold flex items-center gap-0.5">
+                    <Check size={13} /> Completo
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {ruleset.creation.chooseSkills.options.map((s) => {
+                const isSelected = selectedSkillsLocal.includes(s.id);
+                const max = ruleset.creation.chooseSkills?.maxSelection || 3;
+                const cardClass = isSelected
+                  ? isPapyrus
+                    ? 'border-2 border-[#5C4033] bg-[#EAD8B8]/60 shadow-md ring-1 ring-[#5C4033] scale-[1.01]'
+                    : 'border-2 border-amber-400 bg-amber-500/15 shadow-[0_0_15px_rgba(245,158,11,0.2)] rounded-xl scale-[1.01] text-white ring-1 ring-amber-400'
+                  : isPapyrus
+                    ? 'border border-[#5C4033]/30 bg-transparent hover:border-[#5C4033]/70 hover:bg-[#EAD8B8]/15 opacity-75 hover:opacity-100'
+                    : 'border border-slate-800 bg-transparent hover:border-slate-600 rounded-xl hover:bg-slate-900/40 opacity-70 hover:opacity-100';
+
+                const renderIcon = () => {
+                  if (s.id === 'maos_leves') return <Coins size={18} />;
+                  if (s.id === 'destrancar_fechaduras') return <KeyRound size={18} />;
+                  if (s.id === 'escalar') return <Footprints size={18} />;
+                  if (s.id === 'esgueirar') return <Wind size={18} />;
+                  if (s.id === 'esconder_se') return <EyeOff size={18} />;
+                  if (s.id === 'encontrar') return <Search size={18} />;
+                  return <Sparkles size={18} />;
+                };
+
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => {
+                      audio.playBlip();
+                      if (isSelected) {
+                        setSelectedSkillsLocal(selectedSkillsLocal.filter(id => id !== s.id));
+                      } else {
+                        if (selectedSkillsLocal.length >= max) {
+                          alert(`Você só pode escolher exatamente ${max} proficiências especiais.`);
+                          return;
+                        }
+                        setSelectedSkillsLocal([...selectedSkillsLocal, s.id]);
+                      }
+                    }}
+                    className={`p-4 cursor-pointer transition-all duration-200 flex items-start gap-3 rounded-lg ${cardClass}`}
+                  >
+                    <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
+                      isSelected
+                        ? isPapyrus ? 'bg-[#5C4033] text-[#FDF6E3]' : 'bg-amber-500 text-slate-950 font-bold'
+                        : isPapyrus ? 'bg-[#5C4033]/10 text-[#5C4033]' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {renderIcon()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-bold text-sm uppercase tracking-wider">
+                          {s.name}
+                        </h4>
+                        {isSelected && (
+                          <span className="text-emerald-500 font-bold text-xs bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                            Selecionada ✓
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-xs ${isPapyrus ? 'text-[#5C4033]/85' : 'text-slate-400'} leading-relaxed`}>
+                        {s.description}
                       </p>
                     </div>
                   </div>

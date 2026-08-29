@@ -24,6 +24,7 @@ import { TravellerTracker } from '@/components/TravellerTracker';
 import { TravellerOfficialSheet } from '@/components/TravellerOfficialSheet';
 import { YouTubeLiveStream } from '@/components/YouTubeLiveStream';
 import { GrimorioAmarilleo } from '@/components/GrimorioAmarilleo';
+import { LadraoTracker } from '@/components/LadraoTracker';
 import { ActiveCombatantSelector } from '@/components/ActiveCombatantSelector';
 import MapAllansia from '@/components/MapAllansia';
 import {
@@ -2122,6 +2123,13 @@ export default function Home() {
                                 ? 'Sua reserva de magia para conjurar feitiços do Grimório Amarílleo.'
                                 : 'Sua determinação e resistência psicológica.'
                             )}
+                          </div>
+                        )}
+
+                        {/* Proficiências Especiais (Ladrão da Meia-Noite) */}
+                        {gamebook === 'Ladrão da Meia-Noite' && (
+                          <div className="mt-4">
+                            <LadraoTracker />
                           </div>
                         )}
 

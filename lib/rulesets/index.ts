@@ -7,6 +7,7 @@ import { zagorRuleset } from './zagor';
 import { cidadelaRuleset } from './cidadela';
 import { vampiroRuleset } from './vampiro';
 import { exercitosRuleset } from './exercitos';
+import { ladraoRuleset } from './ladrao';
 
 const RULESET_MAP: Record<string, GamebookRuleset> = {
   'A Mansão do Inferno': mansaoRuleset,
@@ -15,7 +16,8 @@ const RULESET_MAP: Record<string, GamebookRuleset> = {
   'Encontro Marcado com o M.E.D.O.': medoRuleset,
   'A Cidadela do Caos': cidadelaRuleset,
   'A Cripta do Vampiro': vampiroRuleset,
-  'Exércitos da Morte': exercitosRuleset
+  'Exércitos da Morte': exercitosRuleset,
+  'Ladrão da Meia-Noite': ladraoRuleset
 };
 
 export function getRuleset(gamebook: string | undefined): GamebookRuleset {
@@ -32,3 +34,4 @@ export * from './zagor';
 export * from './cidadela';
 export * from './vampiro';
 export * from './exercitos';
+export * from './ladrao';

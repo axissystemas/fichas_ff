@@ -23,6 +23,13 @@ export interface PowerOption {
   description: string;
 }
 
+export interface SkillOption {
+  id: string;
+  name: string;
+  description: string;
+  iconName?: string;
+}
+
 export interface CreationConfig {
   rollAttributes: string[]; // Quais atributos exigem rolagem de dados
   chooseArchetype?: {
@@ -33,6 +40,13 @@ export interface CreationConfig {
     label: string;
     maxSelection: number;
     options: PowerOption[];
+  };
+  chooseSkills?: {
+    label: string;
+    description?: string;
+    minSelection?: number;
+    maxSelection: number;
+    options: SkillOption[];
   };
 }
 

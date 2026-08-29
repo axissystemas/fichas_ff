@@ -241,6 +241,7 @@ interface SheetState {
     customArchetype?: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null;
     traveller?: TravellerData;
     activeCombatantId?: string;
+    specialSkills?: string[];
     [key: string]: any;
   };
   gold: number;
@@ -361,6 +362,7 @@ interface SheetState {
   loadActiveSheetLogs: () => Promise<void>;
   updateHeroPoints: (amount: number) => void;
   setSuperpower: (power: 'superforca' | 'psi' | 'hta' | 'rajada' | null) => void;
+  setSpecialSkills: (skills: string[]) => void;
   setSelectedHero: (hero: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | 'personalizado' | null) => void;
   setCustomArchetype: (archetype: 'anvar' | 'braxus' | 'restolho' | 'sallazar' | null) => void;
   advanceTime: () => void;
@@ -1219,6 +1221,15 @@ export const useSheetStore = create<SheetState>()(
           attributes: {
             ...state.attributes,
             superpower: power,
+          },
+        }));
+        scheduleSave(get());
+      },
+      setSpecialSkills: (skills) => {
+        set((state) => ({
+          attributes: {
+            ...state.attributes,
+            specialSkills: skills,
           },
         }));
         scheduleSave(get());
